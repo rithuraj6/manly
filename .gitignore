@@ -1,0 +1,22 @@
+# Virtual environment
+djvenv/
+
+# Environment variables
+.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Django media
+media/
+
+# Static collected files
+staticfiles/
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+
