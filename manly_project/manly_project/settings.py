@@ -45,6 +45,8 @@ INSTALLED_APPS = [
 
 
     'apps.accounts',
+    'apps.categories',
+    'apps.products',
 ]
 
 MIDDLEWARE = [
@@ -55,6 +57,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
+    
+    
+    'apps.accounts.middleware.BlockedUserMiddleware',
+
 ]
 
 ROOT_URLCONF = 'manly_project.urls'
@@ -136,3 +143,9 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 DEFAULT_FORM_EMAIL = EMAIL_HOST_USER
+
+
+
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"

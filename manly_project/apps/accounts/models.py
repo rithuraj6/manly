@@ -49,19 +49,47 @@ class User(AbstractBaseUser ,PermissionsMixin):
         return self.email
         
 
-import uuid
-from datetime import timedelta
+from django.db import models
+from django.utils import timezone
+
 
 class EmailOTP(models.Model):
+    PURPOSE_CHOICES = (
+        ("signup", "Signup"),
+        ("reset", "Password Reset"),
+    )
+
     email = models.EmailField()
     otp = models.CharField(max_length=6)
+    purpose = models.CharField(max_length=10, choices=PURPOSE_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+
+    def is_expired(self):
+        return timezone.now() > self.expires_at
+
+    def __str__(self):
+        return f"{self.email} - {self.purpose}"
+
+
+import uuid
+from datetime import timedelta
+from django.utils import timezone
+
+class PasswordResetToken(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete = models.CASCADE,
+        related_name = "password_reset_token"
+        
+    )     
+    
+    token = models.UUIDField(default = uuid.uuid4, unique =True)
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField()
     
     
     def is_expired(self):
-        return timezone.now()  > self.expires_at
+        return timezone.now() > self.expires_at
     
     
-    
-        

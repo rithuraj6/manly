@@ -26,13 +26,13 @@ def send_otp_email(email, otp):
         fail_silently=False,
     )
 
-def create_or_resend_otp(email):
-
+def create_or_resend_otp(email, purpose):
     otp = generate_otp()
     expires_at = timezone.now() + timedelta(seconds=OTP_EXPIRY_SECONDS)
 
     EmailOTP.objects.update_or_create(
         email=email,
+        purpose=purpose,
         defaults={
             "otp": otp,
             "expires_at": expires_at,
@@ -41,20 +41,20 @@ def create_or_resend_otp(email):
 
     send_otp_email(email, otp)
 
-def verfiy_otp(email,entered_otp):
-    
-    
+def verfiy_otp(email, entered_otp, purpose):
     try:
-        otp_obj = EmailOTP.objects.get(email=email)
-        
+        otp_obj = EmailOTP.objects.get(email=email, purpose=purpose)
     except EmailOTP.DoesNotExist:
         return False, "OTP not found"
-    
+
     if otp_obj.is_expired():
-        return False , "invalid OTP"
-    if otp_obj.otp != entered_otp :
+        otp_obj.delete()
+        return False, "OTP expired"
+
+    if otp_obj.otp != entered_otp:
         return False, "Invalid OTP"
+
     otp_obj.delete()
-    return True , "OTP is Valid"
+    return True, "OTP verified"
 
         
