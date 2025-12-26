@@ -1,9 +1,17 @@
 from django.contrib import admin
 
 from django.contrib import admin
-from .models import Product
+from .models import Product,ProductImage
 
 
+
+class ProductImageInline(admin.TabularInline):
+    model = ProductImage
+    extra = 3  # show 3 image fields by default
+    min_num = 3
+    validate_min = True
+    
+    
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = (
@@ -19,6 +27,10 @@ class ProductAdmin(admin.ModelAdmin):
     search_fields = ("name", "color")
     ordering = ("-created_at",)
     list_per_page = 10
+    
+    inlines = [ProductImageInline]
+
+
 
     actions = ["soft_delete", "restore"]
 
