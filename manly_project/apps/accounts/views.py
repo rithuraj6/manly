@@ -5,6 +5,7 @@ from django.views.decorators.http import require_POST
 
 from apps.accounts.models import User
 from apps.accounts.services.otp_service import create_or_resend_otp 
+from django.contrib.auth import authenticate, login
 
 
 # Create your views here.
@@ -73,4 +74,40 @@ def verify_otp_view(request):
     )
     
     
+    from django.views.decorators.http import require_POST
     
+@require_POST
+def login_view(request):
+    email = request.POST.get("email")
+    password = request.POST.get("password")
+    
+    if not email or not passoword:
+        return JsonResponse(
+            {"success":False ,"message":"Email and password required"},
+            status = 400,
+        )
+    user = authenticate(request, email= email,password= password)
+    
+    if user is None:
+        return JsonResponse(
+           {"success":False,"message":"Invalid credentials"},
+            status = 401,
+        )
+    
+    if user.is_blocked:
+        return JsonResponse(
+            {
+                "success": False,
+                "message": (
+                    "Sorry, your account is temporarily blocked. "
+                    "Please contact admin@manly.com"
+                ),
+            },
+            status=403,
+        
+        )
+    login(request,user)
+    return JsonResponse(
+        {"success":True ,"message":"Login successful"},
+        status = 200,
+    )
