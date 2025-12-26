@@ -38,7 +38,7 @@ def signup_request(request):
     )
     
     
-from apps.accounts.services.otp_service import verify_otp
+from apps.accounts.services.otp_service import verfiy_otp
 
 @require_POST
 
@@ -46,4 +46,31 @@ def verify_otp_view(request):
     
     email = require.POST.get('email')
     otp = request.POST.get('otp')
-    password = re
+    password = request.POST.get('password')
+    
+    if not all([email,otp,password]):
+        return JsonResponse (
+            {"success": False ,"message":"All fields are required"},
+            status = 400
+        )
+        
+    is_valid , message = verify_otp(email,otp)
+    
+    if not is_valid:
+        return JsonResponse(
+            {"success":False , "message":message},
+            status = 400,
+        )
+    User.objects.create_user(
+        email = email,
+        password = password,
+        is_active = True,
+    )
+    
+    return JsonResponse(
+        {"success":True, "message":"User registered successfully"},
+        status = 201,
+    )
+    
+    
+    
