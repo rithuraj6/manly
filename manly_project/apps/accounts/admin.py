@@ -19,3 +19,13 @@ class UserAdmin(admin.ModelAdmin):
     list_per_page = 10
     
     
+    actions = ["block_users", "unblock_users"]
+
+    @admin.action(description="Block selected users")
+    def block_users(self, request, queryset):
+        queryset.update(is_blocked=True)
+
+    @admin.action(description="Unblock selected users")
+    def unblock_users(self, request, queryset):
+        queryset.update(is_blocked=False)
+    
