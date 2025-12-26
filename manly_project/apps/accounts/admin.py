@@ -15,6 +15,8 @@ class UserAdmin(admin.ModelAdmin):
     )
     list_filter = ("is_active", "is_blocked", "is_staff")
     search_fields = ("email",)
+    search_help_text = "Search by email. Clear search to see all users."
+
     ordering = ("-created_at",)
     list_per_page = 10
     
