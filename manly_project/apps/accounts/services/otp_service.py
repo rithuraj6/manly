@@ -15,10 +15,16 @@ def generate_otp():
 
 def send_otp_email(email, otp):
  
-    subject = "Your MANLY Verification Code"
-    message = f"Your OTP is {otp}. It will expire in 1 minute 15 seconds."
-    send_mail(subject, message, None, [email])
-
+    subject = "MANLY - Verification Code"
+    message = (f"Your OTP is {otp}. Expires in 1 minute 15 seconds.")
+    
+    send_mail(
+        subject=subject,
+        message=message,
+        from_email=None,
+        recipient_list=[email],
+        fail_silently=False,
+    )
 
 def create_or_resend_otp(email):
 
