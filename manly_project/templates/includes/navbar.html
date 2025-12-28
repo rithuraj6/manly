@@ -1,3 +1,12 @@
-<nav>
-    <h2>MANLY</h2>
+{% load static %}
+
+<nav class="navbar">
+    <a href="{% url 'home' %}" class="navbar-logo">
+        <img src="{% static 'images/M (1).png' %}" alt="MANLY Logo">
+    </a>
+
+    <div class="navbar-links">
+        <a href="{% url 'login' %}">Login</a>
+        <a href="{% url 'signup' %}">Signup</a>
+    </div>
 </nav>

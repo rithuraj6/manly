@@ -1,0 +1,346 @@
+{% extends "base.html" %}
+{% block title %}Verify Your OTP | MANLY{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <h2>Verify Your OTP</h2>
+
+        <form method="post" id="otpForm">
+            {% csrf_token %}
+
+            <div class="otp-container">
+                <input type="text" maxlength="1" class="otp-input" id="otp1" name="otp1" required>
+                <input type="text" maxlength="1" class="otp-input" id="otp2" name="otp2" required>
+                <input type="text" maxlength="1" class="otp-input" id="otp3" name="otp3" required>
+                <input type="text" maxlength="1" class="otp-input" id="otp4" name="otp4" required>
+                <input type="hidden" name="otp" id="fullOtp">
+            </div>
+
+            <div class="otp-footer">
+                <p>Didn't get the OTP? <a href="#" id="resendBtn" class="resend-link">Resend OTP</a></p>
+                <p class="timer" id="timer">00:59</p>
+            </div>
+
+            <button type="submit">Submit</button>
+
+            {% if error %}
+                <p style="color:#d32f2f; font-size:14px; margin-top:15px; text-align:center;">{{ error }}</p>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<style>
+/* Auth wrapper */
+.auth-wrapper {
+    min-height: calc(100vh - 200px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 20px;
+    background: #fafafa;
+}
+
+/* Auth card with border */
+.auth-card {
+    width: 100%;
+    max-width: 580px;
+    padding: 50px 60px;
+    background: #fff;
+    border: 3px solid #1a1a1a;
+    border-radius: 20px;
+    animation: fadeInScale 0.5s ease;
+}
+
+.auth-card h2 {
+    font-size: 28px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 40px;
+    color: #1a1a1a;
+}
+
+.auth-card form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* OTP Input Container */
+.otp-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    padding: 30px 20px;
+    background: #d9d9d9;
+    border-radius: 15px;
+    animation: slideIn 0.5s ease 0.1s forwards;
+    opacity: 0;
+}
+
+.otp-input {
+    width: 60px;
+    height: 60px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 600;
+    background: #fff;
+    border: 2px solid #1a1a1a;
+    border-radius: 10px;
+    color: #1a1a1a;
+    transition: all 0.3s ease;
+}
+
+.otp-input:focus {
+    outline: none;
+    border-color: #333;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.otp-input::-webkit-outer-spin-button,
+.otp-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* OTP Footer */
+.otp-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: -5px;
+    animation: slideIn 0.5s ease 0.2s forwards;
+    opacity: 0;
+}
+
+.otp-footer p {
+    font-size: 14px;
+    color: #666;
+    margin: 0;
+}
+
+.resend-link {
+    color: #1a1a1a;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+.resend-link:hover {
+    opacity: 0.7;
+}
+
+.resend-link.disabled {
+    color: #999;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.timer {
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+/* Submit Button */
+.auth-card button[type="submit"] {
+    margin-top: 15px;
+    padding: 16px;
+    background: #1a1a1a;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    animation: slideIn 0.5s ease 0.3s forwards;
+    opacity: 0;
+}
+
+.auth-card button[type="submit"]:hover {
+    background: #333;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+.auth-card button[type="submit"]:active {
+    transform: translateY(0);
+}
+
+/* Animations */
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .auth-card {
+        padding: 40px 30px;
+    }
+
+    .auth-card h2 {
+        font-size: 24px;
+    }
+
+    .otp-input {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+    }
+
+    .otp-container {
+        gap: 10px;
+        padding: 25px 15px;
+    }
+
+    .otp-footer {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+}
+</style>
+
+<script>
+// OTP Input Auto-focus and Navigation
+document.addEventListener('DOMContentLoaded', function() {
+    const inputs = document.querySelectorAll('.otp-input');
+    const form = document.getElementById('otpForm');
+    const fullOtpInput = document.getElementById('fullOtp');
+    const resendBtn = document.getElementById('resendBtn');
+    const timerElement = document.getElementById('timer');
+    
+    // Auto-focus next input
+    inputs.forEach((input, index) => {
+        input.addEventListener('input', function(e) {
+            const value = e.target.value;
+            
+            // Only allow numbers
+            if (!/^\d*$/.test(value)) {
+                e.target.value = '';
+                return;
+            }
+            
+            // Move to next input
+            if (value.length === 1 && index < inputs.length - 1) {
+                inputs[index + 1].focus();
+            }
+            
+            // Update hidden full OTP
+            updateFullOtp();
+        });
+        
+        // Handle backspace
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Backspace' && !e.target.value && index > 0) {
+                inputs[index - 1].focus();
+            }
+        });
+        
+        // Handle paste
+        input.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const pastedData = e.clipboardData.getData('text').slice(0, 4);
+            
+            if (!/^\d+$/.test(pastedData)) return;
+            
+            [...pastedData].forEach((char, i) => {
+                if (inputs[i]) {
+                    inputs[i].value = char;
+                }
+            });
+            
+            updateFullOtp();
+            
+            // Focus last filled input or next empty
+            const lastIndex = Math.min(pastedData.length, inputs.length - 1);
+            inputs[lastIndex].focus();
+        });
+    });
+    
+    // Update hidden full OTP input
+    function updateFullOtp() {
+        const otp = Array.from(inputs).map(input => input.value).join('');
+        fullOtpInput.value = otp;
+    }
+    
+    // Timer countdown
+    let timeLeft = 59;
+    const countdown = setInterval(() => {
+        if (timeLeft <= 0) {
+            clearInterval(countdown);
+            resendBtn.classList.remove('disabled');
+            timerElement.textContent = '00:00';
+        } else {
+            const seconds = timeLeft.toString().padStart(2, '0');
+            timerElement.textContent = `00:${seconds}`;
+            timeLeft--;
+        }
+    }, 1000);
+    
+    // Resend OTP
+    resendBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        if (this.classList.contains('disabled')) return;
+        
+        // Reset timer
+        timeLeft = 59;
+        this.classList.add('disabled');
+        
+        // Make AJAX call to resend OTP
+        fetch('{% url "resend_otp" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('OTP resent successfully!');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+    
+    // Form submission
+    form.addEventListener('submit', function(e) {
+        updateFullOtp();
+        
+        if (fullOtpInput.value.length !== 4) {
+            e.preventDefault();
+            alert('Please enter all 4 digits');
+        }
+    });
+    
+    // Focus first input on load
+    inputs[0].focus();
+});
+</script>
+
+{% endblock %}
