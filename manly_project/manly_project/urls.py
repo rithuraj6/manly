@@ -18,12 +18,20 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from apps.userprofile.models import UserProfile
+
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+  
     path('accounts/', include('apps.accounts.urls')),
     path("", include("apps.core.urls")),
+    path("cart/", include("apps.cart.urls")),
+    path("wishlist/", include("apps.wishlist.urls")),
+    path("admin/", admin.site.urls),
+    path("account/", include("apps.userprofile.urls")),
+
+
     
     
 ]

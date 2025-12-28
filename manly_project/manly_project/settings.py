@@ -47,7 +47,11 @@ INSTALLED_APPS = [
     'apps.accounts',
     'apps.categories',
     'apps.products',
-    'apps.core'
+    'apps.core',
+    'apps.cart',
+    'apps.wishlist',
+    "apps.userprofile",
+    
 ]
 
 MIDDLEWARE = [
@@ -62,6 +66,7 @@ MIDDLEWARE = [
     
     
     'apps.accounts.middleware.BlockedUserMiddleware',
+    'apps.core.middleware.DisableBackButtonMiddleware',
 
 ]
 
@@ -89,9 +94,13 @@ WSGI_APPLICATION = 'manly_project.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+      'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'manly_db',
+        'USER': 'manly_user',
+        'PASSWORD': 'manly_password',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 

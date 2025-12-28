@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, get_user_model
+from django.contrib.auth import authenticate, login, get_user_model , logout
 from django.http import JsonResponse
 
 from .utils import send_otp, verify_user_otp
@@ -135,4 +135,9 @@ def reset_password(request):
 
 
 def google_auth(request):
+    return redirect("login")
+
+
+def user_logout(request):
+    logout(request)
     return redirect("login")

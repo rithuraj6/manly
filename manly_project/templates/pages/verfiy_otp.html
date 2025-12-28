@@ -14,12 +14,14 @@
                 <input type="text" maxlength="1" class="otp-input" id="otp2" name="otp2" required>
                 <input type="text" maxlength="1" class="otp-input" id="otp3" name="otp3" required>
                 <input type="text" maxlength="1" class="otp-input" id="otp4" name="otp4" required>
+                <input type="text" maxlength="1" class="otp-input" id="otp5" name="otp5" required>
+                <input type="text" maxlength="1" class="otp-input" id="otp6" name="otp6" required>
                 <input type="hidden" name="otp" id="fullOtp">
             </div>
 
             <div class="otp-footer">
                 <p>Didn't get the OTP? <a href="#" id="resendBtn" class="resend-link">Resend OTP</a></p>
-                <p class="timer" id="timer">00:59</p>
+                <p class="timer" id="timer">01:15</p>
             </div>
 
             <button type="submit">Submit</button>
@@ -286,7 +288,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Timer countdown
-    let timeLeft = 59;
+    let timeLeft = 75;
     const countdown = setInterval(() => {
         if (timeLeft <= 0) {
             clearInterval(countdown);
@@ -306,7 +308,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (this.classList.contains('disabled')) return;
         
         // Reset timer
-        timeLeft = 59;
+        timeLeft = 75;
         this.classList.add('disabled');
         
         // Make AJAX call to resend OTP
@@ -332,9 +334,9 @@ document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', function(e) {
         updateFullOtp();
         
-        if (fullOtpInput.value.length !== 4) {
+        if (fullOtpInput.value.length !== 6) {
             e.preventDefault();
-            alert('Please enter all 4 digits');
+            alert('Please enter all 6 digits');
         }
     });
     
