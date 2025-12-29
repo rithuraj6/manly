@@ -32,6 +32,7 @@ urlpatterns = [
     path("account/", include("apps.userprofile.urls")),
 
 
+
     
     
 ]

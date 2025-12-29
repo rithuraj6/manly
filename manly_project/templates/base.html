@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{% block title %}MANLY{% endblock %}</title>
+
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
 </head>
@@ -10,7 +10,9 @@
 {% include "includes/navbar.html" %}
 
 <main>
-    {% block content %}{% endblock %}
+    {% block content %}
+    {% endblock %}
+
 </main>
 
 {% include "includes/footer.html" %}

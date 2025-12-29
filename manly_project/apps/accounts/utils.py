@@ -1,47 +1,29 @@
-import random
-from datetime import timedelta
+from django.utils.crypto import get_random_string
 from django.utils import timezone
+from datetime import timedelta
+from django.core.mail import send_mail
 from .models import EmailOTP
 
-def generate_otp():
-    return str(random.randint(100000, 999999))
+def send_otp(user, purpose):
+    otp = get_random_string(6, allowed_chars="0123456789")
 
-
-def send_otp(user, purpose="signup"):
-    # Invalidate old OTPs
+    # 🔥 Delete old OTPs for this email + purpose
     EmailOTP.objects.filter(
-        user=user,
-        purpose=purpose,
-        is_used=False
-    ).update(is_used=True)
-
-    otp_code = generate_otp()
+        email=user.email,
+        purpose=purpose
+    ).delete()
 
     EmailOTP.objects.create(
-        user=user,
-        otp=otp_code,
+        email=user.email,
+        otp=otp,
         purpose=purpose,
         expires_at=timezone.now() + timedelta(minutes=5)
     )
 
-    # DEV ONLY
-    print(f"[OTP] {purpose.upper()} OTP for {user.email}: {otp_code}")
-
-
-def verify_user_otp(user_id, otp_code, purpose):
-    try:
-        otp = EmailOTP.objects.filter(
-            user_id=user_id,
-            otp=otp_code,
-            purpose=purpose,
-            is_used=False
-        ).latest("created_at")
-    except EmailOTP.DoesNotExist:
-        return False
-
-    if otp.is_expired():
-        return False
-
-    otp.is_used = True
-    otp.save()
-    return True
+    send_mail(
+        subject="Your MANLY OTP",
+        message=f"Your OTP is {otp}",
+        from_email=None,
+        recipient_list=[user.email],
+        fail_silently=False,
+    )

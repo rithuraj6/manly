@@ -19,4 +19,4 @@ def contact_page(request):
 
 @login_required(login_url="login")
 def profile_page(request):
-    return render(request, "pages/profile.html")
+    return render(request, "account/account_base.html")
