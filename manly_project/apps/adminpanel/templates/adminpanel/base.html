@@ -1,0 +1,554 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin | Manly Apparel Store{% endblock %}</title>
+    <style>
+        /* Reset & Base */
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            background: #0a0a0a; /* Dark black background */
+            color: #e0e0e0;
+        }
+
+        /* Navbar Container */
+        .admin-navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 60px;
+            background: #0a0a0a; /* Black background */
+            border-bottom: 1px solid #1a1a1a;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .admin-navbar.scrolled {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Logo Section (Left) */
+        .admin-navbar-logo {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-decoration: none;
+            gap: 2px;
+            color: #fff;
+        }
+        
+        .admin-navbar-logo img {
+            height: 50px;
+            width: auto;
+            transition: transform 0.3s ease;
+            filter: brightness(0) invert(1); /* Makes logo white */
+        }
+        
+        .admin-navbar-logo:hover img {
+            transform: scale(1.05);
+        }
+        
+        .admin-logo-subtitle {
+            font-size: 8px;
+            letter-spacing: 1.5px;
+            color: #999;
+            font-weight: 500;
+            margin-top: -5px;
+        }
+
+        /* Center MANLY Text */
+        .admin-navbar-center {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 36px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: #fff;
+            text-shadow: 0 2px 10px rgba(255, 255, 255, 0.1);
+            animation: fadeIn 0.8s ease;
+        }
+
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateX(-50%) translateY(-10px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateX(-50%) translateY(0); 
+            }
+        }
+
+        /* Navigation Menu (Right) */
+        .admin-navbar-menu {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+        }
+        
+        .admin-nav-link {
+            font-size: 15px;
+            font-weight: 500;
+            color: #e0e0e0;
+            text-decoration: none;
+            position: relative;
+            transition: all 0.3s ease;
+            padding: 5px 0;
+        }
+
+        /* Logout Button Styling */
+        .admin-nav-link.logout-btn {
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+            color: white;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .admin-nav-link.logout-btn::after {
+            display: none;
+        }
+
+        .admin-nav-link.logout-btn:hover {
+            background: linear-gradient(135deg, #ff6b00 0%, #ff4500 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 140, 0, 0.5);
+        }
+
+        .admin-nav-link.logout-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(255, 140, 0, 0.3);
+        }
+        
+        .admin-nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #ff8c00, #ff6b00);
+            transition: width 0.3s ease;
+        }
+        
+        .admin-nav-link:hover {
+            color: #fff;
+        }
+        
+        .admin-nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .admin-nav-link.active {
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        .admin-nav-link.active::after {
+            width: 100%;
+            background: linear-gradient(90deg, #ff8c00, #ff6b00);
+        }
+
+        /* Mobile Toggle */
+        .admin-navbar-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 8px;
+            z-index: 10;
+        }
+        
+        .admin-navbar-toggle span {
+            width: 25px;
+            height: 2px;
+            background: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .admin-navbar-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .admin-navbar-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .admin-navbar-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        /* Main Content Area */
+        main {
+            padding: 40px 60px;
+            min-height: calc(100vh - 120px);
+            background: #0a0a0a; /* Dark black background */
+        }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            .admin-navbar { 
+                padding: 15px 30px; 
+            }
+            
+            .admin-navbar-center {
+                font-size: 28px;
+            }
+            
+            .admin-navbar-menu { 
+                gap: 25px; 
+            }
+            
+            .admin-nav-link { 
+                font-size: 14px; 
+            }
+        }
+
+        @media (max-width: 768px) {
+            .admin-navbar {
+                padding: 15px 20px;
+                flex-wrap: wrap;
+                position: relative;
+            }
+            
+            .admin-navbar-logo {
+                z-index: 10;
+            }
+            
+            .admin-navbar-logo img { 
+                height: 40px; 
+            }
+            
+            .admin-logo-subtitle { 
+                font-size: 7px; 
+            }
+            
+            .admin-navbar-center {
+                position: static;
+                transform: none;
+                font-size: 24px;
+                margin: 0 auto;
+                order: 3;
+                width: 100%;
+                text-align: center;
+                padding-top: 15px;
+                border-top: 1px solid #333;
+                margin-top: 15px;
+            }
+            
+            .admin-navbar-menu {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                gap: 15px;
+                padding-top: 20px;
+                border-top: 1px solid #333;
+                margin-top: 15px;
+                order: 4;
+            }
+            
+            .admin-navbar-menu.active {
+                display: flex;
+            }
+            
+            .admin-navbar-toggle {
+                display: flex;
+                order: 2;
+                margin-left: auto;
+            }
+
+            main {
+                padding: 20px;
+            }
+        }
+
+        /* Fade-in animation */
+        @keyframes fadeInDown {
+            from { 
+                opacity: 0; 
+                transform: translateY(-10px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+        
+        .admin-navbar {
+            animation: fadeInDown 0.5s ease;
+        }
+        /* ===== LAYOUT ===== */
+.admin-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ===== SIDEBAR ===== */
+.admin-sidebar {
+    width: 260px;
+    background: #0a0a0a;
+    border-right: 1px solid #1a1a1a;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 1001;
+}
+
+/* Logo */
+.sidebar-logo {
+    padding: 30px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid #1a1a1a;
+}
+
+.sidebar-logo img {
+    height: 40px;
+    filter: brightness(0) invert(1);
+}
+
+.logo-text {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: white;
+}
+
+/* Menu */
+.sidebar-menu {
+    padding: 20px 10px;
+    flex: 1;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    margin-bottom: 6px;
+    color: #cfcfcf;
+    text-decoration: none;
+    border-radius: 10px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+}
+
+.sidebar-link .icon {
+    font-size: 18px;
+}
+
+.sidebar-link:hover {
+    background: rgba(255, 140, 0, 0.1);
+    color: white;
+}
+
+.sidebar-link.active {
+    background: linear-gradient(135deg, #ff8c00, #ff6b00);
+    color: black;
+    font-weight: 600;
+}
+
+/* Footer */
+.sidebar-footer {
+    padding: 15px;
+    border-top: 1px solid #1a1a1a;
+}
+
+.sidebar-link.logout {
+    color: #ff6b00;
+}
+.admin-main {
+    margin-left: 260px;
+    width: calc(100% - 260px);
+}
+@media (max-width: 768px) {
+    .admin-sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+    }
+
+    .admin-sidebar.active {
+        transform: translateX(0);
+    }
+
+    .admin-main {
+        margin-left: 0;
+        width: 100%;
+    }
+}
+
+
+
+    </style>
+</head>
+<body>
+
+<nav class="admin-navbar">
+
+    <!-- Center MANLY Text -->
+    <div class="admin-navbar-center">MANLY</div>
+
+    <!-- Hamburger Toggle (mobile only) -->
+    <div class="admin-navbar-toggle" id="navToggle">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <!-- Navigation Links (Right) -->
+<div>
+    <a href="{% url 'admin_logout' %}" class="admin-nav-link logout-btn">Logout</a>
+</div>
+</nav>
+<div class="admin-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="admin-sidebar" id="adminSidebar">
+
+        <!-- Logo -->
+        <div class="sidebar-logo">
+            <img src="{% static 'images/logo.png' %}" alt="Manly">
+            <span class="logo-text">MANLY</span>
+        </div>
+
+        <!-- Menu -->
+        <nav class="sidebar-menu">
+            {% comment %} <p style="color:red;">
+                Current URL name: {{ request.resolver_match.url_name }}
+            </p> {% endcomment %}
+
+
+            <a href="{% url 'admin_dashboard' %}"
+                class="sidebar-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                <span class="icon">📊</span>
+                <span class="text">Dashboard</span>
+            </a>
+
+            <a href="{% url 'admin_dashboard' %}" 
+                class="sidebar-link{% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                <span class="icon">📦</span>
+                <span class="text">Products</span>
+            </a>
+
+            <a href="{% url 'admin_users' %}"
+            class="sidebar-link {% if request.resolver_match.url_name == 'admin_users' %}active{% endif %}">
+
+                <span class="icon">👥</span>
+                <span class="text">Customers</span>
+            </a>
+
+            <a href="{% url 'admin_dashboard' %}"
+                class="sidebar-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                <span class="icon">🛒</span>
+                <span class="text">Orders</span>
+            </a>
+
+            <a href="{% url 'admin_dashboard' %}"
+                class="sidebar-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                <span class="icon">🎟️</span>
+                <span class="text">Coupons</span>
+            </a>
+
+            <a href="{% url 'admin_dashboard' %}"
+                class="sidebar-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                <span class="icon">📁</span>
+                <span class="text">Category</span>
+            </a>
+
+            <a href="{% url 'admin_dashboard' %}" 
+                class="sidebar-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                <span class="icon">🔥</span>
+                <span class="text">Offers</span>
+            </a>
+
+            <a href="{% url 'admin_dashboard' %}" 
+                class="sidebar-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                <span class="icon">🖼️</span>
+                <span class="text">Banner</span>
+            </a>
+
+            <a href="{% url 'admin_dashboard' %}"
+                class="sidebar-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                <span class="icon">📈</span>
+                <span class="text">Sales Report</span>
+            </a>
+
+        </nav>
+
+        <!-- Logout -->
+        <div class="sidebar-footer">
+            <a href="{% url 'admin_logout' %}" class="sidebar-link logout">
+                <span class="icon">⏻</span>
+                <span class="text">Logout</span>
+            </a>
+        </div>
+
+    </aside>
+
+
+<main class="admin-main">
+    {% block content %}{% endblock %}
+</main>
+
+<script>
+     const toggleBtn = document.getElementById('navToggle');
+    const sidebar = document.getElementById('adminSidebar');
+
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+    }
+    // Scroll shadow effect
+    window.addEventListener('scroll', function() {
+        const navbar = document.querySelector('.admin-navbar');
+        if (window.scrollY > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+    });
+
+    // Mobile menu toggle
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggle = document.getElementById('navToggle');
+        const menu = document.getElementById('navMenu');
+
+        if (toggle) {
+            toggle.addEventListener('click', function() {
+                menu.classList.toggle('active');
+                toggle.classList.toggle('active');
+            });
+        }
+
+        // Highlight active link
+        const currentPath = window.location.pathname;
+        document.querySelectorAll('.admin-nav-link').forEach(link => {
+            if (link.getAttribute('href') === currentPath || 
+                (currentPath.startsWith(link.getAttribute('href')) && link.getAttribute('href') !== '/')) {
+                link.classList.add('active');
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

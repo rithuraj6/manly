@@ -30,6 +30,9 @@ urlpatterns = [
     path("wishlist/", include("apps.wishlist.urls")),
     path("admin/", admin.site.urls),
     path("account/", include("apps.userprofile.urls")),
+    
+    
+    path('admin-panel/', include('apps.adminpanel.urls')),
 
 
 
