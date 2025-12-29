@@ -1,169 +1,199 @@
-from django.shortcuts import render
+from .utils import send_otp
 
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.http import JsonResponse
-from django.views.decorators.http import require_POST
-
-from apps.accounts.models import User
-
-from django.contrib.auth import authenticate, login
-
-from apps.accounts.services.otp_service import create_or_resend_otp, verfiy_otp
-
-
-# Create your views here.
+from django.contrib import messages
+from django.utils.crypto import get_random_string
 
 
 
 
+User = get_user_model()
 
-@require_POST
-def signup_request(request):
-    
-    email = request.POST.get('email')
-    
-    if not email:
-        return JsonResponse(
-            {"success ": False, "message":"Email is required"},
-            status = 400,
-        )
-    if User.objects.filter(email=email).exists():
-        return JsonResponse(
-            {"success":False , "message":"Email already registered"},
-            status = 400,
 
-        )
-    create_or_resend_otp(email)
-    
-    return JsonResponse(
-        {
-            "success":True , "message":"OTP sent successfully"},
-        status = 200,
-    )
-    
-    
-from apps.accounts.services.otp_service import verfiy_otp
+def user_login(request):
+    error = None
 
-@require_POST
+    if request.method == "POST":
+        email = request.POST.get("email")
+        password = request.POST.get("password")
 
-def verfiy_otp_view(request):
-    
-    email = require.POST.get('email')
-    otp = request.POST.get('otp')
-    password = request.POST.get('password')
-    
-    if not all([email,otp,password]):
-        return JsonResponse (
-            {"success": False ,"message":"All fields are required"},
-            status = 400
-        )
-        
-    is_valid , message = verify_otp(email,otp)
-    
-    if not is_valid:
-        return JsonResponse(
-            {"success":False , "message":message},
-            status = 400,
-        )
-    User.objects.create_user(
-        email = email,
-        password = password,
-        is_active = True,
-    )
-    
-    return JsonResponse(
-        {"success":True, "message":"User registered successfully"},
-        status = 201,
-    )
-    
-    
-    from django.views.decorators.http import require_POST
-    
-@require_POST
-def login_view(request):
-    email = request.POST.get("email")
-    password = request.POST.get("password")
-    
-    if not email or not passoword:
-        return JsonResponse(
-            {"success":False ,"message":"Email and password required"},
-            status = 400,
-        )
-    user = authenticate(request, email= email,password= password)
-    
-    if user is None:
-        return JsonResponse(
-           {"success":False,"message":"Invalid credentials"},
-            status = 401,
-        )
-    
-    if user.is_blocked:
-        return JsonResponse(
-            {
-                "success": False,
-                "message": (
-                    "Sorry, your account is temporarily blocked. "
-                    "Please contact admin@manly.com"
-                ),
-            },
-            status=403,
-        
-        )
-    login(request,user)
-    return JsonResponse(
-        {"success":True ,"message":"Login successful"},
-        status = 200,
-    )
+        user = authenticate(request, email=email, password=password)
 
-@require_POST
+        if user:
+            if not user.is_active:
+                error = "Please verify your account"
+            else:
+                login(request, user)
+                return redirect("home")
+        else:
+            error = "Invalid email or password"
+
+    return render(request, "pages/login.html", {"error": error})
+
+
+def user_signup(request):
+    error = None
+
+    if request.method == "POST":
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        confirm = request.POST.get("confirm_password")
+
+        if password != confirm:
+            error = "Passwords do not match"
+        else:
+            existing_user = User.objects.filter(email=email).first()
+
+            if existing_user:
+                if not existing_user.is_active:
+                    send_otp(existing_user, purpose="signup")
+                    request.session["otp_purpose"] = "signup"
+                    request.session["otp_email"] = existing_user.email
+                    request.session["otp_user"] = existing_user.id
+                    return redirect("verify_otp")
+                else:
+                    error = "Email already registered"
+            else:
+                user = User.objects.create_user(
+                    email=email,
+                    password=password,
+                    is_active=False
+                )
+                send_otp(user, purpose="signup")
+                request.session["otp_purpose"] = "signup"
+                request.session["otp_email"] = user.email
+                request.session["otp_user"] = user.id
+                return redirect("verify_otp")
+
+    return render(request, "pages/signup.html", {"error": error})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+from .models import EmailOTP
+
+def verify_otp(request):
+    email = request.session.get("otp_email")
+    purpose = request.session.get("otp_purpose")
+
+    if not email or not purpose:
+        return redirect("login")
+
+    if request.method == "POST":
+        otp = request.POST.get("otp", "").strip()
+
+        otp_obj = EmailOTP.objects.filter(
+            email=email,
+            otp=otp,
+            purpose=purpose
+        ).last()
+
+        if not otp_obj or otp_obj.is_expired():
+            return render(request, "pages/verify_otp.html", {
+                "error": "Invalid or expired OTP"
+            })
+
+        if purpose == "signup":
+            user = User.objects.get(email=email)
+            user.is_active = True
+            user.save()
+            request.session.flush()
+            messages.success(request, "Account verified. Please login.")
+            return redirect("login")
+
+        if purpose == "reset":
+            request.session["reset_verified"] = True
+            return redirect("reset_password")
+
+    return render(request, "pages/verify_otp.html")
+
+
+def resend_otp(request):
+    if request.method == "POST":
+        email = request.session.get("otp_email")
+        purpose = request.session.get("otp_purpose")
+
+        if not email or not purpose:
+            return JsonResponse({"success": False})
+
+        user = User.objects.get(email=email)
+        send_otp(user, purpose=purpose)
+
+        return JsonResponse({"success": True})
+    
+    
+
+User = get_user_model()
+
 def forgot_password(request):
-    email = request.POST.get("email")
+    if request.method == "POST":
+        email = request.POST.get("email")
 
-    if not email:
-        return JsonResponse(
-            {"success": False, "message": "Email is required"},
-            status=400,
-        )
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return render(request, "pages/forgot_password.html", {
+                "error": "Account not found"
+            })
 
-    if not User.objects.filter(email=email).exists():
-        return JsonResponse(
-            {"success": True, "message": "If email exists, OTP sent"},
-            status=200,
-        )
+        send_otp(user, purpose="reset")
 
-    create_or_resend_otp(email, purpose="reset")
+        request.session["otp_purpose"] = "reset"
+        request.session["otp_email"] = email
 
-    return JsonResponse(
-        {"success": True, "message": "OTP sent for password reset"},
-        status=200,
-    )
+        return redirect("verify_otp")
 
-    
-@require_POST
+    return render(request, "pages/forgot_password.html")
+
+User = get_user_model()
+
 def reset_password(request):
-    email = request.POST.get("email")
-    otp = request.POST.get("otp")
-    new_password = request.POST.get("password")
+    if not request.session.get("reset_verified"):
+        return redirect("forgot_password")
 
-    if not all([email, otp, new_password]):
-        return JsonResponse(
-            {"success": False, "message": "All fields are required"},
-            status=400,
-        )
+    email = request.session.get("otp_email")
 
-    is_valid, message = verify_otp(email, otp, purpose="reset")
+    if request.method == "POST":
+        password = request.POST.get("password")
+        confirm = request.POST.get("confirm_password")
 
-    if not is_valid:
-        return JsonResponse(
-            {"success": False, "message": message},
-            status=400,
-        )
+        if password != confirm:
+            return render(request, "pages/reset_password.html", {
+                "error": "Passwords do not match"
+            })
 
-    user = User.objects.get(email=email)
-    user.set_password(new_password)
-    user.save()
+        user = User.objects.get(email=email)
+        user.set_password(password)
+        user.save()
 
-    return JsonResponse(
-        {"success": True, "message": "Password reset successful"},
-        status=200,
-    )
+        request.session.flush()
+        messages.success(request, "Password updated successfully")
+        return redirect("login")
 
+    return render(request, "pages/reset_password.html")
+
+
+
+def google_auth(request):
+    return redirect("login")
+
+
+def user_logout(request):
+    logout(request)
+    return redirect("login")

@@ -1,5 +1,7 @@
 from django.db import models
 from apps.categories.models import Category
+from PIL import Image
+from django.db import models
 
 class Product(models.Model):
     name = models.CharField(max_length=150)
@@ -30,11 +32,34 @@ class ProductImage(models.Model):
         related_name="images"
     )
     image = models.ImageField(upload_to="products/")
-    created_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return f"Image for {self.product.name}"
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
 
-    
+        img = Image.open(self.image.path)
 
-# Create your models here.
+        # Convert to RGB (fix PNG / CMYK issues)
+        if img.mode != "RGB":
+            img = img.convert("RGB")
+
+        width, height = img.size
+        min_side = min(width, height)
+
+        # Center crop
+        left = (width - min_side) / 2
+        top = (height - min_side) / 2
+        right = (width + min_side) / 2
+        bottom = (height + min_side) / 2
+
+        img = img.crop((left, top, right, bottom))
+
+        # Resize
+        img = img.resize((800, 800), Image.LANCZOS)
+
+        # Save optimized
+        img.save(
+            self.image.path,
+            quality=85,
+            optimize=True
+        )
+

@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}My Wishlist | MANLY{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <h1 class="page-title">My Wishlist</h1>
+
+    {% if wishlist_items %}
+    <!-- Wishlist with Items -->
+    <div class="wishlist-container">
+        <div class="wishlist-header">
+            <div class="header-product">Product</div>
+            <div class="header-details">Details</div>
+            <div class="header-price">Price</div>
+        </div>
+
+        {% for item in wishlist_items %}
+        <div class="wishlist-item">
+            <div class="item-product">
+                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="item-image">
+                <a href="{% url 'remove_from_wishlist' item.id %}" class="remove-link">Remove</a>
+            </div>
+
+            <div class="item-details">
+                <h3>{{ item.product.name }}</h3>
+                <button class="add-to-cart-btn" onclick="addToCart({{ item.product.id }})">
+                    Add To Cart
+                </button>
+            </div>
+
+            <div class="item-price">₹{{ item.product.price }}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <!-- Empty Wishlist -->
+    <div class="empty-state">
+        <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        </svg>
+        <h2>Your Wishlist is Empty</h2>
+        <p>Save your favorite items here to buy them later!</p>
+        <a href="{% url 'shop' %}" class="shop-now-btn">Explore Products</a>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.page-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 60px;
+    min-height: 60vh;
+}
+
+.page-title {
+    font-size: 32px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 40px;
+}
+
+/* Wishlist Container */
+.wishlist-container {
+    background: #fff;
+}
+
+.wishlist-header {
+    display: grid;
+    grid-template-columns: 1.5fr 2fr 1fr;
+    gap: 30px;
+    padding: 20px 30px;
+    background: #c5c5c5;
+    border-radius: 8px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 20px;
+}
+
+.wishlist-item {
+    display: grid;
+    grid-template-columns: 1.5fr 2fr 1fr;
+    gap: 30px;
+    padding: 40px 30px;
+    border-bottom: 1px solid #e5e5e5;
+    align-items: center;
+}
+
+.wishlist-item:last-child {
+    border-bottom: none;
+}
+
+/* Product Section */
+.item-product {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.item-image {
+    width: 120px;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: #f5f5f5;
+}
+
+.remove-link {
+    font-size: 13px;
+    color: #666;
+    text-decoration: underline;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.remove-link:hover {
+    color: #d32f2f;
+}
+
+/* Details Section */
+.item-details {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+}
+
+.item-details h3 {
+    font-size: 16px;
+    font-weight: 500;
+    color: #1a1a1a;
+    text-align: center;
+}
+
+.add-to-cart-btn {
+    padding: 12px 32px;
+    background: #1a1a1a;
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.add-to-cart-btn:hover {
+    background: #333;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+}
+
+/* Price Section */
+.item-price {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a1a1a;
+    text-align: center;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.empty-state svg {
+    margin-bottom: 30px;
+    opacity: 0.5;
+}
+
+.empty-state h2 {
+    font-size: 28px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 12px;
+}
+
+.empty-state p {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 30px;
+}
+
+.shop-now-btn {
+    display: inline-block;
+    padding: 14px 40px;
+    background: #1a1a1a;
+    color: #fff;
+    border-radius: 30px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.shop-now-btn:hover {
+    background: #333;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+/* Animations */
+.wishlist-item {
+    animation: fadeInUp 0.5s ease forwards;
+    opacity: 0;
+}
+
+.wishlist-item:nth-child(1) { animation-delay: 0.1s; }
+.wishlist-item:nth-child(2) { animation-delay: 0.2s; }
+.wishlist-item:nth-child(3) { animation-delay: 0.3s; }
+.wishlist-item:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+    .wishlist-header,
+    .wishlist-item {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 20px;
+    }
+
+    .wishlist-header {
+        display: none; /* Hide header on mobile */
+    }
+
+    .item-product {
+        align-items: center;
+    }
+
+    .item-details {
+        align-items: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .page-container {
+        padding: 30px 20px;
+    }
+
+    .page-title {
+        font-size: 24px;
+    }
+
+    .wishlist-item {
+        padding: 30px 20px;
+    }
+}
+</style>
+
+<script>
+function addToCart(productId) {
+    // Make AJAX call to add product to cart
+    fetch(`/cart/add/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success message
+            alert('Product added to cart!');
+            
+            // Optionally remove from wishlist
+            // location.reload();
+        } else {
+            alert('Failed to add product to cart');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred');
+    });
+}
+</script>
+
+{% endblock %}
