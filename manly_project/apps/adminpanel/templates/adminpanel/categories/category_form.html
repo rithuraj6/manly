@@ -1,0 +1,433 @@
+{% extends "adminpanel/base.html" %}
+
+{% block title %}
+    {% if category %}Edit Category{% else %}Add Category{% endif %} | Admin
+{% endblock %}
+
+{% block content %}
+
+<div class="category-form-page">
+    <!-- Back Button -->
+    <div class="back-nav">
+        <a href="{% url 'admin_category_list' %}" class="btn-back">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Back to Categories
+        </a>
+    </div>
+
+    <!-- Form Container -->
+    <div class="form-container">
+        <div class="form-header">
+            <div class="form-icon">
+                {% if category %}
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                {% else %}
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                {% endif %}
+            </div>
+            <h2 class="form-title">
+                {% if category %}
+                    Edit Category
+                {% else %}
+                    Add Category
+                {% endif %}
+            </h2>
+            <p class="form-subtitle">
+                {% if category %}
+                    Update the category information below
+                {% else %}
+                    Create a new category for your products
+                {% endif %}
+            </p>
+        </div>
+
+        <form method="post" class="category-form">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="categoryName">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                    Category Name
+                </label>
+                <input
+                    type="text"
+                    id="categoryName"
+                    name="name"
+                    placeholder="Enter category name"
+                    value="{{ category.name|default:'' }}"
+                    required
+                    autocomplete="off"
+                >
+                <span class="input-hint">Choose a unique and descriptive name</span>
+            </div>
+
+            
+
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    {% if category %}Update Category{% else %}Create Category{% endif %}
+                </button>
+
+                <a href="{% url 'admin_category_list' %}" class="btn-cancel">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+/* ========================================
+   MANLY ADMIN - CATEGORY FORM PAGE
+======================================== */
+
+.category-form-page {
+    max-width: 600px;
+    margin: 0 auto;
+    animation: fadeIn 0.5s ease;
+}
+
+/* Back Navigation */
+.back-nav {
+    margin-bottom: 30px;
+    animation: slideInDown 0.6s ease;
+}
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
+    color: #e0e0e0;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+    background: #2a2a2a;
+    border-color: #ff8c00;
+    color: #fff;
+    transform: translateX(-5px);
+}
+
+/* Form Container with Liquid Effect */
+.form-container {
+    background: rgba(26, 26, 26, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid #2a2a2a;
+    border-radius: 20px;
+    padding: 50px;
+    animation: slideInUp 0.6s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.form-container::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 140, 0, 0.03), transparent);
+    animation: liquidFlow 6s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes liquidFlow {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    33% { transform: translate(10%, -10%) rotate(120deg); }
+    66% { transform: translate(-10%, 10%) rotate(240deg); }
+}
+
+/* Form Header */
+.form-header {
+    text-align: center;
+    margin-bottom: 40px;
+    position: relative;
+    z-index: 1;
+}
+
+.form-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(255, 140, 0, 0.1), rgba(255, 107, 0, 0.1));
+    border: 2px solid rgba(255, 140, 0, 0.3);
+    border-radius: 50%;
+    animation: iconPulse 2s ease-in-out infinite;
+}
+
+.form-icon svg {
+    stroke: #ff8c00;
+}
+
+@keyframes iconPulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(255, 140, 0, 0.2); }
+    50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(255, 140, 0, 0.4); }
+}
+
+.form-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 10px;
+    letter-spacing: 0.5px;
+}
+
+.form-subtitle {
+    font-size: 14px;
+    color: #999;
+    line-height: 1.5;
+}
+
+/* Form Styling */
+.category-form {
+    position: relative;
+    z-index: 1;
+}
+
+.form-group {
+    margin-bottom: 32px;
+    animation: slideInLeft 0.6s ease 0.2s backwards;
+}
+
+.form-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-group label svg {
+    stroke: #ff8c00;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 18px 20px;
+    background: #0f0f0f;
+    border: 2px solid #2a2a2a;
+    border-radius: 12px;
+    color: #e0e0e0;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.form-group input::placeholder {
+    color: #666;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #ff8c00;
+    background: #151515;
+    box-shadow: 0 0 20px rgba(255, 140, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.input-hint {
+    display: block;
+    margin-top: 8px;
+    font-size: 12px;
+    color: #666;
+    font-style: italic;
+}
+
+/* Messages */
+.form-messages {
+    margin-bottom: 25px;
+}
+
+.message {
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.message.success {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: #10b981;
+}
+
+.message.error {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 40px;
+    animation: slideInUp 0.6s ease 0.3s backwards;
+}
+
+.btn-submit,
+.btn-cancel {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px 28px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-submit::before,
+.btn-cancel::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+}
+
+.btn-submit:active::before,
+.btn-cancel:active::before {
+    width: 400px;
+    height: 400px;
+}
+
+.btn-submit {
+    background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+    color: #fff;
+}
+
+.btn-submit:hover {
+    background: linear-gradient(135deg, #ff6b00 0%, #ff4500 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255, 140, 0, 0.4);
+}
+
+.btn-cancel {
+    background: #2a2a2a;
+    color: #fff;
+    border: 1px solid #3a3a3a;
+}
+
+.btn-cancel:hover {
+    background: #3a3a3a;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .form-container {
+        padding: 30px 25px;
+    }
+
+    .form-title {
+        font-size: 24px;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn-submit,
+    .btn-cancel {
+        width: 100%;
+    }
+}
+</style>
+
+<script>
+// Auto-focus on category name input
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('categoryName').focus();
+});
+</script>
+
+{% endblock %}

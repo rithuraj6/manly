@@ -515,7 +515,7 @@
                 <span class="text">Coupons</span>
             </a>
 
-            <a href="{% url 'admin_dashboard' %}"
+            <a href="{% url 'admin_category_list' %}"
                 class="sidebar-link">
                 <span class="icon">📁</span>
                 <span class="text">Category</span>
@@ -553,7 +553,7 @@
         {% block content %}{% endblock %}
     </main>
 </div>
-
+    
 <script>
     const toggleBtn = document.getElementById('navToggle');
     const sidebar = document.getElementById('adminSidebar');
