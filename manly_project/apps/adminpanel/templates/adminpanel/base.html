@@ -3,6 +3,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"
+/>
+
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"
+  defer
+></script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Admin | Manly Apparel Store{% endblock %}</title>
@@ -491,7 +501,7 @@
                 <span class="text">Dashboard</span>
             </a>
 
-            <a href="{% url 'admin_dashboard' %}" 
+            <a href="{% url 'admin_product_list' %}" 
                 class="sidebar-link">
                 <span class="icon">📦</span>
                 <span class="text">Products</span>
@@ -595,7 +605,10 @@
             }
         });
     });
+   
 </script>
+
+
 
 </body>
 </html>

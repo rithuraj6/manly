@@ -1,0 +1,1038 @@
+{% extends "adminpanel/base.html" %}
+
+{% block content %}
+
+<div class="product-form-page">
+    <!-- Back Button -->
+    <div class="back-nav">
+        <a href="{% url 'admin_product_list' %}" class="btn-back">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Back to Products
+        </a>
+    </div>
+
+    <!-- Form Container -->
+    <div class="form-container">
+        <div class="form-header">
+            <div class="form-icon">
+                {% if product %}
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                {% else %}
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <circle cx="9" cy="9" r="2"></circle>
+                        <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
+                    </svg>
+                {% endif %}
+            </div>
+            <h2 class="form-title">
+                {% if product %}Edit Product{% else %}Add Product{% endif %}
+            </h2>
+            <p class="form-subtitle">
+                {% if product %}Update the product information below{% else %}Create a new product for your store{% endif %}
+            </p>
+        </div>
+
+        <form method="post" class="product-form" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="productName">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                        <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                    </svg>
+                    Product Name
+                </label>
+                <input type="text" id="productName" name="name" placeholder="Enter product name" value="{{ product.name|default:'' }}" required autocomplete="off">
+                <span class="input-hint">Enter a descriptive product name</span>
+            </div>
+
+            <div class="form-group">
+                <label for="productDescription">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    Description
+                </label>
+                <textarea id="productDescription" name="description" placeholder="Enter product description" rows="4" autocomplete="off">{{ product.description|default:'' }}</textarea>
+                <span class="input-hint">Describe your product in detail</span>
+            </div>
+
+            <div class="form-group">
+                <label for="productCategory">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                    </svg>
+                    Category
+                </label>
+                <select id="productCategory" name="category" required>
+                    <option value="">Select category</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if product and product.category.id == cat.id %}selected{% endif %}>
+                            {{ cat.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <span class="input-hint">Choose a category for this product</span>
+            </div>
+
+            <div class="form-group">
+                <label for="productPrice">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                    Price
+                </label>
+                <input type="number" id="productPrice" name="price" placeholder="Enter product price" value="{{ product.base_price|default:'' }}" step="0.01" min="0" required autocomplete="off">
+                <span class="input-hint">Enter the product price in Rupees</span>
+            </div>
+
+            <div class="form-group">
+                <label for="productImage">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                        <polyline points="21 15 16 10 5 21"></polyline>
+                    </svg>
+                    Product Image
+                </label>
+                <input type="file" id="productImage" name="image" accept="image/*" {% if not product %}required{% endif %}>
+                <img id="imagePreview" style="max-width:100%; display:none; margin-top:15px; border-radius:12px; border: 2px solid #2a2a2a;">
+                <span class="input-hint">Upload a product image (JPG, PNG, GIF)</span>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    {% if product %}Update Product{% else %}Create Product{% endif %}
+                </button>
+
+                <a href="{% url 'admin_product_list' %}" class="btn-cancel">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                    Cancel
+                </a>
+            </div>
+        </form>
+
+        <!-- VARIANTS SECTION -->
+        {% if product %}
+        <div class="variants-section">
+            <div class="section-divider"></div>
+            
+            <div class="variants-header">
+                <div class="variants-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                    </svg>
+                </div>
+                <h3 class="variants-title">Product Variants</h3>
+                <p class="variants-subtitle">Manage size and stock for this product</p>
+            </div>
+
+            <!-- ADD VARIANT FORM -->
+            <form method="post" action="{% url 'admin_add_variant' product.id %}" class="add-variant-form">
+                {% csrf_token %}
+                <div class="variant-input-group">
+                    <input type="text" name="size" placeholder="Size (S, M, L, XL)" required>
+                    <input type="number" name="stock" placeholder="Stock Quantity" min="0" required>
+                    <button type="submit" class="btn-add-variant">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Add Variant
+                    </button>
+                </div>
+            </form>
+
+            <!-- VARIANTS TABLE -->
+            {% if variants %}
+            <div class="variants-table-container">
+                <table class="variants-table">
+                    <thead>
+                        <tr>
+                            <th>Size</th>
+                            <th>Stock</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for v in variants %}
+                        <tr class="variant-row">
+                            <td>
+                                <span class="size-badge">{{ v.size }}</span>
+                            </td>
+                            <td>
+                                <form method="post" action="{% url 'admin_update_variant' v.id %}" class="inline-stock-form">
+                                    {% csrf_token %}
+                                    <div class="stock-input-group">
+                                        <input type="number" name="stock" value="{{ v.stock }}" min="0">
+                                        <button type="submit" class="btn-save-stock">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="20 6 9 17 4 12"></polyline>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </form>
+                            </td>
+                            <td>
+                                {% if v.is_active %}
+                                    <span class="status-badge active">Active</span>
+                                {% else %}
+                                    <span class="status-badge inactive">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <form method="post" action="{% url 'admin_toggle_variant' v.id %}" class="toggle-form" onsubmit="return confirm('Change variant status?');">
+                                    {% csrf_token %}
+                                    {% if v.is_active %}
+                                        <button type="submit" class="btn-toggle deactivate">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                                            </svg>
+                                            Disable
+                                        </button>
+                                    {% else %}
+                                        <button type="submit" class="btn-toggle activate">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="20 6 9 17 4 12"></polyline>
+                                            </svg>
+                                            Enable
+                                        </button>
+                                    {% endif %}
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="no-variants">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="1.5">
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                </svg>
+                <p>No variants added yet</p>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+<!-- IMAGE CROP MODAL -->
+    <div id="cropModal" style="
+        display:none;
+        position:fixed;
+        top:0;left:0;
+        width:100%;height:100%;
+        background:rgba(0,0,0,0.8);
+        z-index:9999;
+        justify-content:center;
+        align-items:center;
+    ">
+        <div style="background:#111;padding:20px;border-radius:12px;max-width:90%;max-height:90%;">
+            <img id="cropImage" style="max-width:100%;max-height:70vh;">
+            <div style="display:flex;gap:10px;margin-top:15px;justify-content:flex-end;">
+                <button type="button" id="cropCancel" class="btn-cancel">Cancel</button>
+                <button type="button" id="cropConfirm" class="btn-submit">Crop & Use</button>
+            </div>
+        </div>
+    </div>
+<style>
+/* ========================================
+   MANLY ADMIN - PRODUCT FORM PAGE
+======================================== */
+
+.product-form-page {
+    max-width: 800px;
+    margin: 0 auto;
+    animation: fadeIn 0.5s ease;
+}
+
+/* Back Navigation */
+.back-nav {
+    margin-bottom: 30px;
+    animation: slideInDown 0.6s ease;
+}
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
+    color: #e0e0e0;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+    background: #2a2a2a;
+    border-color: #ff8c00;
+    color: #fff;
+    transform: translateX(-5px);
+}
+
+/* Form Container with Liquid Effect */
+.form-container {
+    background: rgba(26, 26, 26, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid #2a2a2a;
+    border-radius: 20px;
+    padding: 50px;
+    animation: slideInUp 0.6s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.form-container::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 140, 0, 0.03), transparent);
+    animation: liquidFlow 6s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes liquidFlow {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    33% { transform: translate(10%, -10%) rotate(120deg); }
+    66% { transform: translate(-10%, 10%) rotate(240deg); }
+}
+
+/* Form Header */
+.form-header {
+    text-align: center;
+    margin-bottom: 40px;
+    position: relative;
+    z-index: 1;
+}
+
+.form-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(255, 140, 0, 0.1), rgba(255, 107, 0, 0.1));
+    border: 2px solid rgba(255, 140, 0, 0.3);
+    border-radius: 50%;
+    animation: iconPulse 2s ease-in-out infinite;
+}
+
+.form-icon svg {
+    stroke: #ff8c00;
+}
+
+@keyframes iconPulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(255, 140, 0, 0.2); }
+    50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(255, 140, 0, 0.4); }
+}
+
+.form-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 10px;
+    letter-spacing: 0.5px;
+}
+
+.form-subtitle {
+    font-size: 14px;
+    color: #999;
+    line-height: 1.5;
+}
+
+/* Form Styling */
+.product-form {
+    position: relative;
+    z-index: 1;
+}
+
+.form-group {
+    margin-bottom: 28px;
+    animation: slideInLeft 0.6s ease;
+    animation-fill-mode: both;
+}
+
+.form-group:nth-child(1) { animation-delay: 0.1s; }
+.form-group:nth-child(2) { animation-delay: 0.2s; }
+.form-group:nth-child(3) { animation-delay: 0.3s; }
+.form-group:nth-child(4) { animation-delay: 0.4s; }
+.form-group:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.form-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.form-group label svg {
+    stroke: #ff8c00;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 16px 20px;
+    background: #0f0f0f;
+    border: 2px solid #2a2a2a;
+    border-radius: 12px;
+    color: #e0e0e0;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: #666;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #ff8c00;
+    background: #151515;
+    box-shadow: 0 0 20px rgba(255, 140, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-group select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23ff8c00' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 50px;
+}
+
+.form-group input[type="file"] {
+    padding: 12px 20px;
+    cursor: pointer;
+    border-style: dashed;
+}
+
+.form-group input[type="file"]::-webkit-file-upload-button {
+    visibility: hidden;
+}
+
+.form-group input[type="file"]::before {
+    content: 'Choose File';
+    display: inline-block;
+    background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+    border-radius: 8px;
+    padding: 8px 16px;
+    outline: none;
+    white-space: nowrap;
+    cursor: pointer;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    margin-right: 12px;
+    transition: all 0.3s ease;
+}
+
+.form-group input[type="file"]:hover::before {
+    background: linear-gradient(135deg, #ff6b00 0%, #ff4500 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
+}
+
+.input-hint {
+    display: block;
+    margin-top: 8px;
+    font-size: 12px;
+    color: #666;
+    font-style: italic;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 40px;
+    animation: slideInUp 0.6s ease 0.6s backwards;
+}
+
+.btn-submit,
+.btn-cancel {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px 28px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-submit {
+    background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+    color: #fff;
+}
+
+.btn-submit:hover {
+    background: linear-gradient(135deg, #ff6b00 0%, #ff4500 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255, 140, 0, 0.4);
+}
+
+.btn-cancel {
+    background: #2a2a2a;
+    color: #fff;
+    border: 1px solid #3a3a3a;
+}
+
+.btn-cancel:hover {
+    background: #3a3a3a;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* ========================================
+   VARIANTS SECTION
+======================================== */
+
+.variants-section {
+    margin-top: 50px;
+    position: relative;
+    z-index: 1;
+    animation: fadeIn 0.8s ease 0.7s backwards;
+}
+
+.section-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #2a2a2a, transparent);
+    margin: 40px 0;
+}
+
+.variants-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.variants-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(59, 130, 246, 0.1);
+    border: 2px solid rgba(59, 130, 246, 0.3);
+    border-radius: 50%;
+}
+
+.variants-icon svg {
+    stroke: #3b82f6;
+}
+
+.variants-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 8px;
+}
+
+.variants-subtitle {
+    font-size: 13px;
+    color: #999;
+}
+
+/* Add Variant Form */
+.add-variant-form {
+    margin-bottom: 30px;
+}
+
+.variant-input-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 12px;
+}
+
+.variant-input-group input {
+    padding: 14px 18px;
+    background: #0f0f0f;
+    border: 2px solid #2a2a2a;
+    border-radius: 10px;
+    color: #e0e0e0;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.variant-input-group input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    background: #151515;
+}
+
+.btn-add-variant {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 24px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.btn-add-variant:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+}
+
+/* Variants Table */
+.variants-table-container {
+    background: #0f0f0f;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.variants-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.variants-table thead {
+    background: #151515;
+}
+
+.variants-table th {
+    padding: 16px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 600;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.variants-table td {
+    padding: 16px;
+    border-bottom: 1px solid #2a2a2a;
+    color: #e0e0e0;
+}
+
+.variant-row:last-child td {
+    border-bottom: none;
+}
+
+.variant-row:hover {
+    background: rgba(255, 140, 0, 0.03);
+}
+
+.size-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    background: rgba(255, 140, 0, 0.1);
+    border: 1px solid rgba(255, 140, 0, 0.3);
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #ff8c00;
+}
+
+.inline-stock-form {
+    display: flex;
+    align-items: center;
+}
+
+.stock-input-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.stock-input-group input {
+    width: 80px;
+    padding: 8px 12px;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    color: #e0e0e0;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.stock-input-group input:focus {
+    outline: none;
+    border-color: #10b981;
+}
+
+.btn-save-stock {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-save-stock:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.status-badge.active {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.status-badge.inactive {
+    background: rgba(156, 163, 175, 0.15);
+    color: #9ca3af;
+    border: 1px solid rgba(156, 163, 175, 0.3);
+}
+
+.btn-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-toggle.activate {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #fff;
+}
+
+.btn-toggle.activate:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.btn-toggle.deactivate {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: #fff;
+}
+
+.btn-toggle.deactivate:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+/* No Variants State */
+.no-variants {
+    text-align: center;
+    padding: 50px 20px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
+    border: 2px dashed #2a2a2a;
+}
+
+.no-variants svg {
+    opacity: 0.3;
+    margin-bottom: 15px;
+}
+
+.no-variants p {
+    color: #666;
+    font-size: 15px;
+}
+
+/* Toggle Form */
+.toggle-form {
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .form-container {
+        padding: 30px 25px;
+    }
+
+    .form-title {
+        font-size: 24px;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn-submit,
+    .btn-cancel {
+        width: 100%;
+    }
+
+    .variant-input-group {
+        grid-template-columns: 1fr;
+    }
+
+    .variants-table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .variants-table th,
+    .variants-table td {
+        white-space: nowrap;
+    }
+
+    .stock-input-group {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .stock-input-group input {
+        width: 100%;
+    }
+
+    .btn-toggle {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Image Preview Styling */
+#imagePreview {
+    max-height: 200px;
+    object-fit: cover;
+    display: none;
+}
+
+/* Message Styling */
+.form-messages {
+    margin: 20px 0;
+    animation: slideInDown 0.6s ease;
+}
+
+.message {
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.message.success {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: #10b981;
+}
+
+.message.error {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+}
+
+.message.info {
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: #3b82f6;
+}
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    let cropper = null;
+    let selectedFile = null;
+
+    const imageInput = document.getElementById('productImage');
+    const cropModal = document.getElementById('cropModal');
+    const cropImage = document.getElementById('cropImage');
+    const cropConfirm = document.getElementById('cropConfirm');
+    const cropCancel = document.getElementById('cropCancel');
+    const preview = document.getElementById('imagePreview');
+
+    imageInput.addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        selectedFile = file;
+
+        const reader = new FileReader();
+
+        reader.onload = function (event) {
+            cropModal.style.display = 'flex';
+
+            cropImage.onload = function () {
+                if (cropper) {
+                    cropper.destroy();
+                }
+
+                cropper = new Cropper(cropImage, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    autoCropArea: 1,
+                    responsive: true,
+                    background: false
+                });
+            };
+
+            cropImage.src = event.target.result;
+        };
+
+        reader.readAsDataURL(file);
+    });
+
+    cropCancel.addEventListener('click', function () {
+        cropModal.style.display = 'none';
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+    });
+
+    cropConfirm.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        if (!cropper) {
+            alert("Cropper not initialized");
+            return;
+        }
+
+        const canvas = cropper.getCroppedCanvas({
+            width: 800,
+            height: 800
+        });
+
+        canvas.toBlob(function (blob) {
+            const croppedFile = new File([blob], selectedFile.name, {
+                type: 'image/jpeg',
+                lastModified: Date.now()
+            });
+
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(croppedFile);
+            imageInput.files = dataTransfer.files;
+
+            preview.src = URL.createObjectURL(blob);
+            preview.style.display = 'block';
+
+            cropModal.style.display = 'none';
+            cropper.destroy();
+            cropper = null;
+        }, 'image/jpeg');
+    });
+
+});
+</script>
+
+
+
+    
+
+{% endblock %}
