@@ -1,65 +1,40 @@
 from django.db import models
 from apps.categories.models import Category
-from PIL import Image
-from django.db import models
+
 
 class Product(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.PROTECT)
     name = models.CharField(max_length=150)
-    category = models.ForeignKey(
-        Category,on_delete=models.PROTECT,
-        related_name = "products"
-    )
-    
     description = models.TextField(blank=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    color = models.CharField(max_length=50)
-
-    is_active = models.BooleanField(default=True)  # soft delete
-
+    base_price = models.DecimalField(max_digits=10, decimal_places=2)
+    is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ["-created_at"]
 
     def __str__(self):
         return self.name
-    
-class ProductImage(models.Model):
+
+
+class ProductVariant(models.Model):
+    SIZE_CHOICES = [
+        ("S", "Small"),
+        ("M", "Medium"),
+        ("L", "Large"),
+        ("XL", "Extra Large"),
+        ("XXL", "Extra Extra Large"),
+    ]
+
     product = models.ForeignKey(
-        Product,
+        Product,                 # ✅ STRING reference (important)
         on_delete=models.CASCADE,
-        related_name="images"
+        related_name="variants"
     )
-    image = models.ImageField(upload_to="products/")
+    size = models.CharField(max_length=5, choices=SIZE_CHOICES)
+    stock = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
+    class Meta:
+        unique_together = ("product", "size")
 
-        img = Image.open(self.image.path)
-
-        # Convert to RGB (fix PNG / CMYK issues)
-        if img.mode != "RGB":
-            img = img.convert("RGB")
-
-        width, height = img.size
-        min_side = min(width, height)
-
-        # Center crop
-        left = (width - min_side) / 2
-        top = (height - min_side) / 2
-        right = (width + min_side) / 2
-        bottom = (height + min_side) / 2
-
-        img = img.crop((left, top, right, bottom))
-
-        # Resize
-        img = img.resize((800, 800), Image.LANCZOS)
-
-        # Save optimized
-        img.save(
-            self.image.path,
-            quality=85,
-            optimize=True
-        )
-
+    def __str__(self):
+        return f"{self.product.name} - {self.size}"

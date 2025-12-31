@@ -16,15 +16,25 @@ def profile_edit(request):
     profile, _ = UserProfile.objects.get_or_create(user=request.user)
 
     if request.method == "POST":
-        profile.first_name = request.POST.get("first_name", "")
-        profile.last_name = request.POST.get("last_name", "")
+        # Sync with Django User
+        request.user.first_name = request.POST.get("first_name", "")
+        request.user.last_name = request.POST.get("last_name", "")
+        request.user.save()
+
+        # Save profile
+        profile.first_name = request.user.first_name
+        profile.last_name = request.user.last_name
         profile.phone = request.POST.get("phone", "")
         profile.chest = request.POST.get("chest") or None
         profile.shoulder = request.POST.get("shoulder") or None
         profile.save()
+
         return redirect("account_profile")
 
+    # 🔥 THIS WAS MISSING
     return render(request, "account/profile_edit.html", {"profile": profile})
+
+
 
 
 

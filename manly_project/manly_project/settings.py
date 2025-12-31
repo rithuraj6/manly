@@ -52,6 +52,11 @@ INSTALLED_APPS = [
     'apps.wishlist',
     "apps.userprofile.apps.UserprofileConfig",
     
+    
+    
+    
+    'apps.adminpanel',
+    
 ]
 
 MIDDLEWARE = [
@@ -149,6 +154,10 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 
 AUTH_USER_MODEL = "accounts.User"
+
+AUTHENTICATION_BACKENDS = [
+   'apps.accounts.backends.EmailBackend',
+]
 
 
 EMAIL_BACKEND =  "django.core.mail.backends.smtp.EmailBackend"
