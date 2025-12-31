@@ -5,11 +5,10 @@ from apps.products.utils import crop_and_resize
 from apps.products.models import Product, ProductVariant
 from apps.categories.models import Category
 
-
-# =========================
-# PRODUCT LIST
-# =========================
 def admin_product_list(request):
+    if not request.user.is_authenticated or not request.user.is_superuser:
+        return redirect("admin_login")
+    
     search = request.GET.get("search", "").strip()
 
     products = Product.objects.select_related("category")
@@ -32,10 +31,9 @@ def admin_product_list(request):
     )
 
 
-# =========================
-# ADD PRODUCT
-# =========================
 def admin_add_product(request):
+    if not request.user.is_authenticated or not request.user.is_superuser:
+        return redirect("admin_login")
     categories = Category.objects.all()
 
     if request.method == "POST":
@@ -61,6 +59,9 @@ def admin_add_product(request):
 # EDIT PRODUCT
 # =========================
 def admin_edit_product(request, product_id):
+    if not request.user.is_authenticated or not request.user.is_superuser:
+        return redirect("admin_login")
+    
     product = get_object_or_404(Product, id=product_id)
     variants = product.variants.all().order_by("size")
     categories = Category.objects.all()

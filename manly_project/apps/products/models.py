@@ -24,7 +24,7 @@ class ProductVariant(models.Model):
     ]
 
     product = models.ForeignKey(
-        "Product",                 # ✅ STRING reference (important)
+        Product,                 # ✅ STRING reference (important)
         on_delete=models.CASCADE,
         related_name="variants"
     )
