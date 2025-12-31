@@ -57,6 +57,9 @@ INSTALLED_APPS = [
     
     'apps.adminpanel',
     
+    'cloudinary',
+    'cloudinary_storage',
+    
 ]
 
 MIDDLEWARE = [
@@ -72,6 +75,9 @@ MIDDLEWARE = [
     
     'apps.accounts.middleware.BlockedUserMiddleware',
     'apps.core.middleware.DisableBackButtonMiddleware',
+    
+    
+   
 
 ]
 
@@ -149,8 +155,6 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
 
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
 
 
 AUTH_USER_MODEL = "accounts.User"
@@ -171,3 +175,12 @@ DEFAULT_FORM_EMAIL = EMAIL_HOST_USER
 
 
 
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv("CLOUDINARY_CLOUD_NAME"),
+    'API_KEY': os.getenv("CLOUDINARY_API_KEY"),
+    'API_SECRET': os.getenv("CLOUDINARY_API_SECRET"),
+}
+
+
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'

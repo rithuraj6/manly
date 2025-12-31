@@ -8,18 +8,7 @@
     <div class="page-header">
         <h1 class="page-title">Products</h1>
         <!-- Flash Messages Container -->
-        {% if messages %}
-            <div class="flash-messages-container">
-                {% for message in messages %}
-                <div class="flash-message {{ message.tags }}" role="alert">
-                    <span class="flash-text">{{ message }}</span>
-                    <button type="button" class="flash-close" onclick="this.parentElement.remove()">
-                        ✕
-                    </button>
-                </div>
-                {% endfor %}
-            </div>
-        {% endif %}
+        
         
         <a href="{% url 'admin_add_product' %}" class="btn-add">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
