@@ -50,7 +50,8 @@ INSTALLED_APPS = [
     'apps.core',
     'apps.cart',
     'apps.wishlist',
-    "apps.userprofile.apps.UserprofileConfig",
+    'apps.sizeguide',
+    "apps.userprofile",
     
     
     
@@ -62,6 +63,7 @@ INSTALLED_APPS = [
     'cloudinary_storage',
     
     "apps.banners", 
+    
     
 ]
 

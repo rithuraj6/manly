@@ -44,7 +44,7 @@
 
                 <div class="size-display-view">
                     <span class="size-label-small">size</span>
-                    <div class="size-badge-large">{{ profile.size|default:"X L" }}</div>
+                    <div class="size-badge-large">{{ profile.size|default_if_none:"—"|default:"—" }}</div>
                 </div>
 
                 <div class="measurement-item">

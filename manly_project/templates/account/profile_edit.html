@@ -42,7 +42,7 @@
 
                 <div class="size-display">
                     <span class="size-label">size</span>
-                    <div class="size-badge">{{ profile.size|default:"X L" }}</div>
+                    <div class="size-badge">{{ profile.size|default_if_none:"—"|default:"—" }}</div>
                 </div>
 
                 <div class="measurement-input-group">

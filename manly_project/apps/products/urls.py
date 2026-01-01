@@ -7,10 +7,9 @@ from .views import (
 
 urlpatterns = [
     path("shop/", shop_page, name="shop"),
-    
-    
-  
+
     path("product/<int:product_id>/", product_detail, name="product_detail"),
-    path("category/<int:category_id>/", product_list_by_category, name="product_list_by_category"),
+    path("category/<int:category_id>/",product_list_by_category,name="product_list_by_category"),
+
 
 ]

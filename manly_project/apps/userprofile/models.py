@@ -19,16 +19,9 @@ class UserProfile(models.Model):
     shoulder = models.FloatField(null=True, blank=True)
 
     size = models.CharField(max_length=5, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+            return self.user.email
 
-    def calculate_size(self):
-        if not self.chest:
-            return ""
-
-        if self.chest < 90:
-            return "S"
-        elif self.chest < 100:
-            return "M"
-        elif self.chest < 110:
-            return "L"
-        else:
-            return "XL"
