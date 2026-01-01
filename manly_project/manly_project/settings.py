@@ -55,10 +55,13 @@ INSTALLED_APPS = [
     
     
     
+    
     'apps.adminpanel',
     
     'cloudinary',
     'cloudinary_storage',
+    
+    "apps.banners", 
     
 ]
 

@@ -1,11 +1,198 @@
 {% extends "base.html" %}
+{% load static %}
+
 {% block title %}MANLY{% endblock %}
 
 {% block content %}
-<section class="hero">
-    <h1>MANLY</h1>
-    <p>Minimal. Modern. Masculine.</p>
 
-    <a href="#">Shop Now</a>
-</section>
+<style>
+
+@import url('https://fonts.googleapis.com/css2?family=Lexend+Giga:wght@400;500;600;700;800;900&family=Nunito+Sans:wght@300;400;500;600;700;800&display=swap');
+
+/* RESET */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Nunito Sans', sans-serif;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    overflow-x: hidden;
+}
+
+/* FULL WIDTH HOME */
+.home-container {
+    width: 100%;
+    padding-bottom: 80px;
+}
+
+/* HERO */
+.hero-banner {
+    position: relative;
+    width: 100%;
+    height: 85vh;
+    min-height: 700px;
+    margin-bottom: 120px;
+    overflow: hidden;
+}
+
+.hero-image-wrapper {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+
+.hero-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    animation: heroZoom 20s ease-in-out infinite alternate;
+}
+
+@keyframes heroZoom {
+    from { transform: scale(1); }
+    to { transform: scale(1.08); }
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(0,0,0,0.85),
+        rgba(0,0,0,0.5),
+        transparent
+    );
+    z-index: 2;
+}
+
+/* CENTER TEXT */
+.hero-greeting {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.brand-name {
+    font-family: 'Lexend Giga', sans-serif;
+    font-size: 140px;
+    font-weight: 900;
+    letter-spacing: 10px;
+    color: #fff;
+}
+
+.greeting-tagline {
+    font-size: 32px;
+    color: #fff;
+}
+
+/* FEATURED */
+.featured-section {
+    padding: 0 40px;
+    margin-bottom: 120px;
+}
+
+.section-title {
+    font-family: 'Lexend Giga', sans-serif;
+    font-size: 60px;
+    text-align: center;
+}
+
+.section-subtitle {
+    text-align: center;
+    font-size: 22px;
+    color: #666;
+}
+
+/* PRODUCT GRID */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 40px;
+    max-width: 1400px;
+    margin: 60px auto 0;
+}
+
+.product-card {
+    background: #fff;
+    border-radius: 24px;
+    padding: 24px;
+    text-decoration: none;
+    color: #000;
+    transition: 0.4s;
+}
+
+.product-card:hover {
+    transform: translateY(-12px);
+}
+
+.image-wrapper {
+    aspect-ratio: 3/4;
+    overflow: hidden;
+    border-radius: 18px;
+}
+
+.image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-name {
+    font-size: 20px;
+    margin-top: 16px;
+}
+
+.price {
+    font-size: 24px;
+    font-weight: 700;
+}
+</style>
+
+<div class="home-container">
+
+    <!-- HERO BANNER -->
+    <section class="hero-banner">
+        <div class="hero-image-wrapper">
+            {% if banner %}
+                <img src="{{ banner.image.url }}" alt="{{ banner.title }}" class="hero-image">
+            {% endif %}
+            <div class="hero-overlay"></div>
+        </div>
+
+        <div class="hero-greeting">
+            <div>
+                <h1 class="brand-name">MANLY</h1>
+                <p class="greeting-tagline">Premium Fashion for Modern Men</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURED PRODUCTS -->
+    <section class="featured-section">
+        <h2 class="section-title">Featured Products</h2>
+        <p class="section-subtitle">Handpicked selections crafted for the modern gentleman</p>
+
+        <div class="product-grid">
+            {% for product in featured_products %}
+                <a href="{% url 'product_detail' product.id %}" class="product-card">
+                    <div class="image-wrapper">
+                        {% if product.images.first %}
+                            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
+                        {% else %}
+                            <img src="{% static 'images/placeholder.jpg' %}">
+                        {% endif %}
+                    </div>
+
+                    <h3 class="product-name">{{ product.name }}</h3>
+                    <p class="price">₹{{ product.base_price }}</p>
+                </a>
+            {% endfor %}
+        </div>
+    </section>
+
+</div>
+
 {% endblock %}

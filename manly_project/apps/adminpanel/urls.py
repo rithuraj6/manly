@@ -23,6 +23,13 @@ from .views.product_views import (
 )
 
 
+from .views.banner_views import (
+    admin_banner_list,
+    admin_add_banner,
+    admin_toggle_banner,
+)
+
+
 urlpatterns = [
     path("login/", admin_login, name="admin_login"),
     path("logout/", admin_logout, name="admin_logout"),
@@ -60,6 +67,9 @@ path(
     name="admin_delete_product_image"
 ),
 
+path("banners/", admin_banner_list, name="admin_banner_list"),
+    path("banners/add/", admin_add_banner, name="admin_add_banner"),
+    path("banners/toggle/<int:banner_id>/", admin_toggle_banner, name="admin_toggle_banner"),
 
     
 ]

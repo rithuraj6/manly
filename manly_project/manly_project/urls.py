@@ -26,8 +26,16 @@ urlpatterns = [
   
     path('accounts/', include('apps.accounts.urls')),
     path("", include("apps.core.urls")),
+    path("", include("apps.products.urls")),
     path("cart/", include("apps.cart.urls")),
     path("wishlist/", include("apps.wishlist.urls")),
+     
+     
+     
+     
+     
+     
+     
     path("admin/", admin.site.urls),
     path("account/", include("apps.userprofile.urls")),
     
