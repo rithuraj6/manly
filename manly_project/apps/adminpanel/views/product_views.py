@@ -7,9 +7,9 @@ from apps.products.models import Product, ProductVariant, ProductImage
 from apps.categories.models import Category
 
 
-# =========================
+
 # PRODUCT LIST
-# =========================
+
 def admin_product_list(request):
     if not request.user.is_authenticated or not request.user.is_superuser:
         return redirect("admin_login")
@@ -36,9 +36,9 @@ def admin_product_list(request):
     )
 
 
-# =========================
+
 # ADD PRODUCT
-# =========================
+
 def admin_add_product(request):
     if not request.user.is_authenticated or not request.user.is_superuser:
         return redirect("admin_login")
@@ -46,29 +46,19 @@ def admin_add_product(request):
     categories = Category.objects.all()
 
     if request.method == "POST":
-        images = request.FILES.getlist("image")
+        is_featured = request.POST.get("is_featured") == "on"
 
-        # 🔐 VALIDATION FIRST
-        if len(images) < 3:
-            messages.error(request, "Please upload at least 3 images")
-            return redirect("admin_add_product")
-
-        # ✅ CREATE PRODUCT AFTER VALIDATION
         product = Product.objects.create(
-            name=request.POST.get("name"),
-            description=request.POST.get("description"),
-            base_price=request.POST.get("price"),
-            category_id=request.POST.get("category"),
-            is_active=True,
-        )
+        name=request.POST.get("name"),
+        description=request.POST.get("description"),
+        base_price=request.POST.get("price"),
+        category_id=request.POST.get("category"),
+        is_active=True,
+        is_featured=is_featured,  
+    )
 
-        for img in images:
-            ProductImage.objects.create(
-                product=product,
-                image=img
-            )
 
-        messages.success(request, "Product created. Add variants now.")
+        messages.success(request, "Product created. Add images and variants.")
         return redirect("admin_edit_product", product_id=product.id)
 
     return render(
@@ -79,9 +69,9 @@ def admin_add_product(request):
 
 
 
-# =========================
+
 # EDIT PRODUCT
-# =========================
+
 def admin_edit_product(request, product_id):
     if not request.user.is_authenticated or not request.user.is_superuser:
         return redirect("admin_login")
@@ -89,9 +79,10 @@ def admin_edit_product(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     variants = product.variants.all().order_by("size")
     categories = Category.objects.all()
-    images = product.images.all()   # ✅ FIXED
+    images = product.images.all()
 
     if request.method == "POST":
+        product.is_featured = request.POST.get("is_featured") == "on"
         product.name = request.POST.get("name")
         product.description = request.POST.get("description")
         product.base_price = request.POST.get("price")
@@ -99,8 +90,9 @@ def admin_edit_product(request, product_id):
         product.save()
 
         messages.success(request, "Product updated successfully")
-        return redirect("admin_product_list")
 
+       
+        return redirect("admin_product_list")
 
     return render(
         request,
@@ -112,10 +104,13 @@ def admin_edit_product(request, product_id):
             "images": images,
         },
     )
-    
 
 
 def admin_upload_product_image(request, product_id):
+    if not request.user.is_authenticated or not request.user.is_superuser:
+        return redirect("admin_login")
+
+
     if request.method == "POST" and request.FILES.get("image"):
         product = get_object_or_404(Product, id=product_id)
 
@@ -130,10 +125,13 @@ def admin_upload_product_image(request, product_id):
 
 
 def admin_delete_product_image(request, image_id):
+    if not request.user.is_authenticated or not request.user.is_superuser:
+        return redirect("admin_login")
+
     if request.method == "POST":
         image = get_object_or_404(ProductImage, id=image_id)
 
-        # If Cloudinary
+      
         if hasattr(image.image, "delete"):
             image.image.delete(save=False)
 
@@ -142,19 +140,28 @@ def admin_delete_product_image(request, image_id):
 
     return JsonResponse({"success": False}, status=400)
 
-# =========================
+
 # ADD VARIANT
-# =========================
+
 def admin_add_variant(request, product_id):
+    if not request.user.is_authenticated or not request.user.is_superuser:
+        return redirect("admin_login")
+
     product = get_object_or_404(Product, id=product_id)
 
     if request.method == "POST":
         size = request.POST.get("size")
         stock = request.POST.get("stock")
 
+        
+        allowed_sizes = dict(ProductVariant.SIZE_CHOICES)
+        if size not in allowed_sizes:
+            messages.error(request, "Invalid size selected.")
+            return redirect("admin_edit_product", product_id=product.id)
+
         if ProductVariant.objects.filter(product=product, size=size).exists():
-            messages.error(request, "Variant already exists for this product")
-            return redirect("admin_product_list")
+            messages.error(request, f"Variant {size} already exists.")
+            return redirect("admin_edit_product", product_id=product.id)
 
         ProductVariant.objects.create(
             product=product,
@@ -163,15 +170,19 @@ def admin_add_variant(request, product_id):
             is_active=True,
         )
 
-        messages.success(request, "Variant added successfully")
+        messages.success(request, f"Variant {size} added successfully.")
 
-    return redirect("admin_product_list")
+    
+    return redirect("admin_edit_product", product_id=product.id)
 
 
-# =========================
+
 # UPDATE VARIANT STOCK
-# =========================
+
 def admin_update_variant(request, variant_id):
+    if not request.user.is_authenticated or not request.user.is_superuser:
+        return redirect("admin_login")
+
     variant = get_object_or_404(ProductVariant, id=variant_id)
 
     if request.method == "POST":
@@ -179,25 +190,32 @@ def admin_update_variant(request, variant_id):
         variant.save()
         messages.success(request, "Variant stock updated")
 
-    return redirect("admin_product_list")
+    return redirect("admin_edit_product", product_id=variant.product.id)
 
 
-# =========================
+
+
 # TOGGLE VARIANT
-# =========================
+
 def admin_toggle_variant(request, variant_id):
+    if not request.user.is_authenticated or not request.user.is_superuser:
+        return redirect("admin_login")
+
     variant = get_object_or_404(ProductVariant, id=variant_id)
     variant.is_active = not variant.is_active
     variant.save()
 
     messages.success(request, "Variant status updated")
-    return redirect("admin_product_list")
+    return redirect("admin_edit_product", product_id=variant.product.id)
 
 
-# =========================
+
 # TOGGLE PRODUCT
-# =========================
+
 def admin_toggle_product(request, product_id):
+    if not request.user.is_authenticated or not request.user.is_superuser:
+        return redirect("admin_login")
+
     product = get_object_or_404(Product, id=product_id)
     product.is_active = not product.is_active
     product.save()
@@ -205,14 +223,3 @@ def admin_toggle_product(request, product_id):
     messages.success(request, "Product status updated")
     return redirect("admin_product_list")
 
-def admin_delete_product_image(request, image_id):
-    if not request.user.is_authenticated or not request.user.is_superuser:
-        return redirect("admin_login")
-
-    image = get_object_or_404(ProductImage, id=image_id)
-    product_id = image.product.id
-
-    image.delete()  # ✅ deletes DB row + Cloudinary image
-
-    messages.success(request, "Image deleted successfully")
-    return redirect("admin_edit_product", product_id=product_id)

@@ -40,7 +40,7 @@
             </p>
         </div>
 
-        <!-- ================= PRODUCT FORM ================= -->
+        <!-- PRODUCT FORM -->
         <form method="post" class="product-form">
             {% csrf_token %}
 
@@ -63,6 +63,51 @@
                 >
                 <span class="input-hint">Enter a descriptive product name</span>
             </div>
+
+            
+                            
+                <div1 class="form-group featured-checkbox">
+                        <div class="checkbox-container">
+                            <input 
+                                type="checkbox" 
+                                id="featuredProduct" 
+                                name="is_featured"
+                                {% if product and product.is_featured %}checked{% endif %}
+                            >
+                            <label for="featuredProduct" class="checkbox-label">
+                                <div class="checkbox-visual">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                </div>
+                                <div class="checkbox-content">
+                                    <span class="checkbox-title">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                        </svg>
+                                        Featured Product
+                                    </span>
+                                    <span class="checkbox-description">
+                                        Mark this product to appear in featured section on homepage
+                                    </span>
+                                </div>
+                            </label>
+                        </div>
+                </div1>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
             <div class="form-group">
                 <label for="productDescription">
@@ -133,9 +178,9 @@
                 </button>
             </div>
         </form>
-        <!-- =============== END PRODUCT FORM =============== -->
+        <!--END PRODUCT FORM-->
 
-        <!-- ================= IMAGE UPLOAD SECTION ================= -->
+        <!-- IMAGE UPLOAD SECTION -->
         {% if product %}
         <div class="image-upload-section">
             <div class="section-divider"></div>
@@ -196,7 +241,7 @@
             {% endif %}
         </div>
 
-        <!-- ================= VARIANTS SECTION ================= -->
+        <!--VARIANTS SECTION -->
         <div class="variants-section">
             <div class="section-divider"></div>
             
@@ -215,13 +260,14 @@
             <form method="post" action="{% url 'admin_add_variant' product.id %}" class="add-variant-form">
                 {% csrf_token %}
                 <div class="variant-input-group">
-                    <input 
-                        type="text" 
-                        name="size" 
-                        placeholder="Size (S, M, L, XL)" 
-                        required
-                        autocomplete="off"
-                    >
+                    <select name="size" required>
+                        <option value="">Select Size</option>
+                        <option value="S">S</option>
+                        <option value="M">M</option>
+                        <option value="L">L</option>
+                        <option value="XL">XL</option>
+                        <option value="XXL">XXL</option>
+                    </select>
                     <input 
                         type="number" 
                         name="stock" 
@@ -319,7 +365,7 @@
     </div>
 </div>
 
-<!-- ================= IMAGE CROP MODAL ================= -->
+<!--  IMAGE CROP MODAL-->
 <div id="cropModal" class="modal-overlay">
     <div class="modal-container crop-modal">
         <div class="modal-content">
@@ -350,9 +396,9 @@
 </div>
 
 <style>
-/* ========================================
+
    MANLY ADMIN - PRODUCT FORM PAGE
-======================================== */
+ 
 
 .product-form-page {
     max-width: 800px;
@@ -1189,6 +1235,176 @@
     }
 }
 
+/* Featured Product Checkbox */
+.featured-checkbox {
+    animation: slideInLeft 0.6s ease 0.2s backwards;
+}
+
+.checkbox-container {
+    position: relative;
+}
+
+.checkbox-container input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background: #0f0f0f;
+    border: 2px solid #2a2a2a;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    user-select: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.checkbox-label::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255, 140, 0, 0.1), rgba(255, 107, 0, 0.05));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.checkbox-label:hover {
+    border-color: #ff8c00;
+    background: rgba(255, 140, 0, 0.05);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 140, 0, 0.1);
+}
+
+.checkbox-label:hover::before {
+    opacity: 1;
+}
+
+.checkbox-visual {
+    position: relative;
+    width: 24px;
+    height: 24px;
+    border: 2px solid #2a2a2a;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+    background: #151515;
+}
+
+.checkbox-visual svg {
+    stroke: transparent;
+    transform: scale(0);
+    transition: all 0.2s ease;
+}
+
+.checkbox-container input:checked + .checkbox-label .checkbox-visual {
+    border-color: #ff8c00;
+    background: linear-gradient(135deg, #ff8c00, #ff6b00);
+    box-shadow: 0 0 15px rgba(255, 140, 0, 0.3);
+}
+
+.checkbox-container input:checked + .checkbox-label .checkbox-visual svg {
+    stroke: #fff;
+    transform: scale(1);
+}
+
+.checkbox-container input:checked + .checkbox-label {
+    border-color: rgba(255, 140, 0, 0.3);
+    background: rgba(255, 140, 0, 0.05);
+}
+
+.checkbox-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.checkbox-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 0.3px;
+}
+
+.checkbox-title svg {
+    stroke: #ff8c00;
+    transition: all 0.3s ease;
+}
+
+.checkbox-container input:checked + .checkbox-label .checkbox-title svg {
+    animation: starPulse 1.5s ease infinite;
+}
+
+@keyframes starPulse {
+    0%, 100% { 
+        transform: scale(1);
+        filter: drop-shadow(0 0 0 rgba(255, 140, 0, 0));
+    }
+    50% { 
+        transform: scale(1.2);
+        filter: drop-shadow(0 0 10px rgba(255, 140, 0, 0.6));
+    }
+}
+
+.checkbox-description {
+    font-size: 13px;
+    color: #999;
+    line-height: 1.4;
+    font-style: italic;
+}
+
+/* Checkbox focus state */
+.checkbox-container input:focus + .checkbox-label {
+    border-color: #ff8c00;
+    box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.2);
+}
+
+/* Checkbox ripple effect */
+.checkbox-label::after {
+    content: '';
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 140, 0, 0.2);
+    top: 50%;
+    left: 12px;
+    transform: translateY(-50%) scale(0);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.checkbox-container input:checked + .checkbox-label::after {
+    animation: checkboxRipple 0.6s ease-out;
+}
+
+@keyframes checkboxRipple {
+    0% {
+        transform: translateY(-50%) scale(0);
+        opacity: 0.5;
+    }
+    100% {
+        transform: translateY(-50%) scale(2);
+        opacity: 0;
+    }
+}
 /* Responsive */
 @media (max-width: 768px) {
     .form-container {
@@ -1247,6 +1463,12 @@
 }
 </style>
 
+{% if product %}
+<input
+    type="hidden"
+    id="uploadImageUrl"
+    value="{% url 'admin_upload_product_image' product.id %}">
+{% endif %}
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -1258,9 +1480,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const cropConfirm = document.getElementById("cropConfirm");
     const cropCancel  = document.getElementById("cropCancel");
 
-    /* ===============================
-       OPEN CROPPER
-    =============================== */
+    /* OPEN CROPPER*/
+
+
     imageInput.addEventListener("change", function () {
         const file = this.files[0];
         if (!file) return;
@@ -1284,9 +1506,9 @@ document.addEventListener("DOMContentLoaded", function () {
         reader.readAsDataURL(file);
     });
 
-    /* ===============================
-       CANCEL CROP
-    =============================== */
+    /* CANCEL CROP*/
+
+
     cropCancel.addEventListener("click", () => {
         cropModal.classList.remove("show");
         if (cropper) {
@@ -1296,19 +1518,26 @@ document.addEventListener("DOMContentLoaded", function () {
         imageInput.value = "";
     });
 
-    /* ===============================
-       CROP & UPLOAD
-    =============================== */
+    /* CROP & UPLOAD*/
+
+
     cropConfirm.addEventListener("click", () => {
         if (!cropper) return;
 
+        const uploadUrlEl = document.getElementById("uploadImageUrl");
+        if (!uploadUrlEl) {
+            alert("Save product before uploading images.");
+            return;
+        }
+
+        const uploadUrl = uploadUrlEl.value;
         const canvas = cropper.getCroppedCanvas({ width: 800, height: 800 });
 
         canvas.toBlob(blob => {
             const formData = new FormData();
             formData.append("image", blob);
 
-            fetch("{% url 'admin_upload_product_image' product.id %}", {
+            fetch(uploadUrl, {
                 method: "POST",
                 headers: { "X-CSRFToken": "{{ csrf_token }}" },
                 body: formData
@@ -1318,16 +1547,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (data.success) location.reload();
                 else alert(data.error || "Upload failed");
             })
-            .catch(err => {
-                console.error(err);
-                alert("Upload error");
-            });
+            .catch(() => alert("Upload error"));
         }, "image/jpeg");
     });
 
-    /* ===============================
-       DELETE IMAGE
-    =============================== */
+
+    /* DELETE IMAGE*/
+
+
     document.querySelectorAll(".btn-delete").forEach(btn => {
         btn.addEventListener("click", () => {
             const imageId = btn.dataset.id;
@@ -1348,5 +1575,4 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 
-
-{% endblock %}
+{% endblock%}
