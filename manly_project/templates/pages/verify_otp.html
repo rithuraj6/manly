@@ -225,42 +225,40 @@
 </style>
 
 <script>
-// OTP Input Auto-focus and Navigation
+
 document.addEventListener('DOMContentLoaded', function() {
     const inputs = document.querySelectorAll('.otp-input');
     const form = document.getElementById('otpForm');
     const fullOtpInput = document.getElementById('fullOtp');
     const resendBtn = document.getElementById('resendBtn');
     const timerElement = document.getElementById('timer');
-    
-    // Auto-focus next input
+   
     inputs.forEach((input, index) => {
         input.addEventListener('input', function(e) {
             const value = e.target.value;
             
-            // Only allow numbers
+            
             if (!/^\d*$/.test(value)) {
                 e.target.value = '';
                 return;
             }
             
-            // Move to next input
             if (value.length === 1 && index < inputs.length - 1) {
                 inputs[index + 1].focus();
             }
             
-            // Update hidden full OTP
+          
             updateFullOtp();
         });
         
-        // Handle backspace
+      
         input.addEventListener('keydown', function(e) {
             if (e.key === 'Backspace' && !e.target.value && index > 0) {
                 inputs[index - 1].focus();
             }
         });
         
-        // Handle paste
+       
         input.addEventListener('paste', function(e) {
             e.preventDefault();
             const pastedData = e.clipboardData.getData('text').slice(0, 4);
@@ -275,19 +273,19 @@ document.addEventListener('DOMContentLoaded', function() {
             
             updateFullOtp();
             
-            // Focus last filled input or next empty
+  
             const lastIndex = Math.min(pastedData.length, inputs.length - 1);
             inputs[lastIndex].focus();
         });
     });
     
-    // Update hidden full OTP input
+   
     function updateFullOtp() {
         const otp = Array.from(inputs).map(input => input.value).join('');
         fullOtpInput.value = otp;
     }
     
-    // Timer countdown
+   
     let timeLeft = 75;
     const countdown = setInterval(() => {
         if (timeLeft <= 0) {
@@ -301,17 +299,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 1000);
     
-    // Resend OTP
+  
     resendBtn.addEventListener('click', function(e) {
         e.preventDefault();
         
         if (this.classList.contains('disabled')) return;
         
-        // Reset timer
+      
         timeLeft = 75;
         this.classList.add('disabled');
         
-        // Make AJAX call to resend OTP
+       
         fetch('{% url "resend_otp" %}', {
             method: 'POST',
             headers: {
@@ -330,7 +328,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Form submission
+   
     form.addEventListener('submit', function(e) {
         updateFullOtp();
         
@@ -340,7 +338,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Focus first input on load
+ 
     inputs[0].focus();
 });
 </script>

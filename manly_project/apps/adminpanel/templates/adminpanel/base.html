@@ -3,15 +3,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"
-/>
+  <link rel="stylesheet"
+      href="https://unpkg.com/cropperjs@1.6.1/dist/cropper.min.css">
 
-<script
-  src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"
-  defer
-></script>
+<script src="https://unpkg.com/cropperjs@1.6.1/dist/cropper.min.js"></script>
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -488,9 +483,9 @@
     <!-- SIDEBAR -->
     <aside class="admin-sidebar" id="adminSidebar">
         <!-- Logo -->
-        <div class="sidebar-logo">
-            <img src="{% static 'images/logo.png' %}" alt="Manly">
-            <span class="logo-text">MANLY</span>
+       <div class="sidebar-logo"> 
+            
+            <span class="logo-text">ADMIN PANEL</span> 
         </div>
 
         <!-- Menu -->
@@ -537,7 +532,7 @@
                 <span class="text">Offers</span>
             </a>
 
-            <a href="{% url 'admin_dashboard' %}" 
+            <a href="{% url 'admin_banner_list' %}" 
                 class="sidebar-link">
                 <span class="icon">🖼️</span>
                 <span class="text">Banner</span>

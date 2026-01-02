@@ -18,6 +18,15 @@ from .views.product_views import (
     admin_add_product,
     admin_update_variant,
     admin_toggle_product,
+    admin_delete_product_image,
+    admin_upload_product_image,
+)
+
+
+from .views.banner_views import (
+    admin_banner_list,
+    admin_add_banner,
+    admin_toggle_banner,
 )
 
 
@@ -46,9 +55,21 @@ urlpatterns = [
     path("products/add/", admin_add_product, name="admin_add_product"),
     path("variants/update/<int:variant_id>/", admin_update_variant, name="admin_update_variant"),
     path("products/toggle/<int:product_id>/", admin_toggle_product, name="admin_toggle_product"),
+   path(
+    "products/<int:product_id>/images/upload/",
+    admin_upload_product_image,
+    name="admin_upload_product_image"
+),
 
+path(
+    "products/images/delete/<int:image_id>/",
+    admin_delete_product_image,
+    name="admin_delete_product_image"
+),
 
-
+path("banners/", admin_banner_list, name="admin_banner_list"),
+    path("banners/add/", admin_add_banner, name="admin_add_banner"),
+    path("banners/toggle/<int:banner_id>/", admin_toggle_banner, name="admin_toggle_banner"),
 
     
 ]

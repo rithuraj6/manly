@@ -50,12 +50,31 @@ INSTALLED_APPS = [
     'apps.core',
     'apps.cart',
     'apps.wishlist',
-    "apps.userprofile.apps.UserprofileConfig",
+    'apps.sizeguide',
+    "apps.userprofile",
+    
     
     
     
     
     'apps.adminpanel',
+    
+    'cloudinary',
+    'cloudinary_storage',
+    
+    "apps.banners", 
+    
+    
+    
+    "django.contrib.sites",
+
+    
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
+
+    
     
 ]
 
@@ -65,6 +84,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    "allauth.account.middleware.AccountMiddleware",
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     
@@ -72,6 +92,9 @@ MIDDLEWARE = [
     
     'apps.accounts.middleware.BlockedUserMiddleware',
     'apps.core.middleware.DisableBackButtonMiddleware',
+  
+    
+   
 
 ]
 
@@ -149,14 +172,14 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
 
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
 
 
 AUTH_USER_MODEL = "accounts.User"
 
 AUTHENTICATION_BACKENDS = [
    'apps.accounts.backends.EmailBackend',
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
 ]
 
 
@@ -171,3 +194,39 @@ DEFAULT_FORM_EMAIL = EMAIL_HOST_USER
 
 
 
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv("CLOUDINARY_CLOUD_NAME"),
+    'API_KEY': os.getenv("CLOUDINARY_API_KEY"),
+    'API_SECRET': os.getenv("CLOUDINARY_API_SECRET"),
+}
+
+
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+ACCOUNT_ADAPTER = "apps.accounts.adapters.CustomAccountAdapter"
+
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_EMAIL_REQUIRED = True
+
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_LOGIN_METHODS = {"email"}
+
+SOCIALACCOUNT_QUERY_EMAIL = True
+SOCIALACCOUNT_AUTO_SIGNUP = True
+SOCIALACCOUNT_LOGIN_ON_GET = True
+ACCOUNT_ADAPTER = "apps.accounts.adapters.CustomAccountAdapter"
+
+
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "SCOPE": ["profile", "email"],
+        "AUTH_PARAMS": {"access_type": "online"},
+    }
+}
+
+SITE_ID = 1
+
+LOGIN_REDIRECT_URL = "/account/profile/"
+LOGIN_URL = "/accounts/login/"
+LOGOUT_REDIRECT_URL = "/"

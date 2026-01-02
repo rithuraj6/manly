@@ -1,0 +1,1232 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="product-detail-wrapper">
+    <!-- Background Elements -->
+    <div class="bg-blur blur-1"></div>
+    <div class="bg-blur blur-2"></div>
+
+    <!-- Main Product Container -->
+    <section class="product-detail-container">
+
+        <!-- LEFT: IMAGE GALLERY -->
+        <div class="product-gallery">
+            <div class="thumbnail-column">
+                {% for image in product_images %}
+                    <div class="thumbnail-item">
+                        <img src="{{ image.image.url }}" alt="{{ product.name }}" data-index="{{ forloop.counter0 }}">
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="main-image-container">
+                <div class="main-image">
+                    {% if product_images %}
+                        <img src="{{ product_images.first.image.url }}" alt="{{ product.name }}" id="mainImage">
+                    {% endif %}
+                    <div class="zoom-lens"></div>
+                    <div class="image-nav nav-left">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </div>
+                    <div class="image-nav nav-right">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </div>
+                </div>
+                <p class="zoom-hint">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                        <line x1="11" y1="8" x2="11" y2="14"></line>
+                        <line x1="8" y1="11" x2="14" y2="11"></line>
+                    </svg>
+                    Hover to zoom
+                </p>
+            </div>
+        </div>
+
+        <!-- RIGHT: PRODUCT INFO -->
+        <div class="product-info">
+            <div class="product-header">
+                <h1 class="product-title">{{ product.name }}</h1>
+                
+                <div class="rating-stock-wrapper">
+                    <div class="product-rating">
+                        <div class="stars">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="#fbbf24" stroke="#fbbf24" stroke-width="2">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                            </svg>
+                            <span class="rating-value">{{ dummy_rating.rating }}</span>
+                        </div>
+                        <span class="rating-reviews">{{ dummy_rating.reviews }} reviews</span>
+                    </div>
+
+                    {% if in_stock %}
+                        <div class="stock-badge in-stock">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                            In Stock
+                        </div>
+                    {% else %}
+                        <div class="stock-badge out-stock">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="15" y1="9" x2="9" y2="15"></line>
+                                <line x1="9" y1="9" x2="15" y2="15"></line>
+                            </svg>
+                            Out of Stock
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="price-section">
+                    <span class="current-price">₹{{ product.base_price }}</span>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Size Selector -->
+            <div class="size-selector-wrapper">
+                <label class="input-label">
+                    <svg width="8" height="16" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="3">
+                    </svg>
+                    Select Size
+                </label>
+                <select class="size-select" {% if not in_stock %}disabled{% endif %}>
+                    {% for variant in variants %}
+                        <option
+                            value="{{ variant.size }}"
+                            {% if not variant.is_active or variant.stock == 0 %}
+                                disabled class="variant-disabled"
+                            {% endif %}
+                        >
+                            {{ variant.size }}
+                            {% if variant.stock == 0 %}(Out of stock){% endif %}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="btn wishlist-btn" disabled>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                    </svg>
+                    Wishlist
+                </button>
+                <button class="btn buy-now-btn" {% if not in_stock %}disabled{% endif %}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
+                    Buy Now
+                </button>
+                <button class="btn add-to-cart-btn" {% if not in_stock %}disabled{% endif %}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <path d="M16 10a4 4 0 0 1-8 0"></path>
+                    </svg>
+                    Add To Cart
+                </button>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- Product Description -->
+            <div class="product-details">
+                <h3 class="details-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    Product Description
+                </h3>
+                <p class="product-description">{{ product.description|linebreaks }}</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- REVIEWS SECTION -->
+    <section class="reviews-section">
+        <div class="reviews-header">
+            <h2 class="section-title">Customer Reviews</h2>
+            <div class="review-summary-badge">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#fbbf24" stroke="#fbbf24" stroke-width="2">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+                <span class="summary-rating">{{ dummy_rating.rating }} / 5</span>
+                <span class="summary-count">({{ dummy_rating.reviews }} ratings)</span>
+            </div>
+        </div>
+        <div class="review-placeholder">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <p>Reviews will be available soon</p>
+        </div>
+    </section>
+
+    <!-- SIMILAR PRODUCTS -->
+    <section class="similar-products">
+        <div class="section-header">
+            <h2 class="section-title">Similar Collection</h2>
+            <div class="slider-controls">
+                <button class="slider-btn btn-prev">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+                <button class="slider-btn btn-next">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="product-slider-container">
+            <div class="product-slider">
+                {% for item in similar_products %}
+                    <a href="{% url 'product_detail' item.id %}" class="similar-card">
+                        <div class="similar-image-wrapper">
+                            {% with img=item.images.first %}
+                                {% if img %}
+                                    <img src="{{ img.image.url }}" alt="{{ item.name }}">
+                                {% else %}
+                                    <img src="{% static 'images/placeholder.png' %}" alt="No image">
+                                {% endif %}
+                            {% endwith %}
+                            <button class="wishlist-icon">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="similar-info">
+                            <h4 class="similar-name">{{ item.name }}</h4>
+                            <p class="similar-price">₹{{ item.base_price }}</p>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- ZOOM OVERLAY -->
+    <div class="zoom-overlay" id="zoomOverlay">
+        <div class="zoom-container">
+            <img src="" alt="Zoomed Image" id="zoomedImage">
+            <button class="zoom-close">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Cinzel:wght@500;600;700&display=swap');
+
+/* ==========================================
+   GLOBAL STYLES
+========================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.product-detail-wrapper {
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 60px 40px;
+    font-family: 'Montserrat', sans-serif;
+    position: relative;
+    background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
+}
+
+/* Background Blur Effects */
+.bg-blur {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.blur-1 {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.2), transparent);
+    top: 10%;
+    right: 10%;
+    animation: float1 20s ease-in-out infinite;
+}
+
+.blur-2 {
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(236, 72, 153, 0.15), transparent);
+    bottom: 10%;
+    left: 5%;
+    animation: float2 25s ease-in-out infinite reverse;
+}
+
+@keyframes float1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(50px, -50px) scale(1.1); }
+}
+
+@keyframes float2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-40px, 40px) scale(1.15); }
+}
+
+/* ==========================================
+   PRODUCT DETAIL CONTAINER
+========================================== */
+.product-detail-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    margin-bottom: 100px;
+    position: relative;
+    z-index: 1;
+}
+
+/* ==========================================
+   PRODUCT GALLERY
+========================================== */
+.product-gallery {
+    display: flex;
+    gap: 24px;
+}
+
+.thumbnail-column {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.thumbnail-item {
+    width: 90px;
+    height: 110px;
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.thumbnail-item::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0,0,0,0.3), transparent);
+    opacity: 0.4;
+    transition: opacity 0.3s ease;
+}
+
+.thumbnail-item:hover::before {
+    opacity: 0;
+}
+
+.thumbnail-item.active {
+    border-color: #1a1a1a;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+}
+
+.thumbnail-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.thumbnail-item:hover img {
+    transform: scale(1.1);
+}
+
+.main-image-container {
+    flex: 1;
+}
+
+.main-image {
+    position: relative;
+    border-radius: 24px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+    aspect-ratio: 3/4;
+}
+
+.main-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    cursor: zoom-in;
+    transition: transform 0.3s ease;
+}
+
+.breadcrumbs{font-size:14px;color:#777}  
+.breadcrumbs a{color:#777;text-decoration:none}
+.breadcrumbs span{margin:0 6px}
+.breadcrumbs .current{color:var(--accent-red);text-shadow:0 0 10px rgba(161, 6, 6, 0.73)}
+
+/* Zoom Lens */
+.zoom-lens {
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    border: 2px solid rgba(255,255,255,0.8);
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(2px);
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 10;
+}
+
+.main-image:hover .zoom-lens {
+    opacity: 1;
+}
+
+/* Image Navigation */
+.image-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 48px;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(10px);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10;
+    color: #fff;
+}
+
+.image-nav:hover {
+    background: rgba(0,0,0,0.8);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.nav-left { left: 20px; }
+.nav-right { right: 20px; }
+
+.zoom-hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 16px;
+    font-size: 13px;
+    color: #666;
+    font-weight: 500;
+}
+
+/* ==========================================
+   PRODUCT INFO
+========================================== */
+.product-info {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+}
+
+.product-header {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.product-title {
+    font-family: 'Cinzel', serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: #1a1a1a;
+    letter-spacing: 0.5px;
+    line-height: 1.3;
+}
+
+.rating-stock-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.product-rating {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.stars {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.rating-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.rating-reviews {
+    font-size: 14px;
+    color: #666;
+}
+
+.stock-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.stock-badge.in-stock {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.stock-badge.out-stock {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.price-section {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+}
+
+.current-price {
+    font-family: 'Cinzel', serif;
+    font-size: 42px;
+    font-weight: 700;
+    color: #1a1a1a;
+    letter-spacing: 1px;
+}
+
+.divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #ddd, transparent);
+}
+
+/* Size Selector */
+.size-selector-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.input-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a1a;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.size-select {
+    width: 140px;  
+    padding: 8px 8px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: 'Montserrat', sans-serif;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #fff;
+    color: #1a1a1a;
+}
+
+.size-select:hover:not(:disabled) {
+    border-color: #1a1a1a;
+}
+
+.size-select:focus {
+    outline: none;
+    border-color: #1d1515ff;
+    box-shadow: 0 0 0 4px rgba(0,0,0,0.05);
+}
+
+.variant-disabled {
+    color: #ef4444;
+    font-weight: 600;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+}
+
+.btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 18px 24px;
+    border-radius: 14px;
+    border: none;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Montserrat', sans-serif;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.btn:hover:not(:disabled)::before {
+    opacity: 1;
+}
+
+.btn:hover:not(:disabled) {
+    transform: translateY(-3px);
+}
+
+.btn:active:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.wishlist-btn {
+    background: linear-gradient(135deg, #ff5da2 0%, #ff1f6f 100%);
+    color: #fff;
+    box-shadow: 0 8px 24px rgba(255, 93, 162, 0.3);
+}
+
+.wishlist-btn:hover:not(:disabled) {
+    box-shadow: 0 12px 32px rgba(255, 93, 162, 0.4);
+}
+
+.buy-now-btn {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: #fff;
+    box-shadow: 0 8px 24px rgba(34, 197, 94, 0.3);
+}
+
+.buy-now-btn:hover:not(:disabled) {
+    box-shadow: 0 12px 32px rgba(34, 197, 94, 0.4);
+}
+
+.add-to-cart-btn {
+    background: linear-gradient(135deg, #1a1a1a 0%, #000 100%);
+    color: #fff;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.add-to-cart-btn:hover:not(:disabled) {
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* Product Details */
+.product-details {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.details-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a1a;
+    letter-spacing: 0.5px;
+}
+
+.product-description {
+    font-size: 15px;
+    line-height: 1.8;
+    color: #666;
+}
+
+/* ==========================================
+   REVIEWS SECTION
+========================================== */
+.reviews-section {
+    background: #fff;
+    border-radius: 24px;
+    padding: 8px;
+    margin-bottom: 55px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    position: relative;
+    overflow: hidden;
+}
+
+.reviews-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, #8b5cf6, #ec4899, #f59e0b);
+}
+
+.reviews-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+   
+}
+
+.section-title {
+    text-align : center,
+    font-family:  serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a1a;
+    padding :20px;
+}
+
+.review-summary-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.summary-rating {
+    font-size: 18px;
+    color: #1a1a1a;
+}
+
+.summary-count {
+    font-size: 14px;
+    color: #666;
+}
+
+.review-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    color: #999;
+    gap: 16px;
+}
+
+.review-placeholder svg {
+    opacity: 0.3;
+}
+
+/* ==========================================
+   SIMILAR PRODUCTS
+========================================== */
+.similar-products {
+    margin-bottom: 40px;
+    position: relative;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+}
+
+.slider-controls {
+    display: flex;
+    gap: 12px;
+}
+
+.slider-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    background: #fff;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.slider-btn:hover {
+    background: #1a1a1a;
+    color: #fff;
+    transform: scale(1.1);
+}
+
+.slider-btn svg {
+    stroke: currentColor;
+}
+
+.product-slider-container {
+    overflow: hidden;
+    padding: 10px 10px;
+}
+
+.product-slider {
+    display: flex;
+    gap: 28px;
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+
+.similar-card {
+    min-width: 280px;
+    background: #fff;
+    border-radius: 24px;
+    padding: 20px;
+    text-decoration: none;
+    color: #1a1a1a;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+}
+
+
+.similar-card:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+}
+
+.similar-image-wrapper {
+    position: relative;
+    border-radius: 18px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    aspect-ratio: 3/4;
+}
+
+.similar-image-wrapper img {
+    width: 300px;
+    height: 300px;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.similar-card:hover .similar-image-wrapper img {
+    transform: scale(1.1);
+}
+
+.wishlist-icon {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(10px);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.wishlist-icon:hover {
+    background: #ff5da2;
+    transform: scale(1.1);
+}
+
+.wishlist-icon:hover svg {
+    stroke: #fff;
+    fill: #fff;
+}
+
+.similar-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.similar-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a1a1a;
+    line-height: 1.4;
+}
+
+.similar-price {
+    font-family: 'Cinzel', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+/* ==========================================
+   ZOOM OVERLAY
+========================================== */
+.zoom-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.95);
+    backdrop-filter: blur(20px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.zoom-overlay.active {
+    display: flex;
+    animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
+
+.zoom-container {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    animation: zoomIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes zoomIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.zoom-container img {
+    max-width: 100%;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 20px;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+}
+
+.zoom-close {
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #fff;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+
+.zoom-close:hover {
+    background: #ef4444;
+    transform: rotate(90deg) scale(1.1);
+}
+
+.zoom-close:hover svg {
+    stroke: #fff;
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN
+========================================== */
+@media (max-width: 1200px) {
+    .product-detail-container {
+        gap: 60px;
+    }
+
+    .product-title {
+        font-size: 32px;
+    }
+
+    .current-price {
+        font-size: 36px;
+    }
+}
+
+@media (max-width: 968px) {
+    .product-detail-container {
+        grid-template-columns: 1fr;
+        gap: 50px;
+    }
+
+    .action-buttons {
+        grid-template-columns: 1fr;
+    }
+
+    .product-slider {
+        gap: 20px;
+    }
+
+    .similar-card {
+        min-width: 240px;
+    }
+}
+
+@media (max-width: 768px) {
+    .product-detail-wrapper {
+        padding: 40px 20px;
+    }
+
+    .product-gallery {
+        flex-direction: column-reverse;
+    }
+
+    .thumbnail-column {
+        flex-direction: row;
+        overflow-x: auto;
+    }
+
+    .thumbnail-item {
+        min-width: 80px;
+    }
+
+    .product-title {
+        font-size: 28px;
+    }
+
+    .reviews-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-title {
+        font-size: 24px;
+    }
+
+    .current-price {
+        font-size: 32px;
+    }
+
+    .btn {
+        padding: 16px 20px;
+        font-size: 13px;
+    }
+
+    .image-nav {
+        width: 40px;
+        height: 40px;
+    }
+
+    .nav-left { left: 12px; }
+    .nav-right { right: 12px; }
+}
+</style>
+
+<script>
+// Image Gallery & Navigation
+const thumbnails = document.querySelectorAll('.thumbnail-item');
+const mainImage = document.getElementById('mainImage');
+const zoomLens = document.querySelector('.zoom-lens');
+const navLeft = document.querySelector('.nav-left');
+const navRight = document.querySelector('.nav-right');
+const zoomOverlay = document.getElementById('zoomOverlay');
+const zoomedImage = document.getElementById('zoomedImage');
+const zoomClose = document.querySelector('.zoom-close');
+let currentIndex = 0;
+
+// Set first thumbnail as active
+if (thumbnails.length > 0) {
+    thumbnails[0].classList.add('active');
+}
+
+// Thumbnail click
+thumbnails.forEach((thumb, index) => {
+    thumb.addEventListener('click', () => {
+        currentIndex = index;
+        updateMainImage();
+        updateActiveThumbnail();
+    });
+});
+
+// Navigation buttons
+navRight.addEventListener('click', () => {
+    currentIndex = (currentIndex + 1) % thumbnails.length;
+    updateMainImage();
+    updateActiveThumbnail();
+});
+
+navLeft.addEventListener('click', () => {
+    currentIndex = (currentIndex - 1 + thumbnails.length) % thumbnails.length;
+    updateMainImage();
+    updateActiveThumbnail();
+});
+
+function updateMainImage() {
+    const imgSrc = thumbnails[currentIndex].querySelector('img').src;
+    mainImage.src = imgSrc;
+}
+
+function updateActiveThumbnail() {
+    thumbnails.forEach(thumb => thumb.classList.remove('active'));
+    thumbnails[currentIndex].classList.add('active');
+}
+
+// Dynamic Zoom on Hover
+const mainImageContainer = document.querySelector('.main-image');
+mainImageContainer.addEventListener('mousemove', (e) => {
+    const rect = mainImageContainer.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    // Position zoom lens
+    zoomLens.style.left = x - 75 + 'px';
+    zoomLens.style.top = y - 75 + 'px';
+    
+    // Calculate zoom
+    const xPercent = (x / rect.width) * 100;
+    const yPercent = (y / rect.height) * 100;
+    
+    mainImage.style.transformOrigin = `${xPercent}% ${yPercent}%`;
+    mainImage.style.transform = 'scale(1.5)';
+});
+
+mainImageContainer.addEventListener('mouseleave', () => {
+    mainImage.style.transform = 'scale(1)';
+});
+
+// Click to open full zoom
+mainImage.addEventListener('click', () => {
+    zoomOverlay.classList.add('active');
+    zoomedImage.src = mainImage.src;
+    document.body.style.overflow = 'hidden';
+});
+
+// Close zoom overlay
+zoomClose.addEventListener('click', closeZoom);
+zoomOverlay.addEventListener('click', (e) => {
+    if (e.target === zoomOverlay) closeZoom();
+});
+
+function closeZoom() {
+    zoomOverlay.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+    if (zoomOverlay.classList.contains('active')) {
+        if (e.key === 'Escape') closeZoom();
+        if (e.key === 'ArrowRight') {
+            currentIndex = (currentIndex + 1) % thumbnails.length;
+            updateMainImage();
+            updateActiveThumbnail();
+            zoomedImage.src = mainImage.src;
+        }
+        if (e.key === 'ArrowLeft') {
+            currentIndex = (currentIndex - 1 + thumbnails.length) % thumbnails.length;
+            updateMainImage();
+            updateActiveThumbnail();
+            zoomedImage.src = mainImage.src;
+        }
+    }
+});
+
+// Similar Products Slider
+const slider = document.querySelector('.product-slider');
+const btnPrev = document.querySelector('.btn-prev');
+const btnNext = document.querySelector('.btn-next');
+let slidePosition = 0;
+const slideWidth = 308; // card width + gap
+
+btnNext.addEventListener('click', () => {
+    const maxSlide = slider.scrollWidth - slider.parentElement.offsetWidth;
+    if (Math.abs(slidePosition) < maxSlide) {
+        slidePosition -= slideWidth;
+        slider.style.transform = `translateX(${slidePosition}px)`;
+    }
+});
+
+btnPrev.addEventListener('click', () => {
+    if (slidePosition < 0) {
+        slidePosition += slideWidth;
+        slider.style.transform = `translateX(${slidePosition}px)`;
+    }
+});
+
+// Disable buttons at ends
+function checkSliderPosition() {
+    btnPrev.disabled = slidePosition >= 0;
+    const maxSlide = slider.scrollWidth - slider.parentElement.offsetWidth;
+    btnNext.disabled = Math.abs(slidePosition) >= maxSlide;
+}
+
+btnPrev.addEventListener('click', checkSliderPosition);
+btnNext.addEventListener('click', checkSliderPosition);
+checkSliderPosition();
+</script>
+
+{% endblock %}

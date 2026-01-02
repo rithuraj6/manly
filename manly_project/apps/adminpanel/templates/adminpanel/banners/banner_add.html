@@ -1,0 +1,512 @@
+{% extends "adminpanel/base.html" %}
+{% block title %}Add Sale Banner | Admin{% endblock %}
+
+{% block content %}
+
+<div class="add-banner-page">
+    <!-- Header Section -->
+    <div class="page-header">
+        <div class="header-left">
+            <a href="{% url 'admin_banner_list' %}" class="btn-back">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+            </a>
+            <h1 class="page-title">Add Sale Banner</h1>
+        </div>
+    </div>
+
+    <!-- Form Container -->
+    <div class="form-container">
+        <form method="post" enctype="multipart/form-data" class="banner-form">
+            {% csrf_token %}
+
+            <div class="form-grid">
+                <!-- Title Input -->
+                <div class="form-group full-width">
+                    <label class="form-label">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 7h16M4 12h16M4 17h10"/>
+                        </svg>
+                        Banner Title
+                        <span class="required">*</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        name="title" 
+                        class="form-input"
+                        placeholder="Enter banner title (e.g., First Anniversary Sale)"
+                        required
+                    >
+                    <small class="form-hint">Main heading displayed on the banner</small>
+                </div>
+
+                <!-- Subtitle Input -->
+                <div class="form-group full-width">
+                    <label class="form-label">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                        </svg>
+                        Subtitle
+                    </label>
+                    <input 
+                        type="text" 
+                        name="subtitle" 
+                        class="form-input"
+                        placeholder="Enter subtitle (e.g., Up to 50% off)"
+                    >
+                    <small class="form-hint">Supporting text below the main title</small>
+                </div>
+
+                <!-- Image Upload -->
+                <div class="form-group full-width">
+                    <label class="form-label">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                            <circle cx="9" cy="9" r="2"/>
+                            <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
+                        </svg>
+                        Banner Image
+                        <span class="required">*</span>
+                    </label>
+                    <div class="file-upload-wrapper">
+                        <input 
+                            type="file" 
+                            name="image" 
+                            id="bannerImage"
+                            class="file-input"
+                            accept="image/*"
+                            required
+                        >
+                        <label for="bannerImage" class="file-upload-label">
+                            <div class="upload-icon">
+                                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="17 8 12 3 7 8"/>
+                                    <line x1="12" y1="3" x2="12" y2="15"/>
+                                </svg>
+                            </div>
+                            <span class="upload-text">Click to upload or drag and drop</span>
+                            <span class="upload-hint">PNG, JPG, JPEG (Max 5MB)</span>
+                        </label>
+                        <div class="image-preview" id="imagePreview"></div>
+                    </div>
+                    <small class="form-hint">Recommended size: 1920x550px for best results</small>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="form-actions">
+                <a href="{% url 'admin_banner_list' %}" class="btn btn-cancel">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                        <polyline points="17 21 17 13 7 13 7 21"/>
+                        <polyline points="7 3 7 8 15 8"/>
+                    </svg>
+                    Save Banner
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+/* =====================
+ ADD BANNER PAGE STYLES
+===================== */
+.add-banner-page {
+    padding: 0;
+    animation: fadeIn 0.5s ease;
+}
+
+/* Page Header */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    animation: slideInDown 0.6s ease;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.btn-back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    color: #e0e0e0;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+    background: #2a2a2a;
+    border-color: #ff8c00;
+    color: #ff8c00;
+    transform: translateX(-5px);
+}
+
+.page-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.5px;
+}
+
+/* Form Container */
+.form-container {
+    background: rgba(26, 26, 26, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid #2a2a2a;
+    border-radius: 20px;
+    padding: 40px;
+    animation: slideInUp 0.6s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.form-container::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 140, 0, 0.03), transparent);
+    animation: liquidFlow 6s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes liquidFlow {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    33% { transform: translate(10%, -10%) rotate(120deg); }
+    66% { transform: translate(-10%, 10%) rotate(240deg); }
+}
+
+.banner-form {
+    position: relative;
+    z-index: 1;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 0.3px;
+}
+
+.form-label svg {
+    color: #ff8c00;
+}
+
+.required {
+    color: #ef4444;
+    font-weight: 700;
+}
+
+.form-input {
+    width: 100%;
+    padding: 14px 18px;
+    background: #0f0f0f;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    color: #e0e0e0;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.form-input::placeholder {
+    color: #666;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #ff8c00;
+    background: #151515;
+    box-shadow: 0 0 20px rgba(255, 140, 0, 0.15);
+}
+
+.form-hint {
+    color: #999;
+    font-size: 12px;
+    margin-top: -4px;
+}
+
+/* File Upload Styles */
+.file-upload-wrapper {
+    position: relative;
+}
+
+.file-input {
+    display: none;
+}
+
+.file-upload-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    background: #0f0f0f;
+    border: 2px dashed #2a2a2a;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.file-upload-label:hover {
+    border-color: #ff8c00;
+    background: rgba(255, 140, 0, 0.05);
+}
+
+.upload-icon {
+    margin-bottom: 16px;
+    color: #666;
+    transition: all 0.3s ease;
+}
+
+.file-upload-label:hover .upload-icon {
+    color: #ff8c00;
+    transform: translateY(-5px);
+}
+
+.upload-text {
+    color: #e0e0e0;
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.upload-hint {
+    color: #999;
+    font-size: 13px;
+}
+
+.image-preview {
+    margin-top: 16px;
+    display: none;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #2a2a2a;
+}
+
+.image-preview img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.image-preview.show {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    padding-top: 24px;
+    border-top: 1px solid #2a2a2a;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    font-family: inherit;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    transform: translate(-50%, -50%);
+    transition: width 0.5s ease, height 0.5s ease;
+}
+
+.btn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.btn svg {
+    position: relative;
+    z-index: 1;
+}
+
+.btn span,
+.btn-primary span {
+    position: relative;
+    z-index: 1;
+}
+
+.btn-cancel {
+    background: #2a2a2a;
+    color: #e0e0e0;
+    border: 1px solid #3a3a3a;
+}
+
+.btn-cancel:hover {
+    background: #3a3a3a;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+    color: #fff;
+    padding: 14px 32px;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #ff6b00 0%, #ff5500 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(255, 140, 0, 0.4);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .form-container {
+        padding: 24px;
+    }
+
+    .page-title {
+        font-size: 24px;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('bannerImage');
+    const imagePreview = document.getElementById('imagePreview');
+    const uploadLabel = document.querySelector('.file-upload-label');
+    
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                imagePreview.classList.add('show');
+                uploadLabel.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Form validation
+    const form = document.querySelector('.banner-form');
+    form.addEventListener('submit', function(e) {
+        const submitBtn = form.querySelector('.btn-primary');
+        submitBtn.innerHTML = `
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;">
+                <circle cx="12" cy="12" r="10"></circle>
+            </svg>
+            Saving...
+        `;
+        submitBtn.disabled = true;
+    });
+});
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+</script>
+
+{% endblock %}

@@ -1,0 +1,401 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ category.name }} | MANLY{% endblock %}
+
+{% block content %}
+
+<style>
+
+
+.switch {
+    position: relative;
+    width: 46px;
+    height: 24px;
+}
+.switch input {
+    opacity: 0;
+}
+.slider {
+    position: absolute;
+    inset: 0;
+    background: #ccc;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.slider::before {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    left: 3px;
+    bottom: 3px;
+    background: white;
+    border-radius: 50%;
+    transition: 0.3s;
+}
+.switch input:checked + .slider {
+    background: #000;
+}
+.switch input:checked + .slider::before {
+    transform: translateX(22px);
+}
+
+/*LAYOUT */
+.shop-wrapper {
+    display: flex;
+    gap: 40px;
+    padding: 40px 60px;
+    background: #fff;
+}
+
+/* SIDEBAR  */
+.filter-sidebar {
+    width: 260px;
+    border-right: 1px solid #e5e5e5;
+    padding-right: 30px;
+}
+
+.filter-group {
+    margin-bottom: 30px;
+}
+
+.filter-group h4 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+}
+
+.filter-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    margin-bottom: 8px;
+    cursor: pointer;
+}
+
+.filter-group input[type="checkbox"] {
+    accent-color: #000;
+}
+
+.price-inputs {
+    display: flex;
+    gap: 10px;
+}
+
+.price-inputs input {
+    width: 100%;
+    padding: 6px 8px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+/* MAIN CONTENT */
+.product-area {
+    flex: 1;
+}
+
+/* HEADER */
+.list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.list-header h2 {
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.sort-box select {
+    padding: 8px 14px;
+    border-radius: 20px;
+    border: 1px solid #000;
+    background: #000;
+    color: #fff;
+    cursor: pointer;
+}
+
+/*  PRODUCT GRID*/
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+}
+
+.product-card {
+    text-decoration: none;
+    color: #000;
+    position: relative;
+}
+
+.product-card img {
+    width: 100%;
+    height: 340px;
+    object-fit: cover;
+    border-radius: 14px;
+    margin-bottom: 12px;
+}
+
+.product-card h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.price {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.price strike {
+    color: #888;
+    margin-right: 6px;
+}
+
+.wishlist {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    font-size: 20px;
+}
+
+.breadcrumbs{font-size:14px;color:#777}  
+.breadcrumbs a{color:#777;text-decoration:none}
+.breadcrumbs span{margin:0 6px}
+.breadcrumbs .current{color:var(--accent-red);text-shadow:0 0 10px rgba(161, 6, 6, 0.73)}
+
+.product-search-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.product-search-input {
+    flex: 1;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-family: 'Nunito Sans', sans-serif;
+}
+
+.product-search-btn {
+    padding: 12px 22px;
+    border-radius: 8px;
+    border: none;
+    background: #111;
+    color: white;
+    cursor: pointer;
+}
+
+
+/*PAGINATION*/
+.pagination {
+    margin-top: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+}
+
+.page-info {
+    font-size: 13px;
+    color: #555;
+}
+
+.page-links {
+    display: flex;
+    gap: 12px;
+}
+
+.page-links a,
+.page-links span {
+    padding: 8px 18px;
+    border-radius: 20px;
+    background: #000;
+    color: #fff;
+    font-size: 13px;
+    text-decoration: none;
+}
+
+.page-links span {
+    background: #ccc;
+    color: #000;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .shop-wrapper {
+        flex-direction: column;
+        padding: 20px;
+    }
+
+    .filter-sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 20px;
+    }
+
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+</style>
+
+<form method="get">
+
+<div class="shop-wrapper">
+
+    <!-- SIDEBAR -->
+    <aside class="filter-sidebar">
+
+        <!-- CATEGORY -->
+        <div class="filter-group">
+            <h4>Shop For</h4>
+            {% for cat in categories %}
+            <label>
+                <input type="checkbox" name="category"
+                       value="{{ cat.id }}"
+                       {% if cat.id|stringformat:"s" in selected_categories %}checked{% endif %}>
+                {{ cat.name }}
+            </label>
+            {% endfor %}
+        </div>
+
+        <!-- SIZE -->
+        <div class="filter-group">
+            <h4>Size</h4>
+            {% for s in sizes %}
+            <label>
+                <input type="checkbox" name="size"
+                    value="{{ s }}"
+                {% if s in selected_sizes %}checked{% endif %}>
+                    {{s}}
+
+            </label>
+            {% endfor %}
+        </div>
+
+        <!-- PRICE -->
+        <div class="filter-group">
+            <h4>Price</h4>
+            <div class="price-inputs">
+                <input type="number" name="min_price" placeholder="Min"
+                       value="{{ min_price }}">
+                <input type="number" name="max_price" placeholder="Max"
+                       value="{{ max_price }}">
+            </div>
+        </div>
+
+        <button type="submit" style="margin-top:20px;padding:10px 20px;border-radius:20px;background:#000;color:#fff;border:none;">
+            Apply
+        </button>
+
+    </aside>
+
+    <!-- PRODUCTS -->
+    <section class="product-area">
+
+        <div class="product-search-form">
+            <input
+                type="text"
+                name="q"
+                value="{{ search_query }}"
+                placeholder="Search formal, casual, party..."
+                class="product-search-input"
+            >
+            <button type="submit" class="product-search-btn">Search</button>
+        </div>
+
+            
+        <div class="list-header">
+    <h2>Our Collection</h2>
+
+    {% if default_size %}
+    <div style="display:flex;align-items:center;gap:10px;">
+                <span style="font-size:13px;">Looking for someone else?</span>
+                <label class="switch">
+                    <input type="checkbox" id="otherToggle">
+                    <span class="slider"></span>
+                </label>
+            </div>
+    {% endif %}
+
+            <div class="sort-box">
+                <select name="sort" onchange="this.form.submit()">
+                    <option value="">Sort</option>
+                    <option value="price_low" {% if sort == 'price_low' %}selected{% endif %}>Price: Low → High</option>
+                    <option value="price_high" {% if sort == 'price_high' %}selected{% endif %}>Price: High → Low</option>
+                    <option value="name_asc" {% if sort == 'name_asc' %}selected{% endif %}>Name: A → Z</option>
+                    <option value="name_desc" {% if sort == 'name_desc' %}selected{% endif %}>Name: Z → A</option>
+                </select>
+            </div>
+    </div>
+
+        <!-- PRODUCTS -->
+        <div class="product-grid">
+            {% for product in page_obj %}
+            <a href="{% url 'product_detail' product.id %}" class="product-card">
+                {% if product.images.first %}
+                    <img src="{{ product.images.first.image.url }}">
+                {% else %}
+                    <img src="{% static 'images/placeholder.jpg' %}">
+                {% endif %}
+                <h3>{{ product.name }}</h3>
+                <p class="price">₹{{ product.base_price }}</p>
+                <span class="wishlist">♡</span>
+            </a>
+            {% endfor %}
+        </div>
+
+        <!-- PAGINATION -->
+        <div class="pagination">
+            <div class="page-info">
+                Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ page_obj.paginator.count }} items
+            </div>
+
+            <div class="page-links">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}">Prev</a>
+                {% endif %}
+
+                <span>{{ page_obj.number }}</span>
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}">Next</a>
+                {% endif %}
+            </div>
+        </div>
+
+    </section>
+
+</div>
+</form>
+<script>
+const toggle = document.getElementById("otherToggle");
+if (toggle) {
+    toggle.addEventListener("change", function () {
+        document.querySelectorAll('input[name="size"]').forEach(cb => {
+            cb.checked = false;
+            cb.disabled = this.checked;
+        });
+    });
+}
+</script>
+
+
+{% endblock %}

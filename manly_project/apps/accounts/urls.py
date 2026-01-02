@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-    user_login, user_signup, google_auth,
+    user_login, user_signup,
     forgot_password, verify_otp, reset_password,
     resend_otp, user_logout
 )
@@ -18,8 +18,6 @@ urlpatterns =[
     
     path("forgot-password/", forgot_password, name="forgot_password"),
     path("reset-password/", reset_password, name="reset_password"),
-
-    path("google/", google_auth, name="google_login"),
     
     path("logout/", user_logout, name="logout"),
 
