@@ -3,22 +3,40 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 from .models import UserProfile
-from apps.sizeguide.models import SizeGuide  
+from apps.sizeguide.models import SizeGuide
 
 
 @login_required
 def profile_view(request):
+
+    breadcrumbs = [
+        {"name": "Home", "url": "/"},
+        {"name": "Account", "url": None},
+        {"name": "Profile", "url": None},
+    ]
+
     profile = request.user.profile
+
     return render(
         request,
         "account/profile_view.html",
-        {"profile": profile}
+        {
+            "profile": profile,
+            "breadcrumbs": breadcrumbs,
+        }
     )
 
 
 @login_required
 def profile_edit(request):
+
     profile = request.user.profile
+
+    breadcrumbs = [
+        {"name": "Home", "url": "/"},
+        {"name": "Account", "url": "/account/profile/"},
+        {"name": "Edit Profile", "url": None},
+    ]
 
     if request.method == "POST":
         profile.first_name = request.POST.get("first_name", "").strip()
@@ -31,7 +49,6 @@ def profile_edit(request):
         profile.chest = float(chest) if chest else None
         profile.shoulder = float(shoulder) if shoulder else None
 
-      
         profile.size = ""
 
         if profile.chest:
@@ -51,23 +68,59 @@ def profile_edit(request):
     return render(
         request,
         "account/profile_edit.html",
-        {"profile": profile}
+        {
+            "profile": profile,
+            "breadcrumbs": breadcrumbs,
+        }
     )
 
 
 @login_required
 def address(request):
-    return render(request, "account/address.html")
+
+    breadcrumbs = [
+        {"name": "Home", "url": "/"},
+        {"name": "Account", "url": "/account/profile/"},
+        {"name": "Address", "url": None},
+    ]
+
+    return render(
+        request,
+        "account/address.html",
+        {"breadcrumbs": breadcrumbs}
+    )
 
 
 @login_required
 def orders(request):
-    return render(request, "account/orders.html")
+
+    breadcrumbs = [
+        {"name": "Home", "url": "/"},
+        {"name": "Account", "url": "/account/profile/"},
+        {"name": "Orders", "url": None},
+    ]
+
+    return render(
+        request,
+        "account/orders.html",
+        {"breadcrumbs": breadcrumbs}
+    )
 
 
 @login_required
 def password_change(request):
-    return render(request, "account/password.html")
+
+    breadcrumbs = [
+        {"name": "Home", "url": "/"},
+        {"name": "Account", "url": "/account/profile/"},
+        {"name": "Change Password", "url": None},
+    ]
+
+    return render(
+        request,
+        "account/password.html",
+        {"breadcrumbs": breadcrumbs}
+    )
 
 
 @login_required

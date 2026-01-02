@@ -6,7 +6,6 @@
 {% block content %}
 
 <style>
-
 @import url('https://fonts.googleapis.com/css2?family=Lexend+Giga:wght@400;500;600;700;800;900&family=Nunito+Sans:wght@300;400;500;600;700;800&display=swap');
 
 /* RESET */
@@ -63,6 +62,11 @@ body {
     );
     z-index: 2;
 }
+.breadcrumbs{font-size:14px;color:#777}  
+.breadcrumbs a{color:#777;text-decoration:none}
+.breadcrumbs span{margin:0 6px}
+.breadcrumbs .current{color:var(--accent-red);text-shadow:0 0 10px rgba(161, 6, 6, 0.73)}
+
 
 /* CENTER TEXT */
 .hero-greeting {
@@ -151,7 +155,7 @@ body {
 }
 </style>
 
-<div class="home-container">
+
 
     <!-- HERO BANNER -->
     <section class="hero-banner">

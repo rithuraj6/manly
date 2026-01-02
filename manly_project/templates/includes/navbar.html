@@ -17,6 +17,18 @@
 
     <!-- Icon Section -->
     <div class="navbar-icons">
+        <div class="breadcrumbs-wrapper">
+            <nav class="breadcrumbs">
+                {% for crumb in breadcrumbs %}
+                    {% if crumb.url %}
+                        <a href="{{ crumb.url }}">{{ crumb.name }}</a>
+                        <span>/</span>
+                    {% else %}
+                        <span class="current">{{ crumb.name }}</span>
+                    {% endif %}
+                {% endfor %}
+            </nav>
+        </div>
         <a href="{% url 'account_profile' %}" class="nav-icon" title="Profile">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -36,6 +48,7 @@
             </svg>
         </a>
     </div>
+    
 </nav>
 
 
@@ -43,14 +56,39 @@
 <style>
 
 
+    .breadcrumbs {
+    color: #777;
+}
+
+.breadcrumbs a {
+    color: #777;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.breadcrumbs a:hover {
+    color: #ff6b6b;
+}
+
+.breadcrumbs span {
+    margin: 0 6px;
+}
+
+.breadcrumbs .current {
+    color: #ff6b6b;
+    font-weight: 500;
+    text-shadow: 0 0 8px rgba(255,107,107,0.35);
+}
+
+
 /* Navbar Container */
 .navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 60px;
+    padding: 35px 60px;
     background: #fff;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid #08070734;
     position: sticky;
     top: 0;
     z-index: 1000;

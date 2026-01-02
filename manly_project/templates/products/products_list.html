@@ -165,6 +165,35 @@
     font-size: 20px;
 }
 
+.breadcrumbs{font-size:14px;color:#777}  
+.breadcrumbs a{color:#777;text-decoration:none}
+.breadcrumbs span{margin:0 6px}
+.breadcrumbs .current{color:var(--accent-red);text-shadow:0 0 10px rgba(161, 6, 6, 0.73)}
+
+.product-search-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.product-search-input {
+    flex: 1;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-family: 'Nunito Sans', sans-serif;
+}
+
+.product-search-btn {
+    padding: 12px 22px;
+    border-radius: 8px;
+    border: none;
+    background: #111;
+    color: white;
+    cursor: pointer;
+}
+
+
 /*PAGINATION*/
 .pagination {
     margin-top: 50px;
@@ -281,6 +310,18 @@
     <!-- PRODUCTS -->
     <section class="product-area">
 
+        <div class="product-search-form">
+            <input
+                type="text"
+                name="q"
+                value="{{ search_query }}"
+                placeholder="Search formal, casual, party..."
+                class="product-search-input"
+            >
+            <button type="submit" class="product-search-btn">Search</button>
+        </div>
+
+            
         <div class="list-header">
     <h2>Our Collection</h2>
 
