@@ -94,11 +94,27 @@ def product_list_by_category(request, category_id):
 
   
     selected_category_ids = request.GET.getlist("category")
-    if selected_category_ids:
-        products = products.filter(category_id__in=selected_category_ids)
 
-   
-  
+# Always include base category
+    category_ids = [base_category.id]
+
+    # If user selected more categories, merge them
+    if selected_category_ids:
+        category_ids.extend(selected_category_ids)
+
+    categories = Category.objects.filter(
+        id__in=category_ids,
+        is_active=True
+    )
+
+    products = Product.objects.filter(
+        is_active=True,
+        category__in=categories
+    ).prefetch_related(
+        "images",
+        "variants"
+    ).distinct()
+    
 
     sort = request.GET.get("sort")
     if sort == "price_low":
