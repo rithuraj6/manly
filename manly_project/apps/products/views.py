@@ -7,9 +7,7 @@ from apps.categories.models import Category
 from apps.products.models import Product, ProductVariant, ProductImage
 
 
-# =========================
-# SHOP PAGE
-# =========================
+
 def shop_page(request):
     banner = Banner.objects.filter(is_active=True).order_by("-created_at").first()
 
@@ -47,9 +45,8 @@ def shop_page(request):
     return render(request, "shop/shop.html", context)
 
 
-# =========================
-# PRODUCT DETAIL
-# =========================
+
+
 def product_detail(request, product_id):
     product = get_object_or_404(Product, id=product_id, is_active=True)
 
@@ -91,27 +88,29 @@ def product_detail(request, product_id):
     return render(request, "products/product_detail.html", context)
 
 
-# =========================
-# PRODUCT LIST BY CATEGORY (SEARCH + FILTERS)
-# =========================
+
 def product_list_by_category(request, category_id):
     base_category = get_object_or_404(Category, id=category_id, is_active=True)
 
-    products = Product.objects.filter(
-        is_active=True,
-        category=base_category
-    ).prefetch_related("images", "variants").distinct()
+    
     products = Product.objects.filter(is_active=True)
 
- 
+    selected_category_ids = request.GET.getlist("category")
+
+    category_ids = [base_category.id]
+    if selected_category_ids:
+        category_ids.extend(selected_category_ids)
+
+    products = products.filter(category_id__in=category_ids)
+
+  
     search_query = request.GET.get("q", "").strip()
     if search_query:
         products = products.filter(
             Q(name__icontains=search_query) |
             Q(description__icontains=search_query)
         )
-    else:
-        products = products.filter(category=base_category)
+
     
     default_size = None
     if request.user.is_authenticated and getattr(request.user, "has_measurement", False):
@@ -129,7 +128,6 @@ def product_list_by_category(request, category_id):
             variants__stock__gt=0
         )
 
-    # Price filter
     min_price = request.GET.get("min_price")
     max_price = request.GET.get("max_price")
 
@@ -138,7 +136,7 @@ def product_list_by_category(request, category_id):
     if max_price:
         products = products.filter(base_price__lte=max_price)
 
-    # Sorting
+
     sort = request.GET.get("sort")
     if sort == "price_low":
         products = products.order_by("base_price")
@@ -151,7 +149,9 @@ def product_list_by_category(request, category_id):
     else:
         products = products.order_by("-created_at")
 
-    # Pagination
+    products = products.prefetch_related("images", "variants").distinct()
+
+
     paginator = Paginator(products, 9)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
@@ -168,6 +168,7 @@ def product_list_by_category(request, category_id):
         "page_obj": page_obj,
         "sizes": ["S", "M", "L", "XL", "XXL"],
         "selected_sizes": selected_sizes,
+        "selected_categories": selected_category_ids or [str(base_category.id)],
         "default_size": default_size,
         "min_price": min_price,
         "max_price": max_price,

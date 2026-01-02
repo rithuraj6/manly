@@ -8,6 +8,8 @@ from apps.sizeguide.models import SizeGuide
 
 @login_required
 def profile_view(request):
+    if not request.user.is_authenticated or request.user.is_superuser:
+        return redirect('login')
 
     breadcrumbs = [
         {"name": "Home", "url": "/"},

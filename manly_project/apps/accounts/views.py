@@ -190,10 +190,6 @@ def reset_password(request):
 
 
 
-def google_auth(request):
-    return redirect("login")
-
-
 def user_logout(request):
     logout(request)
     return redirect("login")

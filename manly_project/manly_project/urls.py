@@ -23,28 +23,25 @@ from apps.userprofile.models import UserProfile
 
 
 urlpatterns = [
+
+    path("accounts/", include("apps.accounts.urls")),
+
   
-    path('accounts/', include('apps.accounts.urls')),
+    path("accounts/", include("allauth.urls")),
+
+    
     path("", include("apps.core.urls")),
+
+  
+    path("account/", include("apps.userprofile.urls")),
+
+   
     path("", include("apps.products.urls")),
     path("cart/", include("apps.cart.urls")),
     path("wishlist/", include("apps.wishlist.urls")),
-     
-     
-     
-     
-     
-     
-     
+
     path("admin/", admin.site.urls),
-    path("account/", include("apps.userprofile.urls")),
-    
-    
-    path('admin-panel/', include('apps.adminpanel.urls')),
-
-
-
-    
+    path("admin-panel/", include("apps.adminpanel.urls")),
     
 ]
 

@@ -33,6 +33,19 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser ,PermissionsMixin):
+    
+    
+    
+    AUTH_PROVIDERS = (
+        ("email", "Email"),
+        ("google", "Google"),
+    )
+
+    auth_provider = models.CharField(
+        max_length=20,
+        choices=AUTH_PROVIDERS,
+        default="email"
+    )
     email = models.EmailField(unique=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default =False)
