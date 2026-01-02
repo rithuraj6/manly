@@ -1,15 +1,12 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from apps.banners.models import Banner
-
-
-from django.shortcuts import render
-from apps.banners.models import Banner
+from apps.banners.models import SiteBanner
 from apps.products.models import Product
 
 
 def home_page(request):
-    banner = Banner.objects.filter(is_active=True).order_by("-created_at").first()
+    banner = SiteBanner.objects.filter(is_active=True).order_by("-created_at").first()
+
 
     featured_products = Product.objects.filter(
         is_active=True,

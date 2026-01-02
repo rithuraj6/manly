@@ -31,6 +31,8 @@ def profile_view(request):
 
 @login_required
 def profile_edit(request):
+    if not request.user.is_authenticated or request.user.is_superuser:
+        return redirect('login')
 
     profile = request.user.profile
 
@@ -79,6 +81,8 @@ def profile_edit(request):
 
 @login_required
 def address(request):
+    if not request.user.is_authenticated or request.user.is_superuser:
+        return redirect('login')
 
     breadcrumbs = [
         {"name": "Home", "url": "/"},
@@ -95,6 +99,8 @@ def address(request):
 
 @login_required
 def orders(request):
+    if not request.user.is_authenticated or request.user.is_superuser:
+        return redirect('login')
 
     breadcrumbs = [
         {"name": "Home", "url": "/"},
@@ -111,6 +117,8 @@ def orders(request):
 
 @login_required
 def password_change(request):
+    if not request.user.is_authenticated or request.user.is_superuser:
+        return redirect('login')
 
     breadcrumbs = [
         {"name": "Home", "url": "/"},

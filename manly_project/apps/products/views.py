@@ -2,14 +2,15 @@ from django.core.paginator import Paginator
 from django.db.models import Prefetch, Q
 from django.shortcuts import render, get_object_or_404
 
-from apps.banners.models import Banner
+from apps.banners.models import SiteBanner
+
 from apps.categories.models import Category
 from apps.products.models import Product, ProductVariant, ProductImage
 
 
 
 def shop_page(request):
-    banner = Banner.objects.filter(is_active=True).order_by("-created_at").first()
+    banner = SiteBanner.objects.filter(is_active=True).order_by("-created_at").first()
 
     featured_products = Product.objects.filter(
         is_active=True,
