@@ -1,14 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-
-from apps.banners.models import Banner
+from apps.banners.models import SiteBanner
 
 
 def admin_banner_list(request):
     if not request.user.is_authenticated or not request.user.is_superuser:
         return redirect("admin_login")
 
-    banners = Banner.objects.all()
+    banners = SiteBanner.objects.all()
 
     return render(
         request,
@@ -22,7 +21,7 @@ def admin_add_banner(request):
         return redirect("admin_login")
 
     if request.method == "POST":
-        Banner.objects.create(
+        SiteBanner.objects.create(
             title=request.POST.get("title"),
             subtitle=request.POST.get("subtitle"),
             image=request.FILES.get("image"),
