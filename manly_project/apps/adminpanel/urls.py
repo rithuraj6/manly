@@ -36,18 +36,16 @@ urlpatterns = [
 
     path("dashboard/", admin_dashboard, name="admin_dashboard"),
 
-    # USERS
     path("users/", admin_users, name="admin_users"),
     path("users/toggle/<int:user_id>/", toggle_user_status, name="toggle_user"),
 
-    # CATEGORIES
+    
     path("categories/", admin_category_list, name="admin_category_list"),
     path("categories/add/", admin_add_category, name="admin_add_category"),
     path("categories/edit/<int:category_id>/", admin_edit_category, name="admin_edit_category"),
     path("categories/toggle/<int:category_id>/", admin_toggle_category_status, name="admin_toggle_category"),
     
     
-    # # VARIANTS
     path("products/", admin_product_list, name="admin_product_list"),
     path("products/edit/<int:product_id>/", admin_edit_product, name="admin_edit_product"),
     path("products/<int:product_id>/variants/add/", admin_add_variant, name="admin_add_variant"),
@@ -55,19 +53,11 @@ urlpatterns = [
     path("products/add/", admin_add_product, name="admin_add_product"),
     path("variants/update/<int:variant_id>/", admin_update_variant, name="admin_update_variant"),
     path("products/toggle/<int:product_id>/", admin_toggle_product, name="admin_toggle_product"),
-   path(
-    "products/<int:product_id>/images/upload/",
-    admin_upload_product_image,
-    name="admin_upload_product_image"
-),
+    path("products/<int:product_id>/images/upload/",admin_upload_product_image,name="admin_upload_product_image"),
 
-path(
-    "products/images/delete/<int:image_id>/",
-    admin_delete_product_image,
-    name="admin_delete_product_image"
-),
+    path("products/images/delete/<int:image_id>/",admin_delete_product_image,name="admin_delete_product_image"),
 
-path("banners/", admin_banner_list, name="admin_banner_list"),
+    path("banners/", admin_banner_list, name="admin_banner_list"),
     path("banners/add/", admin_add_banner, name="admin_add_banner"),
     path("banners/toggle/<int:banner_id>/", admin_toggle_banner, name="admin_toggle_banner"),
 

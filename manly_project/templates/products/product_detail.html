@@ -4,14 +4,14 @@
 {% block content %}
 
 <div class="product-detail-wrapper">
-    <!-- Background Elements -->
+    
     <div class="bg-blur blur-1"></div>
     <div class="bg-blur blur-2"></div>
 
-    <!-- Main Product Container -->
+    
     <section class="product-detail-container">
 
-        <!-- LEFT: IMAGE GALLERY -->
+      
         <div class="product-gallery">
             <div class="thumbnail-column">
                 {% for image in product_images %}
@@ -50,7 +50,7 @@
             </div>
         </div>
 
-        <!-- RIGHT: PRODUCT INFO -->
+
         <div class="product-info">
             <div class="product-header">
                 <h1 class="product-title">{{ product.name }}</h1>
@@ -92,7 +92,7 @@
 
             <div class="divider"></div>
 
-            <!-- Size Selector -->
+     
             <div class="size-selector-wrapper">
                 <label class="input-label">
                     <svg width="8" height="16" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="3">
@@ -116,7 +116,7 @@
 
             <div class="divider"></div>
 
-            <!-- Action Buttons -->
+            
             <div class="action-buttons">
                 <button class="btn wishlist-btn" disabled>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -144,7 +144,6 @@
 
             <div class="divider"></div>
 
-            <!-- Product Description -->
             <div class="product-details">
                 <h3 class="details-title">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -161,7 +160,7 @@
         </div>
     </section>
 
-    <!-- REVIEWS SECTION -->
+   
     <section class="reviews-section">
         <div class="reviews-header">
             <h2 class="section-title">Customer Reviews</h2>
@@ -181,7 +180,7 @@
         </div>
     </section>
 
-    <!-- SIMILAR PRODUCTS -->
+    
     <section class="similar-products">
         <div class="section-header">
             <h2 class="section-title">Similar Collection</h2>
@@ -227,7 +226,6 @@
         </div>
     </section>
 
-    <!-- ZOOM OVERLAY -->
     <div class="zoom-overlay" id="zoomOverlay">
         <div class="zoom-container">
             <img src="" alt="Zoomed Image" id="zoomedImage">
@@ -1087,7 +1085,7 @@
 </style>
 
 <script>
-// Image Gallery & Navigation
+
 const thumbnails = document.querySelectorAll('.thumbnail-item');
 const mainImage = document.getElementById('mainImage');
 const zoomLens = document.querySelector('.zoom-lens');
@@ -1098,12 +1096,11 @@ const zoomedImage = document.getElementById('zoomedImage');
 const zoomClose = document.querySelector('.zoom-close');
 let currentIndex = 0;
 
-// Set first thumbnail as active
 if (thumbnails.length > 0) {
     thumbnails[0].classList.add('active');
 }
 
-// Thumbnail click
+
 thumbnails.forEach((thumb, index) => {
     thumb.addEventListener('click', () => {
         currentIndex = index;
@@ -1112,7 +1109,7 @@ thumbnails.forEach((thumb, index) => {
     });
 });
 
-// Navigation buttons
+
 navRight.addEventListener('click', () => {
     currentIndex = (currentIndex + 1) % thumbnails.length;
     updateMainImage();
@@ -1135,18 +1132,17 @@ function updateActiveThumbnail() {
     thumbnails[currentIndex].classList.add('active');
 }
 
-// Dynamic Zoom on Hover
 const mainImageContainer = document.querySelector('.main-image');
 mainImageContainer.addEventListener('mousemove', (e) => {
     const rect = mainImageContainer.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     
-    // Position zoom lens
+
     zoomLens.style.left = x - 75 + 'px';
     zoomLens.style.top = y - 75 + 'px';
     
-    // Calculate zoom
+ 
     const xPercent = (x / rect.width) * 100;
     const yPercent = (y / rect.height) * 100;
     
@@ -1158,14 +1154,14 @@ mainImageContainer.addEventListener('mouseleave', () => {
     mainImage.style.transform = 'scale(1)';
 });
 
-// Click to open full zoom
+
 mainImage.addEventListener('click', () => {
     zoomOverlay.classList.add('active');
     zoomedImage.src = mainImage.src;
     document.body.style.overflow = 'hidden';
 });
 
-// Close zoom overlay
+
 zoomClose.addEventListener('click', closeZoom);
 zoomOverlay.addEventListener('click', (e) => {
     if (e.target === zoomOverlay) closeZoom();
@@ -1176,7 +1172,7 @@ function closeZoom() {
     document.body.style.overflow = '';
 }
 
-// Keyboard navigation
+
 document.addEventListener('keydown', (e) => {
     if (zoomOverlay.classList.contains('active')) {
         if (e.key === 'Escape') closeZoom();
@@ -1195,12 +1191,12 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Similar Products Slider
+
 const slider = document.querySelector('.product-slider');
 const btnPrev = document.querySelector('.btn-prev');
 const btnNext = document.querySelector('.btn-next');
 let slidePosition = 0;
-const slideWidth = 308; // card width + gap
+const slideWidth = 308; 
 
 btnNext.addEventListener('click', () => {
     const maxSlide = slider.scrollWidth - slider.parentElement.offsetWidth;
@@ -1217,7 +1213,7 @@ btnPrev.addEventListener('click', () => {
     }
 });
 
-// Disable buttons at ends
+
 function checkSliderPosition() {
     btnPrev.disabled = slidePosition >= 0;
     const maxSlide = slider.scrollWidth - slider.parentElement.offsetWidth;

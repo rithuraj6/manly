@@ -8,7 +8,6 @@ from apps.categories.models import Category
 
 
 
-# PRODUCT LIST
 
 def admin_product_list(request):
     if not request.user.is_authenticated or not request.user.is_superuser:
@@ -37,7 +36,7 @@ def admin_product_list(request):
 
 
 
-# ADD PRODUCT
+
 
 def admin_add_product(request):
     if not request.user.is_authenticated or not request.user.is_superuser:
@@ -70,7 +69,7 @@ def admin_add_product(request):
 
 
 
-# EDIT PRODUCT
+
 
 def admin_edit_product(request, product_id):
     if not request.user.is_authenticated or not request.user.is_superuser:
@@ -141,8 +140,6 @@ def admin_delete_product_image(request, image_id):
     return JsonResponse({"success": False}, status=400)
 
 
-# ADD VARIANT
-
 def admin_add_variant(request, product_id):
     if not request.user.is_authenticated or not request.user.is_superuser:
         return redirect("admin_login")
@@ -177,7 +174,6 @@ def admin_add_variant(request, product_id):
 
 
 
-# UPDATE VARIANT STOCK
 
 def admin_update_variant(request, variant_id):
     if not request.user.is_authenticated or not request.user.is_superuser:
@@ -195,8 +191,6 @@ def admin_update_variant(request, variant_id):
 
 
 
-# TOGGLE VARIANT
-
 def admin_toggle_variant(request, variant_id):
     if not request.user.is_authenticated or not request.user.is_superuser:
         return redirect("admin_login")
@@ -210,7 +204,6 @@ def admin_toggle_variant(request, variant_id):
 
 
 
-# TOGGLE PRODUCT
 
 def admin_toggle_product(request, product_id):
     if not request.user.is_authenticated or not request.user.is_superuser:
