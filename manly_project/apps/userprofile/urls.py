@@ -7,6 +7,11 @@ urlpatterns = [
 
     path("addresses/", views.address, name="account_addresses"),
     path("addresses/add/", views.address_add, name="account_address_add"),
+    path("addresses/<int:address_id>/edit/", views.address_edit, name="account_address_edit"),
+    path("addresses/<int:address_id>/delete/",views.address_delete,name="account_address_delete"),
+
+    
+
 
     path("orders/", views.orders, name="account_orders"),
     path("password/", views.password_change, name="account_password"),

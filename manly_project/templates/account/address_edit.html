@@ -5,69 +5,71 @@
 
 
 
-  <h2 class="page-title">Add New Address</h2>
+
+  <h2 class="page-title">Edit Address</h2>
 
   <form method="post" class="address-form">
     {% csrf_token %}
 
     <div class="form-group">
       <label>Name</label>
-      <input type="text" name="full_name" required>
+      <input type="text" name="full_name" value="{{ address.full_name }}" required>
     </div>
 
     <div class="form-group">
       <label>House Name</label>
-      <input type="text" name="house_name" required>
+      <input type="text" name="house_name" value="{{ address.house_name }}" required>
     </div>
 
     <div class="form-group">
       <label>Locality / Street</label>
-      <input type="text" name="street" required>
+      <input type="text" name="street" value="{{ address.street }}" required>
     </div>
 
     <div class="form-group">
       <label>Landmark</label>
-      <input type="text" name="landmark">
+      <input type="text" name="landmark" value="{{ address.landmark }}">
     </div>
 
     <div class="form-group">
       <label>City</label>
-      <input type="text" name="city" required>
+      <input type="text" name="city" value="{{ address.city }}" required>
     </div>
 
     <div class="form-row">
       <div class="form-group">
         <label>State</label>
-        <input type="text" name="state" required>
+        <input type="text" name="state" value="{{ address.state }}" required>
       </div>
 
       <div class="form-group">
         <label>Country</label>
-        <input type="text" name="country" required>
+        <input type="text" name="country" value="{{ address.country }}" required>
       </div>
     </div>
 
     <div class="form-row">
       <div class="form-group">
         <label>Mobile Number</label>
-        <input type="text" name="phone" required>
+        <input type="text" name="phone" value="{{ address.phone }}" required>
       </div>
 
       <div class="form-group">
         <label>Pincode</label>
-        <input type="text" name="pincode" required>
+        <input type="text" name="pincode" value="{{ address.pincode }}" required>
       </div>
     </div>
 
     <div class="form-group checkbox-group">
       <label>
-        <input type="checkbox" name="is_default">
+        <input type="checkbox" name="is_default" {% if address.is_default %}checked{% endif %}>
         Set as default address
       </label>
     </div>
 
-    <button type="submit" class="btn btn-dark">Save</button>
+    <button type="submit" class="btn btn-dark">Update</button>
   </form>
+
 
 <style>
 /* ============================================
@@ -604,5 +606,4 @@
   }
 }
 </style>
-
 {% endblock %}

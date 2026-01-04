@@ -37,7 +37,7 @@ class UserAddress(models.Model):
     house_name = models.CharField(max_length=220)
     street = models.CharField(max_length=225)
     city = models.CharField(max_length=225)
-    Land_mark = models.CharField(max_length = 225, blank= True)
+    land_mark = models.CharField(max_length = 225, blank= True)
     state = models.CharField(max_length=225)
     
     country = models.CharField(max_length = 100)
