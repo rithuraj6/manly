@@ -19,14 +19,7 @@ def profile_view(request):
 
     profile = request.user.profile
 
-    return render(
-        request,
-        "account/profile_view.html",
-        {
-            "profile": profile,
-            "breadcrumbs": breadcrumbs,
-        }
-    )
+    return render(request,"account/profile_view.html",{"profile": profile,"breadcrumbs": breadcrumbs,})
 
 
 @login_required
@@ -69,14 +62,7 @@ def profile_edit(request):
         messages.success(request, "Profile updated successfully")
         return redirect("account_profile")
 
-    return render(
-        request,
-        "account/profile_edit.html",
-        {
-            "profile": profile,
-            "breadcrumbs": breadcrumbs,
-        }
-    )
+    return render(request,"account/profile_edit.html",{"profile": profile,"breadcrumbs": breadcrumbs,})
 
 
 @login_required
@@ -90,11 +76,7 @@ def address(request):
         {"name": "Address", "url": None},
     ]
 
-    return render(
-        request,
-        "account/address.html",
-        {"breadcrumbs": breadcrumbs}
-    )
+    return render(request,"account/address.html",{"breadcrumbs": breadcrumbs})
 
 
 @login_required
@@ -108,11 +90,7 @@ def orders(request):
         {"name": "Orders", "url": None},
     ]
 
-    return render(
-        request,
-        "account/orders.html",
-        {"breadcrumbs": breadcrumbs}
-    )
+    return render(request,"account/orders.html",{"breadcrumbs": breadcrumbs})
 
 
 @login_required
@@ -126,11 +104,7 @@ def password_change(request):
         {"name": "Change Password", "url": None},
     ]
 
-    return render(
-        request,
-        "account/password.html",
-        {"breadcrumbs": breadcrumbs}
-    )
+    return render(request,"account/password.html",{"breadcrumbs": breadcrumbs})
 
 
 @login_required

@@ -294,10 +294,24 @@
         <div class="filter-group">
             <h4>Price</h4>
             <div class="price-inputs">
-                <input type="number" name="min_price" placeholder="Min"
-                       value="{{ min_price }}">
-                <input type="number" name="max_price" placeholder="Max"
-                       value="{{ max_price }}">
+                <input
+                    type="number"
+                    name="min_price"
+                    placeholder="Min"
+                    value="{{ min_price }}"
+                    min="0"
+                    step="1"
+                    inputmode="numeric"
+                >
+                <input
+                    type="number"
+                    name="max_price"
+                    placeholder="Max"
+                    value="{{ max_price }}"
+                    min="0"
+                    step="1"
+                    inputmode="numeric"
+                >
             </div>
         </div>
 
@@ -325,7 +339,7 @@
         <div class="list-header">
     <h2>Our Collection</h2>
 
-    {% if default_size %}
+    {% comment %} {% if default_size %}
     <div style="display:flex;align-items:center;gap:10px;">
                 <span style="font-size:13px;">Looking for someone else?</span>
                 <label class="switch">
@@ -333,7 +347,7 @@
                     <span class="slider"></span>
                 </label>
             </div>
-    {% endif %}
+    {% endif %} {% endcomment %}
 
             <div class="sort-box">
                 <select name="sort" onchange="this.form.submit()">
@@ -363,23 +377,29 @@
         </div>
 
         <!-- PAGINATION -->
-        <div class="pagination">
-            <div class="page-info">
-                Showing {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ page_obj.paginator.count }} items
+    <div class="pagination">
+        <div class="page-info">
+                    Showing {{ page_obj.start_index }}–{{ page_obj.end_index }}
+                of {{ page_obj.paginator.count }} items
             </div>
 
             <div class="page-links">
                 {% if page_obj.has_previous %}
-                    <a href="?page={{ page_obj.previous_page_number }}">Prev</a>
+                    <a href="?{{ query_params }}&page={{ page_obj.previous_page_number }}">
+                        Prev
+                    </a>
                 {% endif %}
 
                 <span>{{ page_obj.number }}</span>
 
                 {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}">Next</a>
+                    <a href="?{{ query_params }}&page={{ page_obj.next_page_number }}">
+                        Next
+                    </a>
                 {% endif %}
-            </div>
         </div>
+    </div>
+
 
     </section>
 

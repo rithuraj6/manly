@@ -7,7 +7,7 @@ from .models import EmailOTP
 def send_otp(user, purpose):
     otp = get_random_string(6, allowed_chars="0123456789")
 
-    # 🔥 Delete old OTPs for this email + purpose
+  
     EmailOTP.objects.filter(
         email=user.email,
         purpose=purpose

@@ -162,6 +162,10 @@ def product_list_by_category(request, category_id):
         {"name": "Shop", "url": "/shop/"},
         {"name": base_category.name, "url": None},
     ]
+    query_params = request.GET.copy()
+    if "page" in query_params:
+        query_params.pop("page")
+
 
     context = {
         "category": base_category,
@@ -176,6 +180,7 @@ def product_list_by_category(request, category_id):
         "sort": sort,
         "search_query": search_query,
         "breadcrumbs": breadcrumbs,
+        "query_params": query_params.urlencode(),
     }
 
     return render(request, "products/products_list.html", context)

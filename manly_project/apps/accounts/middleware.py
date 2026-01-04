@@ -3,9 +3,7 @@ from django.http import HttpResponseForbidden
 
 
 class BlockedUserMiddleware:
-    """
-    Prevent blocked users from accessing protected pages.
-    """
+
 
     def __init__(self, get_response):
         self.get_response = get_response
