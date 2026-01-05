@@ -49,14 +49,13 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
 
-    'apps.accounts',
+    "apps.accounts.apps.AccountsConfig",
     'apps.categories',
     'apps.products',
     'apps.core',
     'apps.cart',
     'apps.wishlist',
     'apps.sizeguide',
-    "apps.userprofile",
     
     
     
@@ -116,6 +115,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'apps.core.context_processors.cloudinary_settings',
+                
+                
             ],
         },
     },
@@ -205,6 +207,7 @@ CLOUDINARY_STORAGE = {
     'API_SECRET': os.getenv("CLOUDINARY_API_SECRET"),
 }
 
+CLOUDINARY_CLOUD_NAME = os.getenv("CLOUDINARY_CLOUD_NAME")
 
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
@@ -230,6 +233,6 @@ SOCIALACCOUNT_PROVIDERS = {
 
 SITE_ID = 1
 
-LOGIN_REDIRECT_URL = "/account/profile/"
+LOGIN_REDIRECT_URL = "/accounts/profile/"
 LOGIN_URL = "/accounts/login/"
 LOGOUT_REDIRECT_URL = "/"

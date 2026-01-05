@@ -38,7 +38,8 @@ def admin_toggle_banner(request, banner_id):
     if not request.user.is_authenticated or not request.user.is_superuser:
         return redirect("admin_login")
 
-    banner = get_object_or_404(Banner, id=banner_id)
+    banner = get_object_or_404(SiteBanner, id=banner_id)
+
     banner.is_active = not banner.is_active
     banner.save()
 

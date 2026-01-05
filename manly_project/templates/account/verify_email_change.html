@@ -1,0 +1,366 @@
+{% extends "account/account_base.html" %}
+{% load static %}
+
+{% block account_content %}
+<div class="otp-container">
+    <div class="otp-icon-wrapper">
+        <div class="otp-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+            </svg>
+        </div>
+    </div>
+
+    <h2 class="content-title">Verify Email Change</h2>
+
+    <p class="otp-info">
+        We've sent a verification code to your new email address. Please enter the 6-digit code below.
+    </p>
+
+    <form method="post" class="otp-form">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="otp">Enter OTP</label>
+            <input
+                type="text"
+                name="otp"
+                id="otp"
+                maxlength="6"
+                pattern="[0-9]{6}"
+                required
+                autofocus
+                placeholder="000000"
+            >
+        </div>
+
+        <button type="submit" class="save-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            Verify & Update Email
+        </button>
+    </form>
+
+    <div class="otp-footer">
+        <p class="resend-text">Didn't receive the code?</p>
+        <a href="#" class="resend-link">Resend Code</a>
+    </div>
+</div>
+
+<style>
+.otp-container {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    animation: fadeIn 0.5s ease;
+}
+
+/* Icon Section */
+.otp-icon-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+    animation: scaleIn 0.6s ease;
+}
+
+.otp-icon {
+    width: 100px;
+    height: 100px;
+    background: #f8f8f8;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 4px solid #fff;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    transition: all 0.4s ease;
+}
+
+.otp-icon:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.18);
+}
+
+.otp-icon svg {
+    color: #1a1a1a;
+}
+
+/* Title */
+.content-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 20px;
+    text-align: center;
+    animation: slideInUp 0.5s ease 0.1s forwards;
+    opacity: 0;
+}
+
+/* Info Text */
+.otp-info {
+    font-size: 15px;
+    color: #666;
+    margin-bottom: 35px;
+    line-height: 1.6;
+    text-align: center;
+    animation: slideInUp 0.5s ease 0.2s forwards;
+    opacity: 0;
+}
+
+/* Form Styling */
+.otp-form {
+    background: #f8f8f8;
+    border-radius: 16px;
+    padding: 35px;
+    margin-bottom: 25px;
+    animation: slideInUp 0.5s ease 0.3s forwards;
+    opacity: 0;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 30px;
+}
+
+.form-group label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a1a;
+    text-align: center;
+    text-transform: lowercase;
+}
+
+.form-group input {
+    padding: 18px 20px;
+    font-size: 24px;
+    font-weight: 600;
+    text-align: center;
+    letter-spacing: 8px;
+    border-radius: 30px;
+    border: 2px solid #1a1a1a;
+    background: #fff;
+    color: #1a1a1a;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #333;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+.form-group input::placeholder {
+    color: #ddd;
+    font-weight: 400;
+}
+
+/* Save Button */
+.save-btn {
+    width: 100%;
+    padding: 16px 40px;
+    background: #1a1a1a;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.save-btn:hover {
+    background: #333;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+
+.save-btn:active {
+    transform: translateY(-1px);
+}
+
+.save-btn svg {
+    transition: transform 0.3s ease;
+}
+
+.save-btn:hover svg {
+    transform: scale(1.1);
+}
+
+/* Footer Section */
+.otp-footer {
+    text-align: center;
+    animation: fadeIn 0.5s ease 0.4s forwards;
+    opacity: 0;
+}
+
+.resend-text {
+    font-size: 14px;
+    color: #666;
+    margin: 0 0 8px 0;
+}
+
+.resend-link {
+    display: inline-block;
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a1a;
+    text-decoration: none;
+    padding: 8px 20px;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.resend-link::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 2px;
+    background: #1a1a1a;
+    transition: width 0.3s ease;
+}
+
+.resend-link:hover {
+    color: #333;
+}
+
+.resend-link:hover::after {
+    width: 80%;
+}
+
+/* Messages */
+.messages {
+    margin-bottom: 20px;
+    animation: slideInDown 0.5s ease;
+}
+
+.message {
+    padding: 14px 20px;
+    border-radius: 30px;
+    font-size: 14px;
+    margin-bottom: 10px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.message.success {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: 2px solid #4caf50;
+}
+
+.message.error {
+    background: #ffebee;
+    color: #c62828;
+    border: 2px solid #f44336;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .otp-container {
+        padding: 30px 15px;
+    }
+
+    .otp-form {
+        padding: 25px 20px;
+    }
+
+    .form-group input {
+        font-size: 20px;
+        letter-spacing: 6px;
+    }
+
+    .otp-icon {
+        width: 80px;
+        height: 80px;
+    }
+
+    .otp-icon svg {
+        width: 36px;
+        height: 36px;
+    }
+}
+</style>
+
+<script>
+// Auto-focus and format OTP input
+document.addEventListener('DOMContentLoaded', function() {
+    const otpInput = document.getElementById('otp');
+    
+    if (otpInput) {
+        // Only allow numbers
+        otpInput.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+
+        // Submit form when 6 digits are entered
+        otpInput.addEventListener('input', function(e) {
+            if (this.value.length === 6) {
+                // Optional: Auto-submit after a brief delay
+                // setTimeout(() => this.form.submit(), 500);
+            }
+        });
+
+        // Paste handling
+        otpInput.addEventListener('paste', function(e) {
+            e.preventDefault();
+            const pastedData = (e.clipboardData || window.clipboardData).getData('text');
+            const numericOnly = pastedData.replace(/[^0-9]/g, '').slice(0, 6);
+            this.value = numericOnly;
+        });
+    }
+});
+</script>
+
+{% endblock %}

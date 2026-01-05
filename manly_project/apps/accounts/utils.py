@@ -1,29 +1,60 @@
-from django.utils.crypto import get_random_string
 from django.utils import timezone
 from datetime import timedelta
 from django.core.mail import send_mail
-from .models import EmailOTP
+from django.conf import settings
+from django.contrib import messages
+from apps.accounts.models import EmailOTP
+from django.utils.crypto import get_random_string
+from apps.accounts.models import SecurityAuditLog
 
-def send_otp(user, purpose):
-    otp = get_random_string(6, allowed_chars="0123456789")
+OTP_COOLDOWN_SECONDS = 60
+OTP_MAX_PER_WINDOW = 4
+OTP_WINDOW_MINUTES = 10
 
-  
-    EmailOTP.objects.filter(
-        email=user.email,
+
+def send_otp(user, purpose, email_override=None):
+    email = email_override if email_override else user.email
+    now = timezone.now()
+
+    
+    last_otp = EmailOTP.objects.filter(
+        email=email,
         purpose=purpose
-    ).delete()
+    ).order_by("-created_at").first()
+
+    if last_otp and (now - last_otp.created_at).seconds < OTP_COOLDOWN_SECONDS:
+        remaining = OTP_COOLDOWN_SECONDS - (now - last_otp.created_at).seconds
+        raise ValueError(f"Please wait {remaining} seconds before requesting OTP again")
+
+    window_start = now - timedelta(minutes=OTP_WINDOW_MINUTES)
+    otp_count = EmailOTP.objects.filter(
+        email=email,
+        purpose=purpose,
+        created_at__gte=window_start
+    ).count()
+
+    if otp_count >= OTP_MAX_PER_WINDOW:
+        raise ValueError("Too many OTP requests. Please try again later")
+
+   
+    otp = get_random_string(length=6, allowed_chars="0123456789")
 
     EmailOTP.objects.create(
-        email=user.email,
+        email=email,
         otp=otp,
         purpose=purpose,
-        expires_at=timezone.now() + timedelta(minutes=5)
+        expires_at=now + timedelta(minutes=5)
+    )
+    SecurityAuditLog.objects.create(
+        user=user,
+        email=email,
+        action="otp_sent",
+        ip_address=None  # request not available here
     )
 
     send_mail(
-        subject="Your MANLY OTP",
-        message=f"Your OTP is {otp}",
-        from_email=None,
-        recipient_list=[user.email],
-        fail_silently=False,
+        subject="Your OTP Verification",
+        message=f"Your OTP is {otp}. It is valid for 5 minutes.",
+        from_email=settings.DEFAULT_FORM_EMAIL,
+        recipient_list=[email],
     )
