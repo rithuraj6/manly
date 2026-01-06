@@ -1,466 +1,841 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}My Cart | MANLY{% endblock %}
 
 {% block content %}
-<div class="page-container">
-    <h1 class="page-title">My Cart</h1>
+<div class="cart-page-wrapper">
+    <div class="cart-container">
+        <div class="cart-header">
+            <h2 class="cart-title">My Cart</h2>
+            {% if cart_items %}
+                <span class="cart-count-badge">{{ cart_items|length }} item{{ cart_items|length|pluralize }}</span>
+            {% endif %}
+        </div>
 
-    {% if cart_items %}
-    <!-- Cart with Items -->
-    <div class="cart-layout">
-        <!-- Cart Items Section -->
-        <div class="cart-items">
-            <div class="cart-header">
-                <div class="header-product">Product</div>
-                <div class="header-price">Price</div>
-                <div class="header-quantity">Quantity</div>
-                <div class="header-total">Total</div>
-            </div>
+        {% if cart_items %}
+            <div class="cart-content">
+                <!-- Cart Items Section -->
+                <div class="cart-items-section">
+                    {% for entry in cart_items %}
+                        <div class="cart-item {% if entry.is_invalid %}disabled{% endif %}">
+                            <div class="item-image-wrapper">
+                                {% with img=entry.product.images.first %}
+                                    {% if img %}
+                                        <img src="{{ img.image.url }}" alt="{{ entry.product.name }}" class="item-image">
+                                    {% else %}
+                                        <img src="{% static 'images/placeholder.png' %}" alt="No image" class="item-image">
+                                    {% endif %}
+                                {% endwith %}
+                                {% if entry.is_invalid %}
+                                    <div class="invalid-badge">Out of Stock</div>
+                                {% endif %}
+                            </div>
 
-            <!-- Cart Item 1 -->
-            {% for item in cart_items %}
-            <div class="cart-item">
-                <div class="item-product">
-                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="item-image">
-                    <div class="item-details">
-                        <h3>{{ item.product.name }}</h3>
-                        <a href="{% url 'remove_from_cart' item.id %}" class="remove-link">Remove</a>
-                        <span class="stock-status">{{ item.product.stock_status }}</span>
+                            <div class="item-details">
+                                <div class="item-header">
+                                    <h4 class="item-name">{{ entry.product.name }}</h4>
+                                    <button class="remove-btn" data-id="{{ entry.item.id }}">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                <div class="item-meta">
+                                    <div class="size-selector">
+                                        <label class="size-label">Size:</label>
+                                        <select class="variant-select" data-item-id="{{ entry.item.id }}">
+                                            {% for v in entry.product.variants.all %}
+                                                <option value="{{ v.id }}"
+                                                    {% if v.id == entry.variant.id %}selected{% endif %}
+                                                    {% if not v.is_active or v.stock == 0 %}disabled{% endif %}>
+                                                    {{ v.size }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="item-price">
+                                        <span class="price-label">Price:</span>
+                                        <span class="price-value">₹{{ entry.product.base_price }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="item-actions">
+                                    <div class="qty-controls" data-item-id="{{ entry.item.id }}">
+                                        <button class="qty-btn minus" data-id="{{ entry.item.id }}">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                            </svg>
+                                        </button>
+
+                                        <span class="qty-value {% if entry.item.quantity >= 10 %}max{% endif %}">
+                                            {{ entry.item.quantity }}
+                                        </span>
+
+                                        <button class="qty-btn plus"
+                                                data-id="{{ entry.item.id }}"
+                                                {% if entry.item.quantity >= 10 %}disabled{% endif %}>
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                            </svg>
+                                        </button>
+                                    </div>
+
+                                    <div class="item-total" data-item-total="{{ entry.item.id }}">
+                                        <span class="total-label">Total:</span>
+                                        <span class="total-value">₹{{ entry.line_total }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Order Summary Section -->
+                <div class="order-summary-section">
+                    <div class="order-summary-card">
+                        <h3 class="summary-title">Order Summary</h3>
+                        
+                        <div class="summary-details">
+                            <div class="summary-row">
+                                <span class="summary-label">Subtotal</span>
+                                <span class="summary-value">₹{{ subtotal }}</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label">Shipping</span>
+                                <span class="summary-value shipping-free">Free</span>
+                            </div>
+                            <div class="summary-divider"></div>
+                            <div class="summary-row total-row">
+                                <span class="summary-label">Total</span>
+                                <span class="summary-value total-value">₹{{ subtotal }}</span>
+                            </div>
+                        </div>
+
+                        {% if has_invalid_items %}
+                            <p class="error-text">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                                </svg>
+                                Remove unavailable items to proceed
+                            </p>
+                            <button class="checkout-btn disabled" disabled>
+                                Proceed to Checkout
+                            </button>
+                        {% else %}
+                            <a href="#" class="checkout-btn">
+                                <span>Proceed to Checkout</span>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    <polyline points="12 5 19 12 12 19"></polyline>
+                                </svg>
+                            </a>
+                        {% endif %}
                     </div>
                 </div>
+            </div>
 
-                <div class="item-price">₹{{ item.product.price }}</div>
-
-                <div class="item-quantity">
-                    <button class="qty-btn" onclick="updateQuantity({{ item.id }}, -1)">−</button>
-                    <input type="number" value="{{ item.quantity }}" min="1" class="qty-input" id="qty-{{ item.id }}" readonly>
-                    <button class="qty-btn" onclick="updateQuantity({{ item.id }}, 1)">+</button>
+        {% else %}
+            <div class="empty-cart">
+                <div class="empty-cart-icon">
+                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                    </svg>
                 </div>
-
-                <div class="item-total">₹{{ item.total_price }}</div>
-            </div>
-            {% endfor %}
-        </div>
-
-        <!-- Order Summary Section -->
-        <div class="order-summary">
-            <h3>Order Summary</h3>
-
-            <div class="summary-row">
-                <span>Item Sub Total</span>
-                <span>₹ {{ subtotal }}</span>
-            </div>
-
-            <div class="summary-row">
-                <span>Shipping</span>
-                <span>Free</span>
-            </div>
-
-            <div class="summary-total">
-                <span>Total</span>
-                <span>₹ {{ total }}</span>
-            </div>
-
-            <div class="coupon-section">
-                <button class="coupon-toggle" onclick="toggleCoupon()">
+                <h3 class="empty-cart-title">Your cart is empty</h3>
+                <p class="empty-cart-text">Add some items to get started</p>
+                <a href="/" class="continue-shopping-btn">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
-                        <line x1="1" y1="10" x2="23" y2="10"></line>
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
                     </svg>
-                    Coupon code
-                    <svg class="dropdown-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
-                </button>
-                <div class="coupon-input-wrapper" id="couponWrapper" style="display: none;">
-                    <input type="text" placeholder="Enter coupon code" class="coupon-input">
-                    <button class="apply-coupon">Apply</button>
-                </div>
+                    Continue Shopping
+                </a>
             </div>
-
-            <button class="checkout-btn" onclick="window.location.href='{% url 'checkout' %}'">CHECKOUT</button>
-        </div>
+        {% endif %}
     </div>
-
-    {% else %}
-    <!-- Empty Cart -->
-    <div class="empty-state">
-        <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5">
-            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <path d="M16 10a4 4 0 0 1-8 0"></path>
-        </svg>
-        <h2>Your Cart is Empty</h2>
-        <p>Add some products to get started!</p>
-        <a href="{% url 'shop' %}" class="shop-now-btn">Shop Now</a>
-    </div>
-    {% endif %}
+    
 </div>
 
 <style>
-.page-container {
+/* Cart Page Wrapper */
+.cart-page-wrapper {
+    min-height: calc(100vh - 200px);
+    padding: 40px 20px;
+    background: #fafafa;
+}
+
+.cart-container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 40px 60px;
-    min-height: 60vh;
+    animation: fadeIn 0.5s ease;
 }
 
-.page-title {
-    font-size: 32px;
-    font-weight: 600;
-    color: #1a1a1a;
+/* Cart Header */
+.cart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     margin-bottom: 40px;
+    animation: slideInDown 0.5s ease;
 }
 
-/* Cart Layout */
-.cart-layout {
+.cart-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0;
+}
+
+.cart-count-badge {
+    padding: 8px 20px;
+    background: #1a1a1a;
+    color: #fff;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* Cart Content Layout */
+.cart-content {
     display: grid;
     grid-template-columns: 1fr 400px;
-    gap: 40px;
+    gap: 30px;
+    align-items: start;
 }
 
-/* Cart Items */
-.cart-items {
-    background: #fff;
-}
-
-.cart-header {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
+/* Cart Items Section */
+.cart-items-section {
+    display: flex;
+    flex-direction: column;
     gap: 20px;
-    padding: 20px;
-    background: #c5c5c5;
-    border-radius: 8px;
-    font-weight: 600;
-    color: #1a1a1a;
-    margin-bottom: 20px;
 }
 
 .cart-item {
+    background: #fff;
+    border-radius: 16px;
+    padding: 25px;
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
-    gap: 20px;
-    padding: 30px 20px;
-    border-bottom: 1px solid #e5e5e5;
-    align-items: center;
+    grid-template-columns: 140px 1fr;
+    gap: 25px;
+    transition: all 0.3s ease;
+    animation: slideInLeft 0.5s ease forwards;
+    opacity: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
-.item-product {
-    display: flex;
-    gap: 20px;
-    align-items: flex-start;
+.cart-item:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
 }
 
-.item-image {
-    width: 100px;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 8px;
+.cart-item:nth-child(1) { animation-delay: 0.1s; }
+.cart-item:nth-child(2) { animation-delay: 0.2s; }
+.cart-item:nth-child(3) { animation-delay: 0.3s; }
+.cart-item:nth-child(4) { animation-delay: 0.4s; }
+
+.cart-item.disabled {
+    opacity: 0.6;
+    pointer-events: none;
     background: #f5f5f5;
 }
 
-.item-details h3 {
-    font-size: 16px;
-    font-weight: 500;
-    color: #1a1a1a;
-    margin-bottom: 8px;
+/* Item Image */
+.item-image-wrapper {
+    position: relative;
 }
 
-.remove-link {
-    font-size: 13px;
-    color: #666;
-    text-decoration: underline;
-    margin-bottom: 8px;
-    display: inline-block;
-    cursor: pointer;
-    transition: color 0.3s ease;
+.item-image {
+    width: 140px;
+    height: 170px;
+    object-fit: cover;
+    border-radius: 12px;
+    background: #f5f5f5;
 }
 
-.remove-link:hover {
-    color: #d32f2f;
+.invalid-badge {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #f44336;
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
 }
 
-.stock-status {
-    font-size: 13px;
-    color: #2e7d32;
-    font-weight: 500;
+/* Item Details */
+.item-details {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
-.item-price,
-.item-total {
-    font-size: 16px;
+.item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.item-name {
+    font-size: 18px;
     font-weight: 600;
     color: #1a1a1a;
+    margin: 0;
 }
 
-/* Quantity Controls */
-.item-quantity {
+.remove-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    color: #999;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+}
+
+.remove-btn:hover {
+    background: #ffebee;
+    color: #f44336;
+    transform: scale(1.1);
+}
+
+/* Item Meta */
+.item-meta {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+}
+
+.size-selector {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
+.size-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
+}
+
+.variant-select {
+    padding: 8px 16px;
+    border: 2px solid #e5e5e5;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a1a;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #fff;
+}
+
+.variant-select:hover {
+    border-color: #1a1a1a;
+}
+
+.variant-select:focus {
+    outline: none;
+    border-color: #1a1a1a;
+    box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.1);
+}
+
+.item-price {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.price-label {
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+}
+
+.price-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+/* Item Actions */
+.item-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 15px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.qty-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #f8f8f8;
+    padding: 8px 12px;
+    border-radius: 30px;
+}
+
 .qty-btn {
     width: 32px;
     height: 32px;
-    border: 1px solid #ddd;
+    border-radius: 50%;
+    border: none;
     background: #fff;
-    border-radius: 6px;
     cursor: pointer;
-    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
 }
 
-.qty-btn:hover {
-    background: #f5f5f5;
-    border-color: #bbb;
+.qty-btn:hover:not(:disabled) {
+    background: #1a1a1a;
+    color: #fff;
+    transform: scale(1.1);
 }
 
-.qty-input {
-    width: 50px;
-    height: 32px;
+.qty-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.qty-value {
+    min-width: 30px;
     text-align: center;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 600;
-}
-
-/* Order Summary */
-.order-summary {
-    background: #f8f8f8;
-    padding: 30px;
-    border-radius: 12px;
-    height: fit-content;
-    position: sticky;
-    top: 100px;
-}
-
-.order-summary h3 {
-    font-size: 20px;
-    font-weight: 600;
+    font-weight: 700;
+    font-size: 16px;
     color: #1a1a1a;
+}
+
+.qty-value.max {
+    color: #f44336;
+}
+
+.item-total {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.total-label {
+    font-size: 12px;
+    color: #999;
+    font-weight: 500;
+}
+
+.total-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+/* Order Summary Section */
+.order-summary-section {
+    position: sticky;
+    top: 20px;
+}
+
+.order-summary-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    animation: slideInRight 0.5s ease;
+}
+
+.summary-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 25px 0;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.summary-details {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
     margin-bottom: 25px;
 }
 
 .summary-row {
     display: flex;
     justify-content: space-between;
-    padding: 12px 0;
+    align-items: center;
+}
+
+.summary-label {
     font-size: 15px;
     color: #666;
+    font-weight: 500;
 }
 
-.summary-total {
-    display: flex;
-    justify-content: space-between;
-    padding: 20px 0;
-    margin-top: 15px;
-    border-top: 1px solid #ddd;
-    font-size: 18px;
+.summary-value {
+    font-size: 16px;
     font-weight: 600;
     color: #1a1a1a;
 }
 
-/* Coupon Section */
-.coupon-section {
-    margin: 25px 0;
+.shipping-free {
+    color: #4caf50;
+    font-weight: 700;
 }
 
-.coupon-toggle {
-    width: 100%;
+.summary-divider {
+    height: 1px;
+    background: #f0f0f0;
+    margin: 10px 0;
+}
+
+.total-row {
+    padding-top: 10px;
+}
+
+.total-row .summary-label,
+.total-row .summary-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.error-text {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 14px;
-    background: #fff;
-    border: 1px solid #ddd;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #ffebee;
+    color: #c62828;
     border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    color: #1a1a1a;
-    transition: all 0.3s ease;
-    gap: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 15px;
 }
 
-.coupon-toggle:hover {
-    background: #f9f9f9;
-}
-
-.dropdown-icon {
-    transition: transform 0.3s ease;
-}
-
-.coupon-toggle.active .dropdown-icon {
-    transform: rotate(180deg);
-}
-
-.coupon-input-wrapper {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.coupon-input {
-    flex: 1;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    font-size: 14px;
-}
-
-.apply-coupon {
-    padding: 12px 24px;
-    background: #1a1a1a;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.apply-coupon:hover {
-    background: #333;
-}
-
-/* Checkout Button */
 .checkout-btn {
     width: 100%;
-    padding: 16px;
+    padding: 16px 24px;
     background: #1a1a1a;
     color: #fff;
+    font-size: 16px;
+    font-weight: 600;
     border: none;
     border-radius: 30px;
-    font-size: 15px;
-    font-weight: 600;
     cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
     transition: all 0.3s ease;
-    margin-top: 20px;
 }
 
 .checkout-btn:hover {
     background: #333;
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
 }
 
-/* Empty State */
-.empty-state {
+.checkout-btn.disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.checkout-btn.disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+/* Empty Cart */
+.empty-cart {
     text-align: center;
     padding: 80px 20px;
+    background: #fff;
+    border-radius: 16px;
+    animation: scaleIn 0.5s ease;
 }
 
-.empty-state svg {
-    margin-bottom: 30px;
-    opacity: 0.5;
+.empty-cart-icon {
+    margin-bottom: 25px;
+    color: #ccc;
 }
 
-.empty-state h2 {
-    font-size: 28px;
-    font-weight: 600;
+.empty-cart-title {
+    font-size: 24px;
+    font-weight: 700;
     color: #1a1a1a;
-    margin-bottom: 12px;
+    margin: 0 0 10px 0;
 }
 
-.empty-state p {
+.empty-cart-text {
     font-size: 16px;
     color: #666;
-    margin-bottom: 30px;
+    margin: 0 0 30px 0;
 }
 
-.shop-now-btn {
-    display: inline-block;
-    padding: 14px 40px;
+.continue-shopping-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 32px;
     background: #1a1a1a;
     color: #fff;
+    text-decoration: none;
     border-radius: 30px;
     font-weight: 600;
-    text-decoration: none;
     transition: all 0.3s ease;
 }
 
-.shop-now-btn:hover {
+.continue-shopping-btn:hover {
     background: #333;
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
 /* Responsive */
-@media (max-width: 968px) {
-    .cart-layout {
+@media (max-width: 1024px) {
+    .cart-content {
         grid-template-columns: 1fr;
     }
 
-    .order-summary {
+    .order-summary-section {
         position: static;
-    }
-
-    .cart-header {
-        font-size: 14px;
-    }
-
-    .cart-item {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-
-    .item-product {
-        flex-direction: column;
     }
 }
 
 @media (max-width: 768px) {
-    .page-container {
-        padding: 30px 20px;
+    .cart-title {
+        font-size: 24px;
     }
 
-    .page-title {
-        font-size: 24px;
+    .cart-item {
+        grid-template-columns: 100px 1fr;
+        gap: 15px;
+        padding: 20px;
+    }
+
+    .item-image {
+        width: 100px;
+        height: 130px;
+    }
+
+    .item-name {
+        font-size: 16px;
+    }
+
+    .item-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .item-actions {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+
+    .item-total {
+        align-items: flex-start;
+    }
+
+    .order-summary-card {
+        padding: 25px 20px;
     }
 }
 </style>
 
 <script>
-function updateQuantity(itemId, change) {
-    const input = document.getElementById(`qty-${itemId}`);
-    let currentValue = parseInt(input.value);
-    let newValue = currentValue + change;
-    
-    if (newValue >= 1) {
-        input.value = newValue;
-        
-        // Make AJAX call to update quantity in backend
-        fetch(`/cart/update/${itemId}/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ quantity: newValue })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload(); // Reload to update totals
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let cookie of cookies) {
+            cookie = cookie.trim();
+            if (cookie.startsWith(name + "=")) {
+                cookieValue = decodeURIComponent(cookie.slice(name.length + 1));
+                break;
             }
-        });
+        }
     }
+    return cookieValue;
 }
 
-function toggleCoupon() {
-    const wrapper = document.getElementById('couponWrapper');
-    const toggle = document.querySelector('.coupon-toggle');
-    
-    if (wrapper.style.display === 'none') {
-        wrapper.style.display = 'flex';
-        toggle.classList.add('active');
-    } else {
-        wrapper.style.display = 'none';
-        toggle.classList.remove('active');
+/* =====================
+   CLICK EVENTS (remove, qty)
+===================== */
+document.addEventListener("click", function (e) {
+
+    /* ---------- REMOVE ITEM ---------- */
+    if (e.target.closest(".remove-btn")) {
+        const btn = e.target.closest(".remove-btn");
+        const itemId = btn.dataset.id;
+
+        fetch("/cart/remove/", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": getCookie("csrftoken"),
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({ item_id: itemId }),
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) return;
+
+            btn.closest(".cart-item").remove();
+
+            const cartCount = document.querySelector(".cart-count");
+            if (cartCount) cartCount.innerText = data.cart_count;
+
+            if (data.cart_count === 0) location.reload();
+        });
     }
-}
+
+    /* ---------- QTY + / − ---------- */
+    if (e.target.closest(".qty-btn")) {
+        const btn = e.target.closest(".qty-btn");
+        const itemId = btn.dataset.id;
+        const action = btn.classList.contains("plus") ? "plus" : "minus";
+
+        fetch("/cart/update-qty/", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": getCookie("csrftoken"),
+                "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+                item_id: itemId,
+                action: action
+            }),
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) return;
+
+            const controls = btn.closest(".qty-controls");
+            const qtyEl = controls.querySelector(".qty-value");
+            const plusBtn = controls.querySelector(".plus");
+
+            qtyEl.innerText = data.quantity;
+            qtyEl.classList.toggle("max", data.quantity >= 10);
+            plusBtn.disabled = data.quantity >= 10;
+
+            const lineTotal = document.querySelector(
+                `[data-item-total="${itemId}"] .total-value`
+            );
+            if (lineTotal) {
+                lineTotal.innerText = "₹" + data.line_total;
+            }
+
+            let subtotal = 0;
+            document.querySelectorAll("[data-item-total] .total-value").forEach(el => {
+                subtotal += parseFloat(el.innerText.replace("₹", ""));
+            });
+
+            const summaryValue = document.querySelector(".summary-details .summary-row:first-child .summary-value");
+            const totalValue = document.querySelector(".total-row .summary-value");
+            if (summaryValue) summaryValue.innerText = "₹" + subtotal;
+            if (totalValue) totalValue.innerText = "₹" + subtotal;
+        });
+    }
+});
+
+/* =====================
+   VARIANT CHANGE (SEPARATE)
+===================== */
+document.addEventListener("change", function (e) {
+    if (!e.target.classList.contains("variant-select")) return;
+
+    const select = e.target;
+    const itemId = select.dataset.itemId;
+    const variantId = select.value;
+
+    fetch("/cart/change-variant/", {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": getCookie("csrftoken"),
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+            item_id: itemId,
+            variant_id: variantId
+        }),
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (!data.success) return;
+
+        // 🔁 Refresh cart UI ONLY (not page)
+        fetch("/cart/fragment/")
+            .then(res => res.text())
+            .then(html => {
+                document.querySelector(".cart-container").innerHTML = html;
+            });
+    });
+});
 </script>
 
 {% endblock %}

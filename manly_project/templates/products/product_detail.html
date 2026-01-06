@@ -99,12 +99,12 @@
                     </svg>
                     Select Size
                 </label>
-                <select class="size-select" {% if not in_stock %}disabled{% endif %}>
+               <select class="size-select" id="sizeSelect" {% if not in_stock %}disabled{% endif %}>
                     {% for variant in variants %}
                         <option
-                            value="{{ variant.size }}"
+                            value="{{ variant.id }}"
                             {% if not variant.is_active or variant.stock == 0 %}
-                                disabled class="variant-disabled"
+                                disabled
                             {% endif %}
                         >
                             {{ variant.size }}
@@ -112,6 +112,7 @@
                         </option>
                     {% endfor %}
                 </select>
+
             </div>
 
             <div class="divider"></div>
@@ -132,13 +133,28 @@
                     </svg>
                     Buy Now
                 </button>
-                <button class="btn add-to-cart-btn" {% if not in_stock %}disabled{% endif %}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                        <line x1="3" y1="6" x2="21" y2="6"></line>
-                        <path d="M16 10a4 4 0 0 1-8 0"></path>
-                    </svg>
-                    Add To Cart
+                <button
+                    class="btn add-to-cart-btn"
+                    data-product-id="{{ product.id }}"
+                    data-variant-id="{{ selected_variant.id }}"
+                    {% if not in_stock %}disabled{% endif %}>
+
+                    <span class="btn-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <path d="M16 10a4 4 0 0 1-8 0"></path>
+                        </svg>
+                    </span>
+
+                    <span class="btn-text">
+                        {% if not in_stock %}
+                            Out of Stock
+                        {% else %}
+                            Add to Cart
+                        {% endif %}
+                    </span>
                 </button>
             </div>
 
@@ -245,6 +261,69 @@
 /* ==========================================
    GLOBAL STYLES
 ========================================== */
+
+
+
+.add-to-cart-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 12px 20px;
+    border-radius: 10px;
+
+    background: #111;
+    color: #fff;
+
+    border: none;
+    cursor: pointer;
+
+    font-family: 'Nunito Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+
+    transition: all 0.25s ease;
+}
+
+/* Hover */
+.add-to-cart-btn:hover:not(:disabled) {
+    background: #000;
+    transform: translateY(-1px);
+}
+
+/* Disabled (out of stock / inactive) */
+.add-to-cart-btn:disabled {
+    background: #ccc;
+    color: #666;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Icon */
+.add-to-cart-btn .btn-icon {
+    display: flex;
+    align-items: center;
+}
+
+/* Loading state (AJAX) */
+.add-to-cart-btn.loading {
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+.add-to-cart-btn.loading .btn-text {
+    content: "Adding...";
+}
+
+/* Added success state */
+.add-to-cart-btn.added {
+    background: #1f7a1f;
+}
+
+.add-to-cart-btn.added .btn-text {
+    content: "Added";
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -1085,144 +1164,81 @@
 </style>
 
 <script>
-
-const thumbnails = document.querySelectorAll('.thumbnail-item');
-const mainImage = document.getElementById('mainImage');
-const zoomLens = document.querySelector('.zoom-lens');
-const navLeft = document.querySelector('.nav-left');
-const navRight = document.querySelector('.nav-right');
-const zoomOverlay = document.getElementById('zoomOverlay');
-const zoomedImage = document.getElementById('zoomedImage');
-const zoomClose = document.querySelector('.zoom-close');
-let currentIndex = 0;
-
-if (thumbnails.length > 0) {
-    thumbnails[0].classList.add('active');
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let cookie of cookies) {
+            cookie = cookie.trim();
+            if (cookie.startsWith(name + "=")) {
+                cookieValue = decodeURIComponent(cookie.slice(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
 }
 
+document.addEventListener("DOMContentLoaded", function () {
 
-thumbnails.forEach((thumb, index) => {
-    thumb.addEventListener('click', () => {
-        currentIndex = index;
-        updateMainImage();
-        updateActiveThumbnail();
+    document.querySelectorAll(".add-to-cart-btn").forEach(btn => {
+        btn.addEventListener("click", function () {
+            if (btn.disabled) return;
+
+            const productId = btn.dataset.productId;
+            const variantId = document.getElementById("sizeSelect")?.value;
+
+            if (!variantId) {
+                alert("Please select a size");
+                return;
+            }
+
+            // UI → loading
+            btn.classList.add("loading");
+            btn.querySelector(".btn-text").innerText = "Adding...";
+
+            fetch("/cart/add/", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": getCookie("csrftoken"),
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: new URLSearchParams({
+                    product_id: productId,
+                    variant_id: variantId,
+                    quantity: 1,
+                }),
+            })
+            .then(res => res.json())
+            .then(data => {
+                btn.classList.remove("loading");
+
+                if (data.success) {
+                    // Success UI
+                    btn.classList.add("added");
+                    btn.querySelector(".btn-text").innerText = "Added";
+
+                    // Update cart badge
+                    const cartCount = document.querySelector(".cart-count");
+                    if (cartCount) {
+                        cartCount.innerText = data.cart_count;
+                        cartCount.setAttribute("data-count", data.cart_count);
+                    }
+                } else {
+                    btn.querySelector(".btn-text").innerText = "Add to Cart";
+                    alert(data.message);
+                }
+            })
+            .catch(() => {
+                btn.classList.remove("loading");
+                btn.querySelector(".btn-text").innerText = "Add to Cart";
+                alert("Something went wrong");
+            });
+        });
     });
+
 });
-
-
-navRight.addEventListener('click', () => {
-    currentIndex = (currentIndex + 1) % thumbnails.length;
-    updateMainImage();
-    updateActiveThumbnail();
-});
-
-navLeft.addEventListener('click', () => {
-    currentIndex = (currentIndex - 1 + thumbnails.length) % thumbnails.length;
-    updateMainImage();
-    updateActiveThumbnail();
-});
-
-function updateMainImage() {
-    const imgSrc = thumbnails[currentIndex].querySelector('img').src;
-    mainImage.src = imgSrc;
-}
-
-function updateActiveThumbnail() {
-    thumbnails.forEach(thumb => thumb.classList.remove('active'));
-    thumbnails[currentIndex].classList.add('active');
-}
-
-const mainImageContainer = document.querySelector('.main-image');
-mainImageContainer.addEventListener('mousemove', (e) => {
-    const rect = mainImageContainer.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-
-    zoomLens.style.left = x - 75 + 'px';
-    zoomLens.style.top = y - 75 + 'px';
-    
- 
-    const xPercent = (x / rect.width) * 100;
-    const yPercent = (y / rect.height) * 100;
-    
-    mainImage.style.transformOrigin = `${xPercent}% ${yPercent}%`;
-    mainImage.style.transform = 'scale(1.5)';
-});
-
-mainImageContainer.addEventListener('mouseleave', () => {
-    mainImage.style.transform = 'scale(1)';
-});
-
-
-mainImage.addEventListener('click', () => {
-    zoomOverlay.classList.add('active');
-    zoomedImage.src = mainImage.src;
-    document.body.style.overflow = 'hidden';
-});
-
-
-zoomClose.addEventListener('click', closeZoom);
-zoomOverlay.addEventListener('click', (e) => {
-    if (e.target === zoomOverlay) closeZoom();
-});
-
-function closeZoom() {
-    zoomOverlay.classList.remove('active');
-    document.body.style.overflow = '';
-}
-
-
-document.addEventListener('keydown', (e) => {
-    if (zoomOverlay.classList.contains('active')) {
-        if (e.key === 'Escape') closeZoom();
-        if (e.key === 'ArrowRight') {
-            currentIndex = (currentIndex + 1) % thumbnails.length;
-            updateMainImage();
-            updateActiveThumbnail();
-            zoomedImage.src = mainImage.src;
-        }
-        if (e.key === 'ArrowLeft') {
-            currentIndex = (currentIndex - 1 + thumbnails.length) % thumbnails.length;
-            updateMainImage();
-            updateActiveThumbnail();
-            zoomedImage.src = mainImage.src;
-        }
-    }
-});
-
-
-const slider = document.querySelector('.product-slider');
-const btnPrev = document.querySelector('.btn-prev');
-const btnNext = document.querySelector('.btn-next');
-let slidePosition = 0;
-const slideWidth = 308; 
-
-btnNext.addEventListener('click', () => {
-    const maxSlide = slider.scrollWidth - slider.parentElement.offsetWidth;
-    if (Math.abs(slidePosition) < maxSlide) {
-        slidePosition -= slideWidth;
-        slider.style.transform = `translateX(${slidePosition}px)`;
-    }
-});
-
-btnPrev.addEventListener('click', () => {
-    if (slidePosition < 0) {
-        slidePosition += slideWidth;
-        slider.style.transform = `translateX(${slidePosition}px)`;
-    }
-});
-
-
-function checkSliderPosition() {
-    btnPrev.disabled = slidePosition >= 0;
-    const maxSlide = slider.scrollWidth - slider.parentElement.offsetWidth;
-    btnNext.disabled = Math.abs(slidePosition) >= maxSlide;
-}
-
-btnPrev.addEventListener('click', checkSliderPosition);
-btnNext.addEventListener('click', checkSliderPosition);
-checkSliderPosition();
 </script>
+
 
 {% endblock %}

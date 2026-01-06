@@ -497,7 +497,7 @@
             </a>
 
             <a href="{% url 'admin_product_list' %}" 
-                class="sidebar-link">
+                class="sidebar-link {% if request.resolver_match.url_name == 'admin_product_list' %}active{% endif %}">
                 <span class="icon">📦</span>
                 <span class="text">Products</span>
             </a>
@@ -509,37 +509,50 @@
             </a>
 
             <a href="{% url 'admin_dashboard' %}"
-                class="sidebar-link">
+                class="sidebar-link {% if request.resolver_match.url_name == 'admin_users' %}active{% endif %}">
                 <span class="icon">🛒</span>
                 <span class="text">Orders</span>
             </a>
 
             <a href="{% url 'admin_dashboard' %}"
-                class="sidebar-link">
-                <span class="icon">🎟️</span>
-                <span class="text">Coupons</span>
+                class="sidebar-link {% if request.resolver_match.url_name == 'admin_users' %}active{% endif %}">
+                <span class="icon">💰</span>
+                <span class="text">Wallet</span>
+            </a>
+            <a href="{% url 'admin_dashboard' %}"
+                class="sidebar-link {% if request.resolver_match.url_name == 'admin_users' %}active{% endif %}">
+                <span class="icon">📦</span>
+                <span class="text">Inventory</span>
             </a>
 
+         
+
             <a href="{% url 'admin_category_list' %}"
-                class="sidebar-link">
+                class="sidebar-link {% if request.resolver_match.url_name == 'admin_category_list' %}active{% endif %}">
                 <span class="icon">📁</span>
                 <span class="text">Category</span>
             </a>
 
+               <a href="{% url 'admin_dashboard' %}"
+                class="sidebar-link {% if request.resolver_match.url_name == 'admin_users' %}active{% endif %}">
+                <span class="icon">🎟️</span>
+                <span class="text">Coupons</span>
+            </a>
+
             <a href="{% url 'admin_dashboard' %}" 
-                class="sidebar-link">
+                class="sidebar-link {% if request.resolver_match.url_name == 'admin_users' %}active{% endif %}">
                 <span class="icon">🔥</span>
                 <span class="text">Offers</span>
             </a>
 
             <a href="{% url 'admin_banner_list' %}" 
-                class="sidebar-link">
+                class="sidebar-link {% if request.resolver_match.url_name == 'admin_banner_list' %}active{% endif %}">
                 <span class="icon">🖼️</span>
                 <span class="text">Banner</span>
             </a>
 
             <a href="{% url 'admin_dashboard' %}"
-                class="sidebar-link">
+                class="sidebar-link {% if request.resolver_match.url_name == 'admin_users' %}active{% endif %}">
                 <span class="icon">📈</span>
                 <span class="text">Sales Report</span>
             </a>

@@ -53,9 +53,11 @@ INSTALLED_APPS = [
     'apps.categories',
     'apps.products',
     'apps.core',
-    'apps.cart',
+    
     'apps.wishlist',
     'apps.sizeguide',
+    "apps.cart.apps.CartConfig",
+
     
     
     
@@ -77,7 +79,7 @@ INSTALLED_APPS = [
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
-
+    
     
     
 ]
@@ -116,6 +118,9 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'apps.core.context_processors.cloudinary_settings',
+                
+                
+                "apps.cart.context_processors.cart_count",
                 
                 
             ],
