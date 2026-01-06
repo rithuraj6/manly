@@ -53,6 +53,9 @@ INSTALLED_APPS = [
     'apps.categories',
     'apps.products',
     'apps.core',
+    'apps.orders',
+    'apps.reviews',
+
     
     'apps.wishlist',
     'apps.sizeguide',
