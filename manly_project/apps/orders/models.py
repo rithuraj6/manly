@@ -138,3 +138,67 @@ class OrderAction(models.Model):
     reason = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+class ReturnRequest(models.Model):
+    STATUS_PENDING = "pending"
+    STATUS_APPROVED = "approved"
+    STATUS_REJECTED = "rejected"
+
+    STATUS_CHOICES = [
+        (STATUS_PENDING, "Pending"),
+        (STATUS_APPROVED, "Approved"),
+        (STATUS_REJECTED, "Rejected"),
+    ]
+
+    REASON_WRONG_SIZE = "wrong_size"
+    REASON_DAMAGED = "damaged"
+    REASON_QUALITY = "quality"
+    REASON_WRONG_ITEM = "wrong_item"
+    REASON_LATE_DELIVERY = "late_delivery"
+    REASON_CHANGED_MIND = "changed_mind"
+    REASON_OTHER = "other"
+
+    REASON_CHOICES = [
+        (REASON_WRONG_SIZE, "Wrong size"),
+        (REASON_DAMAGED, "Damaged product"),
+        (REASON_QUALITY, "Quality not as expected"),
+        (REASON_WRONG_ITEM, "Wrong item delivered"),
+        (REASON_LATE_DELIVERY, "Late delivery"),
+        (REASON_CHANGED_MIND, "Changed mind"),
+        (REASON_OTHER, "Other"),
+    ]
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="return_requests"
+    )
+
+    order_item = models.OneToOneField(
+        "OrderItem",
+        on_delete=models.CASCADE,
+        related_name="return_request"
+    )
+
+    reason = models.CharField(
+        max_length=30,
+        choices=REASON_CHOICES
+    )
+
+    description = models.TextField(
+        blank=True,
+        help_text="Required only if reason is 'Other'"
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default=STATUS_PENDING
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"ReturnRequest #{self.id} - OrderItem {self.order_item.id}"
+
+

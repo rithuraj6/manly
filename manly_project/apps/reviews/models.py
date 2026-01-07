@@ -37,16 +37,15 @@ class ProductReview(models.Model):
         choices=RATING_CHOICES
     )
 
-    review_text = models.TextField(max_length=200, blank=True)
+    review_text = models.TextField()
 
     is_approved = models.BooleanField(default=True)
 
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        unique_together = ("user", "product")
+    
+    
 
     def __str__(self):
         return f"{self.product.name} - {self.rating}★"
