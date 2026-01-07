@@ -66,10 +66,22 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
 
-    ITEM_STATUS_CHOICES = [
-        ("active", "Active"),
-        ("cancelled", "Cancelled"),
-        ("returned", "Returned"),
+    STATUS_PENDING = "pending"
+    STATUS_CONFIRMED = "confirmed"
+    STATUS_SHIPPED = "shipped"
+    STATUS_DELIVERED = "delivered"
+    STATUS_CANCELLED = "cancelled"
+    STATUS_RETURN_REQUESTED = "return_requested"
+    STATUS_RETURNED = "returned"
+
+    STATUS_CHOICES = [
+        (STATUS_PENDING, "Pending"),
+        (STATUS_CONFIRMED, "Confirmed"),
+        (STATUS_SHIPPED, "Shipped"),
+        (STATUS_DELIVERED, "Delivered"),
+        (STATUS_CANCELLED, "Cancelled"),
+        (STATUS_RETURN_REQUESTED, "Return Requested"),
+        (STATUS_RETURNED, "Returned"),
     ]
 
     order = models.ForeignKey(
@@ -89,13 +101,15 @@ class OrderItem(models.Model):
     )
 
     quantity = models.PositiveIntegerField()
+
+    
     price = models.DecimalField(max_digits=10, decimal_places=2)
     line_total = models.DecimalField(max_digits=10, decimal_places=2)
 
     status = models.CharField(
-        max_length=20,
-        choices=ITEM_STATUS_CHOICES,
-        default="active"
+        max_length=30,
+        choices=STATUS_CHOICES,
+        default=STATUS_PENDING
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -117,26 +131,8 @@ class OrderStatusHistory(models.Model):
 
 
 
-class OrderAction(models.Model):
 
-    ACTION_TYPE_CHOICES = [
-        ("cancel", "Cancel"),
-        ("return", "Return"),
-    ]
 
-    order_item = models.ForeignKey(
-        OrderItem,
-        on_delete=models.CASCADE,
-        related_name="actions"
-    )
-
-    action_type = models.CharField(
-        max_length=20,
-        choices=ACTION_TYPE_CHOICES
-    )
-
-    reason = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
 
 class ReturnRequest(models.Model):
     STATUS_PENDING = "pending"
