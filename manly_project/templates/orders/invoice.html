@@ -1,0 +1,75 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Invoice - {{ order.order_id }}</title>
+    <style>
+        body { font-family: Nunito Sans, sans-serif; padding: 40px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; font-size: 14px; }
+        th { background: #f5f5f5; }
+        .right { text-align: right; }
+        .muted { color: #888; }
+        .returned { color: #f44336; font-weight: 600; }
+    </style>
+</head>
+<body onload="window.print()">
+
+<h2>MANLY APPAREL STORE</h2>
+<p><strong>Tax Invoice</strong></p>
+
+<hr>
+
+<p>
+<strong>Order ID:</strong> {{ order.order_id }}<br>
+<strong>Order Date:</strong> {{ order.created_at|date:"d M Y" }}
+</p>
+
+<hr>
+
+<h4>Billing & Shipping Address</h4>
+<p>
+{{ order.address_snapshot.name }}<br>
+{{ order.address_snapshot.phone }}<br>
+{{ order.address_snapshot.address_line_1 }},
+{{ order.address_snapshot.city }},
+{{ order.address_snapshot.pincode }}
+</p>
+
+<hr>
+
+<table>
+<thead>
+<tr>
+    <th>Product</th>
+    <th>Qty</th>
+    <th>Status</th>
+    <th class="right">Amount</th>
+</tr>
+</thead>
+<tbody>
+{% for item in items %}
+<tr>
+    <td>{{ item.product.name }}</td>
+    <td>{{ item.quantity }}</td>
+    <td class="{% if item.status == 'returned' %}returned{% endif %}">
+        {{ item.status|title }}
+    </td>
+    <td class="right">₹ {{ item.line_total }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+<hr>
+
+<p class="right">
+<strong>Total Paid:</strong> ₹ {{ order.total_amount }}
+</p>
+
+<p class="muted" style="margin-top:40px;">
+This is a system generated invoice.
+</p>
+
+</body>
+</html>

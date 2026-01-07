@@ -1,0 +1,65 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Invoice - {{ order.order_id }}</title>
+    <style>
+        body { font-family: Nunito Sans, sans-serif; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        th { background: #f5f5f5; }
+        .cancelled { color: red; }
+        .right { text-align: right; }
+    </style>
+</head>
+<body onload="window.print()">
+
+<h2>MANLY APPAREL STORE</h2>
+<p><strong>Invoice:</strong> {{ order.order_id }}</p>
+<p><strong>Order Date:</strong> {{ order.created_at|date:"d M Y" }}</p>
+
+<hr>
+
+<h3>Shipping Address</h3>
+<p>
+    {{ order.address_snapshot.name }}<br>
+    {{ order.address_snapshot.phone }}<br>
+    {{ order.address_snapshot.address }}
+</p>
+
+<hr>
+
+<table>
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Qty</th>
+            <th>Status</th>
+            <th class="right">Amount</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in items %}
+        <tr>
+            <td>{{ item.product.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td class="{% if item.status == 'cancelled' %}cancelled{% endif %}">
+                {{ item.status|title }}
+            </td>
+            <td class="right">₹{{ item.line_total }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<hr>
+
+<p class="right"><strong>Total Paid:</strong> ₹{{ order.total_amount }}</p>
+
+<p style="margin-top:40px;font-size:12px;">
+    This is a system generated invoice.
+</p>
+
+</body>
+</html>

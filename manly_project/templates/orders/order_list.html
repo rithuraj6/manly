@@ -2,61 +2,619 @@
 {% load static %}
 
 {% block content %}
-<section class="orders-section">
+<div class="orders-page-wrapper">
+    <div class="orders-container">
+        <!-- Page Header -->
+        <div class="orders-header">
+            <h2 class="orders-title">My Orders</h2>
+            <form method="get" class="order-search-form">
+                <input
+                    type="text"
+                    name="q"
+                    placeholder="Search orders by product name..."
+                    value="{{ search_query }}"
+                    class="order-search-input"
+                >
 
-    <h2>My Orders</h2>
+                <!-- Preserve filter -->
+                <input type="hidden" name="filter" value="{{ filter_value }}">
 
-    <!-- Filter -->
-    <form method="get">
-        <select name="filter" onchange="this.form.submit()">
-            <option value="7d" {% if filter_value == "7d" %}selected{% endif %}>Last 7 Days</option>
-            <option value="1m" {% if filter_value == "1m" %}selected{% endif %}>Last 1 Month</option>
-            <option value="3m" {% if filter_value == "3m" %}selected{% endif %}>Last 3 Months</option>
-            <option value="6m" {% if filter_value == "6m" %}selected{% endif %}>Last 6 Months</option>
+                <button type="submit" class="order-search-btn">
+                    Search
+                </button>
 
-            {% for year in years %}
-                <option value="{{ year }}" {% if filter_value == year|stringformat:"s" %}selected{% endif %}>
-                    {{ year }}
-                </option>
-            {% endfor %}
-        </select>
-    </form>
+                {% if search_query %}
+                    <a href="{% url 'user_orders' %}?filter={{ filter_value }}"
+                    class="order-clear-btn">
+                        Clear
+                    </a>
+                {% endif %}
+            </form>
 
-    <!-- Orders List -->
-    {% for order in orders %}
-        <div class="order-card">
-            <div>
-                <strong>Order ID:</strong> {{ order.order_id }}<br>
-                <strong>Date:</strong> {{ order.created_at|date:"d M Y" }}<br>
-                <strong>Status:</strong> {{ order.status|title }}
-            </div>
+            
+            <!-- Filter Dropdown -->
+            <form method="get" class="filter-form">
+                <div class="filter-dropdown">
+                    <label for="filter-select" class="filter-label">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                        </svg>
+                    </label>
+                    <select name="filter" id="filter-select" onchange="this.form.submit()" class="filter-select">
+                        <option value="7d" {% if filter_value == "7d" %}selected{% endif %}>Last 7 Days</option>
+                        <option value="1m" {% if filter_value == "1m" %}selected{% endif %}>Last 1 Month</option>
+                        <option value="3m" {% if filter_value == "3m" %}selected{% endif %}>Last 3 Months</option>
+                        <option value="6m" {% if filter_value == "6m" %}selected{% endif %}>Last 6 Months</option>
 
-            <div>
-                <strong>Total:</strong> ₹{{ order.total_amount }}
-            </div>
-
-            <div>
-                <a href="#">
-                    View Order
-                </a>
-            </div>
+                        {% for year in years %}
+                            <option value="{{ year }}" {% if filter_value == year|stringformat:"s" %}selected{% endif %}>
+                                {{ year }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <svg class="dropdown-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
+            </form>
         </div>
-    {% empty %}
-        <p>No orders found.</p>
-    {% endfor %}
 
-    <!-- Pagination -->
-    <div class="pagination">
-        {% if orders.has_previous %}
-            <a href="?page={{ orders.previous_page_number }}&filter={{ filter_value }}">Previous</a>
-        {% endif %}
+        <!-- Orders Table -->
+        <div class="orders-table-wrapper">
+            <table class="orders-table">
+                <thead>
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Items</th>
+                        <th>Total Amount</th>
+                        <th>Order Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                        <tr class="order-row">
+                            <td class="order-id-cell">
+                                <span class="order-id">#{{ order.order_id }}</span>
+                            </td>
+                            <td class="items-cell">
+                                <span class="items-count">{{ order.items.count }}</span>
+                            </td>
+                            <td class="amount-cell">
+                                <span class="amount">₹ {{ order.total_amount }}</span>
+                            </td>
+                            <td class="status-cell">
+                                <div class="status-info">
+                                    {% if order.status == "delivered" %}
+                                        <div class="status-indicator delivered"></div>
+                                        <div class="status-content">
+                                            <span class="status-text">Delivered on {{ order.updated_at|date:"M d" }}</span>
+                                            <span class="status-subtext">Your order has been delivered</span>
+                                        </div>
+                                    {% elif order.status == "cancelled" %}
+                                        <div class="status-indicator cancelled"></div>
+                                        <div class="status-content">
+                                            <span class="status-text">Cancelled on {{ order.updated_at|date:"M d" }}</span>
+                                            <span class="status-subtext">Your order has been cancelled</span>
+                                        </div>
+                                    {% elif order.status == "shipped" %}
+                                        <div class="status-indicator shipped"></div>
+                                        <div class="status-content">
+                                            <span class="status-text">Delivery expected by {{ order.expected_delivery|date:"M d" }}</span>
+                                            <span class="status-subtext">Your order has been placed.</span>
+                                        </div>
+                                    {% else %}
+                                        <div class="status-indicator pending"></div>
+                                        <div class="status-content">
+                                            <span class="status-text">{{ order.status|title }}</span>
+                                            <span class="status-subtext">Processing your order</span>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <a href="{% url 'order_detail' order.order_id %}" class="view-order-btn">
+                                        View Orders
 
-        <span>Page {{ orders.number }} of {{ orders.paginator.num_pages }}</span>
+                                    </a>
+                                    <a href="{% url 'print_invoice' order.order_id %}" 
+                                        target="_blank"
+                                        class="view-order-btn secondary">
+                                            Print Invoice
+                                    </a>
 
-        {% if orders.has_next %}
-            <a href="?page={{ orders.next_page_number }}&filter={{ filter_value }}">Next</a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" class="empty-state">
+                                <div class="empty-orders">
+                                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="12" cy="7" r="4"></circle>
+                                    </svg>
+                                    <h3>No orders found</h3>
+                                    <p>You haven't placed any orders yet</p>
+                                    <a href="{% url 'shop' %}" class="shop-now-btn">
+                                        Start Shopping
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if orders.has_previous or orders.has_next %}
+            <div class="pagination-wrapper">
+                {% if orders.has_previous %}
+                    <a href="?page={{ orders.previous_page_number }}&filter={{ filter_value }}" class="pagination-btn prev">
+                        Previous
+                    </a>
+                {% else %}
+                    <span class="pagination-btn prev disabled">Previous</span>
+                {% endif %}
+
+                <div class="page-numbers">
+                    {% for num in orders.paginator.page_range %}
+                        {% if num == orders.number %}
+                            <span class="page-num active">{{ num }}</span>
+                        {% elif num > orders.number|add:'-3' and num < orders.number|add:'3' %}
+                            <a href="?page={{ num }}&filter={{ filter_value }}" class="page-num">{{ num }}</a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                {% if orders.has_next %}
+                    <a href="?page={{ num }}&filter={{ filter_value }}{% if search_query %}&q={{ search_query }}{% endif %}
+                            " class="pagination-btn next">
+                        Next
+                    </a>
+                {% else %}
+                    <span class="pagination-btn next disabled">Next</span>
+                {% endif %}
+            </div>
         {% endif %}
     </div>
+</div>
 
-</section>
+<style>
+
+
+    .order-search-form {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.order-search-input {
+    padding: 10px 16px;
+    border-radius: 30px;
+    border: 2px solid #1a1a1a;
+    font-size: 14px;
+    min-width: 260px;
+}
+
+.order-search-btn {
+    padding: 10px 20px;
+    border-radius: 30px;
+    background: #1a1a1a;
+    color: #fff;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+}
+
+.order-clear-btn {
+    padding: 10px 18px;
+    border-radius: 30px;
+    border: 2px solid #f44336;
+    color: #f44336;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* Orders Page Wrapper */
+.orders-page-wrapper {
+    min-height: calc(100vh - 200px);
+    padding: 40px 20px;
+    background: #fafafa;
+}
+
+.orders-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    animation: fadeIn 0.5s ease;
+}
+
+/* Orders Header */
+.orders-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 35px;
+    animation: slideInDown 0.5s ease;
+}
+
+.orders-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0;
+}
+
+/* Filter Dropdown */
+.filter-form {
+    position: relative;
+}
+
+.filter-dropdown {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    background: #fff;
+    border: 2px solid #1a1a1a;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-dropdown:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.filter-label {
+    display: flex;
+    align-items: center;
+    color: #1a1a1a;
+    cursor: pointer;
+}
+
+.filter-select {
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a1a;
+    cursor: pointer;
+    outline: none;
+    appearance: none;
+    padding-right: 25px;
+}
+
+.dropdown-arrow {
+    position: absolute;
+    right: 15px;
+    pointer-events: none;
+    color: #1a1a1a;
+}
+
+/* Orders Table */
+.orders-table-wrapper {
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    animation: slideInUp 0.5s ease 0.2s forwards;
+    opacity: 0;
+}
+
+.orders-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.orders-table thead {
+    background: #f0f0f0;
+}
+
+.orders-table th {
+    padding: 20px 25px;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a1a;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.orders-table tbody tr {
+    border-bottom: 1px solid #f0f0f0;
+    transition: all 0.3s ease;
+}
+
+.orders-table tbody tr:hover {
+    background: #fafafa;
+}
+
+.orders-table td {
+    padding: 25px;
+}
+
+/* Table Cells */
+.order-id-cell {
+    font-weight: 600;
+}
+
+.order-id {
+    color: #1a1a1a;
+    font-size: 15px;
+}
+
+.items-cell {
+    text-align: center;
+}
+
+.items-count {
+    display: inline-block;
+    min-width: 30px;
+    padding: 6px 14px;
+    background: #f8f8f8;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 14px;
+    color: #1a1a1a;
+}
+
+.amount-cell {
+    font-weight: 700;
+    font-size: 16px;
+    color: #1a1a1a;
+}
+
+/* Status Cell */
+.status-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.status-indicator.delivered {
+    background: #4caf50;
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.4);
+}
+
+.status-indicator.cancelled {
+    background: #f44336;
+    box-shadow: 0 0 8px rgba(244, 67, 54, 0.4);
+}
+
+.status-indicator.shipped {
+    background: #4caf50;
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.4);
+}
+
+.status-indicator.pending {
+    background: #ff9800;
+    box-shadow: 0 0 8px rgba(255, 152, 0, 0.4);
+}
+
+.status-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.status-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.status-subtext {
+    font-size: 12px;
+    color: #666;
+}
+
+.view-order-btn {
+    padding: 10px 24px;
+    background: #1a1a1a;
+    color: #fff;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.view-order-btn:hover {
+    background: #333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* Empty State */
+.empty-state {
+    padding: 0 !important;
+}
+
+.empty-orders {
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.empty-orders svg {
+    color: #ccc;
+    margin-bottom: 20px;
+}
+
+.empty-orders h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 8px 0;
+}
+
+.empty-orders p {
+    font-size: 15px;
+    color: #666;
+    margin: 0 0 25px 0;
+}
+
+.shop-now-btn {
+    display: inline-block;
+    padding: 12px 32px;
+    background: #1a1a1a;
+    color: #fff;
+    border-radius: 30px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.shop-now-btn:hover {
+    background: #333;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+}
+
+/* Pagination */
+.pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 40px;
+    animation: fadeIn 0.5s ease 0.4s forwards;
+    opacity: 0;
+}
+
+.pagination-btn {
+    padding: 10px 24px;
+    background: #fff;
+    color: #1a1a1a;
+    border: 2px solid #1a1a1a;
+    border-radius: 30px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.pagination-btn:hover:not(.disabled) {
+    background: #1a1a1a;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.pagination-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    border-color: #ddd;
+    color: #999;
+}
+
+.page-numbers {
+    display: flex;
+    gap: 8px;
+}
+
+.page-num {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border: 2px solid #e5e5e5;
+    border-radius: 50%;
+    font-weight: 600;
+    text-decoration: none;
+    color: #1a1a1a;
+    transition: all 0.3s ease;
+}
+
+.page-num:hover {
+    border-color: #1a1a1a;
+    transform: scale(1.1);
+}
+
+.page-num.active {
+    background: #1a1a1a;
+    color: #fff;
+    border-color: #1a1a1a;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .orders-table {
+        display: block;
+        overflow-x: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .orders-header {
+        flex-direction: column;
+        gap: 20px;
+        align-items: stretch;
+    }
+
+    .orders-title {
+        font-size: 24px;
+    }
+
+    .filter-dropdown {
+        justify-content: center;
+    }
+
+    .orders-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .orders-table {
+        min-width: 900px;
+    }
+
+    .pagination-wrapper {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .pagination-btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+</style>
+
 {% endblock %}
