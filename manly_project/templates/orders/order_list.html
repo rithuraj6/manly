@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="orders-section">
+
+    <h2>My Orders</h2>
+
+    <!-- Filter -->
+    <form method="get">
+        <select name="filter" onchange="this.form.submit()">
+            <option value="7d" {% if filter_value == "7d" %}selected{% endif %}>Last 7 Days</option>
+            <option value="1m" {% if filter_value == "1m" %}selected{% endif %}>Last 1 Month</option>
+            <option value="3m" {% if filter_value == "3m" %}selected{% endif %}>Last 3 Months</option>
+            <option value="6m" {% if filter_value == "6m" %}selected{% endif %}>Last 6 Months</option>
+
+            {% for year in years %}
+                <option value="{{ year }}" {% if filter_value == year|stringformat:"s" %}selected{% endif %}>
+                    {{ year }}
+                </option>
+            {% endfor %}
+        </select>
+    </form>
+
+    <!-- Orders List -->
+    {% for order in orders %}
+        <div class="order-card">
+            <div>
+                <strong>Order ID:</strong> {{ order.order_id }}<br>
+                <strong>Date:</strong> {{ order.created_at|date:"d M Y" }}<br>
+                <strong>Status:</strong> {{ order.status|title }}
+            </div>
+
+            <div>
+                <strong>Total:</strong> ₹{{ order.total_amount }}
+            </div>
+
+            <div>
+                <a href="#">
+                    View Order
+                </a>
+            </div>
+        </div>
+    {% empty %}
+        <p>No orders found.</p>
+    {% endfor %}
+
+    <!-- Pagination -->
+    <div class="pagination">
+        {% if orders.has_previous %}
+            <a href="?page={{ orders.previous_page_number }}&filter={{ filter_value }}">Previous</a>
+        {% endif %}
+
+        <span>Page {{ orders.number }} of {{ orders.paginator.num_pages }}</span>
+
+        {% if orders.has_next %}
+            <a href="?page={{ orders.next_page_number }}&filter={{ filter_value }}">Next</a>
+        {% endif %}
+    </div>
+
+</section>
+{% endblock %}
