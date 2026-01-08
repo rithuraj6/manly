@@ -252,6 +252,27 @@
         grid-template-columns: 1fr;
     }
 }
+/* CLEAR / RESET BUTTONS */
+.clear-btn {
+    padding: 10px 18px;
+    border-radius: 20px;
+    border: 1px solid #a10606;
+    background: transparent;
+    color: #a10606;
+    font-size: 13px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.clear-btn:hover {
+    background: #a10606;
+    color: #fff;
+}
+
+.clear-btn.filled {
+    background: #a10606;
+    color: #fff;
+}
 
 
 </style>
@@ -318,6 +339,11 @@
         <button type="submit" style="margin-top:20px;padding:10px 20px;border-radius:20px;background:#000;color:#fff;border:none;">
             Apply
         </button>
+        {% if has_filters %}
+            <a href="?" class="clear-btn filled" style="margin-top:30px;display:inline-block;text-align:center;">
+                Clear All Filters
+            </a>
+        {% endif %}
 
     </aside>
 
@@ -325,14 +351,13 @@
     <section class="product-area">
 
         <div class="product-search-form">
-            <input
-                type="text"
-                name="q"
-                value="{{ search_query }}"
-                placeholder="Search formal, casual, party..."
-                class="product-search-input"
-            >
+            <input type="text"name="q"value="{{ search_query }}"placeholder="Search formal, casual, party..."class="product-search-input">
+
             <button type="submit" class="product-search-btn">Search</button>
+
+            {% if search_query %}
+                <a href="?" class="clear-btn">Clear</a>
+            {% endif %}
         </div>
 
             
@@ -348,17 +373,22 @@
                 </label>
             </div>
     {% endif %} {% endcomment %}
+                <div class="sort-box" style="display:flex;gap:10px;align-items:center;">
+                    <select name="sort" onchange="this.form.submit()">
+                        <option value="">Sort</option>
+                        <option value="price_low" {% if sort == 'price_low' %}selected{% endif %}>Price: Low → High</option>
+                        <option value="price_high" {% if sort == 'price_high' %}selected{% endif %}>Price: High → Low</option>
+                        <option value="name_asc" {% if sort == 'name_asc' %}selected{% endif %}>Name: A → Z</option>
+                        <option value="name_desc" {% if sort == 'name_desc' %}selected{% endif %}>Name: Z → A</option>
+                    </select>
 
-            <div class="sort-box">
-                <select name="sort" onchange="this.form.submit()">
-                    <option value="">Sort</option>
-                    <option value="price_low" {% if sort == 'price_low' %}selected{% endif %}>Price: Low → High</option>
-                    <option value="price_high" {% if sort == 'price_high' %}selected{% endif %}>Price: High → Low</option>
-                    <option value="name_asc" {% if sort == 'name_asc' %}selected{% endif %}>Name: A → Z</option>
-                    <option value="name_desc" {% if sort == 'name_desc' %}selected{% endif %}>Name: Z → A</option>
-                </select>
-            </div>
-    </div>
+                    {% if sort %}
+                        <a href="?{{ query_params|cut:'sort='|cut:sort }}" class="clear-btn">
+                            Reset
+                        </a>
+                    {% endif %}
+                </div>
+     </div>
 
         <!-- PRODUCTS -->
         <div class="product-grid">
@@ -415,6 +445,14 @@ if (toggle) {
         });
     });
 }
+document.querySelectorAll('.clear-btn').forEach(btn => {
+    btn.addEventListener('mousedown', () => {
+        btn.style.transform = 'scale(0.95)';
+    });
+    btn.addEventListener('mouseup', () => {
+        btn.style.transform = 'scale(1)';
+    });
+});
 </script>
 
 

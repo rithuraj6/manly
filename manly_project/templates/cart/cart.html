@@ -33,7 +33,7 @@
                             <div class="item-details">
                                 <div class="item-header">
                                     <h4 class="item-name">{{ entry.product.name }}</h4>
-                                    <button class="remove-btn" data-id="{{ entry.item.id }}">
+                                    <button class="remove-btn" data-item-id="{{ entry.item.id }}">
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <polyline points="3 6 5 6 21 6"></polyline>
                                             <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -62,26 +62,25 @@
                                 </div>
 
                                 <div class="item-actions">
-                                    <div class="qty-controls" data-item-id="{{ entry.item.id }}">
-                                        <button class="qty-btn minus" data-id="{{ entry.item.id }}">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                                            </svg>
+                                    <div class="qty-controls"
+                                        data-item-id="{{ entry.item.id }}"
+                                        data-stock="{{ entry.variant.stock }}">
+
+                                        <button class="qty-btn minus" data-action="minus">
+                                            −
                                         </button>
 
-                                        <span class="qty-value {% if entry.item.quantity >= 10 %}max{% endif %}">
-                                            {{ entry.item.quantity }}
-                                        </span>
+                                        <span class="qty-value">{{ entry.item.quantity }}</span>
 
-                                        <button class="qty-btn plus"
-                                                data-id="{{ entry.item.id }}"
-                                                {% if entry.item.quantity >= 10 %}disabled{% endif %}>
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                <line x1="12" y1="5" x2="12" y2="19"></line>
-                                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                                            </svg>
+                                        <button class="qty-btn plus" data-action="plus">
+                                            +
                                         </button>
                                     </div>
+
+                                    <p class="qty-error"
+                                    style="display:none;color:#c62828;font-size:12px;margin-top:6px;">
+                                    Only {{ entry.variant.stock }} left in stock
+                                    </p>
 
                                     <div class="item-total" data-item-total="{{ entry.item.id }}">
                                         <span class="total-label">Total:</span>
@@ -103,9 +102,9 @@
                                 <span class="summary-label">Subtotal</span>
                                 <span class="summary-value">₹{{ subtotal }}</span>
                             </div>
-                            <div class="summary-row">
+                           <div class="summary-row">
                                 <span class="summary-label">Shipping</span>
-                                <span class="summary-value shipping-free">Free</span>
+                                <span class="summary-value shipping-value">Free</span>
                             </div>
                             <div class="summary-divider"></div>
                             <div class="summary-row total-row">
@@ -242,7 +241,7 @@
 
 .cart-item.disabled {
     opacity: 0.6;
-    pointer-events: none;
+
     background: #f5f5f5;
 }
 
@@ -708,134 +707,163 @@
 </style>
 
 <script>
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== "") {
-        const cookies = document.cookie.split(";");
-        for (let cookie of cookies) {
-            cookie = cookie.trim();
-            if (cookie.startsWith(name + "=")) {
-                cookieValue = decodeURIComponent(cookie.slice(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
+/* ================= CSRF ================= */
+function getCSRF() {
+    return document.cookie
+        .split("; ")
+        .find(row => row.startsWith("csrftoken="))
+        ?.split("=")[1];
 }
 
-/* =====================
-   CLICK EVENTS (remove, qty)
-===================== */
+
+/* ================= SUBTOTAL ================= */
+function recalculateSubtotal() {
+    let subtotal = 0;
+
+    document.querySelectorAll(".item-total .total-value").forEach(el => {
+        subtotal += parseInt(el.innerText.replace("₹", ""), 10);
+    });
+
+    let shipping = 0;
+    const shippingEl = document.querySelector(".shipping-value");
+
+    if (subtotal < 3500) {
+        shipping = 150;
+        shippingEl.innerText = "₹150";
+        shippingEl.classList.remove("shipping-free");
+    } else {
+        shippingEl.innerText = "Free";
+        shippingEl.classList.add("shipping-free");
+    }
+
+    document.querySelectorAll(".summary-row").forEach(row => {
+        const label = row.querySelector(".summary-label")?.innerText;
+        const value = row.querySelector(".summary-value");
+
+        if (label === "Subtotal") {
+            value.innerText = "₹" + subtotal;
+        }
+
+        if (label === "Total") {
+            value.innerText = "₹" + (subtotal + shipping);
+        }
+    });
+}
+/* ================= CLICK HANDLER ================= */
 document.addEventListener("click", function (e) {
 
-    /* ---------- REMOVE ITEM ---------- */
-    if (e.target.closest(".remove-btn")) {
-        const btn = e.target.closest(".remove-btn");
-        const itemId = btn.dataset.id;
+    /* ===== REMOVE ITEM ===== */
+    const removeBtn = e.target.closest(".remove-btn");
+if (removeBtn) {
+    const itemId = removeBtn.dataset.itemId;
 
-        fetch("/cart/remove/", {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": getCookie("csrftoken"),
-                "Content-Type": "application/x-www-form-urlencoded",
-            },
-            body: new URLSearchParams({ item_id: itemId }),
+    fetch(`/cart/remove/${itemId}/`, {
+        method: "POST",
+        headers: { "X-CSRFToken": getCSRF() }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            removeBtn.closest(".cart-item").remove();
+            updateNavbarCartCount(data.cart_count);
+            
+            // ✅ FIX: Check if cart is empty
+            const remainingItems = document.querySelectorAll(".cart-item");
+            if (remainingItems.length === 0) {
+                location.reload(); // Show empty cart state
+            } else {
+                recalculateSubtotal();
+            }
+        }
+    });
+    return;
+}
+    /* ===== QTY UPDATE ===== */
+    const qtyBtn = e.target.closest(".qty-btn");
+    if (!qtyBtn) return;
+
+    const controls = qtyBtn.closest(".qty-controls");
+    const itemId = controls.dataset.itemId;
+    const stock = parseInt(controls.dataset.stock, 10);
+
+    const qtyEl = controls.querySelector(".qty-value");
+    const minusBtn = controls.querySelector(".minus");
+    const plusBtn = controls.querySelector(".plus");
+    const errorEl = controls.nextElementSibling;
+
+    fetch("/cart/update-qty/", {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": getCSRF(),
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: new URLSearchParams({
+            item_id: itemId,
+            action: qtyBtn.dataset.action
         })
-        .then(res => res.json())
-        .then(data => {
-            if (!data.success) return;
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (!data.success) {
+            errorEl.innerText = data.message || "Unable to update quantity";
+            errorEl.style.display = "block";
+            return;
+        }
 
-            btn.closest(".cart-item").remove();
+        qtyEl.innerText = data.quantity;
+        minusBtn.disabled = data.quantity <= 1;
 
-            const cartCount = document.querySelector(".cart-count");
-            if (cartCount) cartCount.innerText = data.cart_count;
+        const maxAllowed = Math.min(stock, 10);
 
-            if (data.cart_count === 0) location.reload();
-        });
-    }
+        if (data.quantity >= maxAllowed) {
+            plusBtn.disabled = true;
 
-    /* ---------- QTY + / − ---------- */
-    if (e.target.closest(".qty-btn")) {
-        const btn = e.target.closest(".qty-btn");
-        const itemId = btn.dataset.id;
-        const action = btn.classList.contains("plus") ? "plus" : "minus";
-
-        fetch("/cart/update-qty/", {
-            method: "POST",
-            headers: {
-                "X-CSRFToken": getCookie("csrftoken"),
-                "Content-Type": "application/x-www-form-urlencoded",
-            },
-            body: new URLSearchParams({
-                item_id: itemId,
-                action: action
-            }),
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (!data.success) return;
-
-            const controls = btn.closest(".qty-controls");
-            const qtyEl = controls.querySelector(".qty-value");
-            const plusBtn = controls.querySelector(".plus");
-
-            qtyEl.innerText = data.quantity;
-            qtyEl.classList.toggle("max", data.quantity >= 10);
-            plusBtn.disabled = data.quantity >= 10;
-
-            const lineTotal = document.querySelector(
-                `[data-item-total="${itemId}"] .total-value`
-            );
-            if (lineTotal) {
-                lineTotal.innerText = "₹" + data.line_total;
+            if (maxAllowed === 10) {
+                errorEl.innerText = "Maximum 10 units allowed per product";
+            } else {
+                errorEl.innerText = "Stock limit reached";
             }
 
-            let subtotal = 0;
-            document.querySelectorAll("[data-item-total] .total-value").forEach(el => {
-                subtotal += parseFloat(el.innerText.replace("₹", ""));
-            });
+            errorEl.style.display = "block";
+        } else {
+            plusBtn.disabled = false;
+            errorEl.style.display = "none";
+        }
 
-            const summaryValue = document.querySelector(".summary-details .summary-row:first-child .summary-value");
-            const totalValue = document.querySelector(".total-row .summary-value");
-            if (summaryValue) summaryValue.innerText = "₹" + subtotal;
-            if (totalValue) totalValue.innerText = "₹" + subtotal;
-        });
-    }
+
+        document.querySelector(
+            `[data-item-total="${itemId}"] .total-value`
+        ).innerText = "₹" + data.line_total;
+
+        recalculateSubtotal();
+        updateNavbarCartCount(data.cart_count);
+    });
 });
 
-/* =====================
-   VARIANT CHANGE (SEPARATE)
-===================== */
+/* ================= VARIANT CHANGE ================= */
 document.addEventListener("change", function (e) {
-    if (!e.target.classList.contains("variant-select")) return;
-
-    const select = e.target;
-    const itemId = select.dataset.itemId;
-    const variantId = select.value;
+    const select = e.target.closest(".variant-select");
+    if (!select) return;
 
     fetch("/cart/change-variant/", {
         method: "POST",
         headers: {
-            "X-CSRFToken": getCookie("csrftoken"),
-            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": getCSRF(),
+            "Content-Type": "application/x-www-form-urlencoded"
         },
         body: new URLSearchParams({
-            item_id: itemId,
-            variant_id: variantId
-        }),
+            item_id: select.dataset.itemId,
+            variant_id: select.value
+        })
     })
     .then(res => res.json())
     .then(data => {
-        if (!data.success) return;
-
-        // 🔁 Refresh cart UI ONLY (not page)
-        fetch("/cart/fragment/")
-            .then(res => res.text())
-            .then(html => {
-                document.querySelector(".cart-container").innerHTML = html;
-            });
+        if (data.success) {
+            location.reload(); // merge requires re-render
+        }
     });
 });
 </script>
+
 
 {% endblock %}

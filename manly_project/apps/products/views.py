@@ -7,6 +7,8 @@ from apps.banners.models import SiteBanner
 from apps.categories.models import Category
 from apps.products.models import Product, ProductVariant, ProductImage
 
+from django.db.models import Avg, Count
+from apps.reviews.models import ProductReview
 
 
 def shop_page(request):
@@ -31,8 +33,8 @@ def shop_page(request):
     ).prefetch_related("images").order_by("-created_at")[:12]
 
     breadcrumbs = [
-        {"name": "Home", "url": "/"},
-        {"name": "Shop", "url": None},
+        {"label": "Home", "url": "/"},
+        {"label": "Shop", "url": None},
     ]
 
     context = {
@@ -53,27 +55,46 @@ def product_detail(request, product_id):
 
     product_images = ProductImage.objects.filter(product=product).order_by("id")
 
+    
     variants = ProductVariant.objects.filter(
         product=product,
         is_active=True
     )
 
+    
     in_stock = variants.filter(stock__gt=0).exists()
 
-    similar_products = Product.objects.filter(
-        category=product.category,
-        is_active=True
-    ).exclude(id=product.id).prefetch_related("images")[:8]
+   
+    similar_products = (
+        Product.objects
+        .filter(category=product.category, is_active=True)
+        .exclude(id=product.id)
+        .prefetch_related("images")[:8]
+    )
+    reviews = (
+    ProductReview.objects
+    .filter(product=product)
+    .select_related("user")
+    .order_by("-created_at")
+)
 
-    dummy_rating = {
-        "rating": 4.6,
-        "reviews": 486
-    }
 
+    reviews_agg = ProductReview.objects.filter(
+        product=product,
+        
+    ).aggregate(
+        avg_rating=Avg("rating"),
+        total_reviews=Count("id")
+    )
+
+    average_rating = round(reviews_agg["avg_rating"] or 0, 1)
+    total_reviews = reviews_agg["total_reviews"] or 0
+
+   
     breadcrumbs = [
-        {"name": "Home", "url": "/"},
-        {"name": product.category.name, "url": f"/category/{product.category.id}/"},
-        {"name": product.name, "url": None},
+        {"label": "Home", "url": "/"},
+        {"label": product.category.name, "url": f"/category/{product.category.id}/"},
+        {"label": product.name, "url": None},
     ]
 
     context = {
@@ -82,7 +103,9 @@ def product_detail(request, product_id):
         "variants": variants,
         "in_stock": in_stock,
         "similar_products": similar_products,
-        "dummy_rating": dummy_rating,
+        "average_rating": average_rating,
+        'reviews' : reviews,
+        "total_reviews": total_reviews,
         "breadcrumbs": breadcrumbs,
     }
 
@@ -93,35 +116,54 @@ def product_detail(request, product_id):
 def product_list_by_category(request, category_id):
     base_category = get_object_or_404(Category, id=category_id, is_active=True)
 
-    
+    # ----------------------------
+    # FILTER PARAMS (DEFINE FIRST)
+    # ----------------------------
+    selected_category_ids = request.GET.getlist("category")
+    selected_sizes = request.GET.getlist("size")
+
+    min_price = request.GET.get("min_price", "").strip()
+    max_price = request.GET.get("max_price", "").strip()
+
+    search_query = request.GET.get("q", "").strip()
+    sort = request.GET.get("sort", "").strip()
+
+    # ----------------------------
+    # BASE QUERYSET
+    # ----------------------------
     products = Product.objects.filter(is_active=True)
 
-    selected_category_ids = request.GET.getlist("category")
-
+    # ----------------------------
+    # CATEGORY FILTER
+    # ----------------------------
     category_ids = [base_category.id]
     if selected_category_ids:
-        category_ids.extend(selected_category_ids)
+        category_ids.extend([int(cid) for cid in selected_category_ids])
 
     products = products.filter(category_id__in=category_ids)
 
-  
-    search_query = request.GET.get("q", "").strip()
+    # ----------------------------
+    # SEARCH FILTER
+    # ----------------------------
     if search_query:
         products = products.filter(
             Q(name__icontains=search_query) |
             Q(description__icontains=search_query)
         )
 
-    
+    # ----------------------------
+    # DEFAULT SIZE FROM MEASUREMENT
+    # ----------------------------
     default_size = None
-    if request.user.is_authenticated and getattr(request.user, "has_measurement", False):
-        if hasattr(request.user, "measurement"):
-            default_size = request.user.measurement.mapped_size
+    if request.user.is_authenticated and hasattr(request.user, "measurement"):
+        default_size = request.user.measurement.mapped_size
 
-    selected_sizes = request.GET.getlist("size")
     if not selected_sizes and default_size:
         selected_sizes = [default_size]
 
+    # ----------------------------
+    # SIZE FILTER
+    # ----------------------------
     if selected_sizes:
         products = products.filter(
             variants__size__in=selected_sizes,
@@ -129,16 +171,17 @@ def product_list_by_category(request, category_id):
             variants__stock__gt=0
         )
 
-    min_price = request.GET.get("min_price")
-    max_price = request.GET.get("max_price")
-
+    # ----------------------------
+    # PRICE FILTER
+    # ----------------------------
     if min_price:
         products = products.filter(base_price__gte=min_price)
     if max_price:
         products = products.filter(base_price__lte=max_price)
 
-
-    sort = request.GET.get("sort")
+    # ----------------------------
+    # SORTING
+    # ----------------------------
     if sort == "price_low":
         products = products.order_by("base_price")
     elif sort == "price_high":
@@ -152,21 +195,43 @@ def product_list_by_category(request, category_id):
 
     products = products.prefetch_related("images", "variants").distinct()
 
-
+    # ----------------------------
+    # PAGINATION
+    # ----------------------------
     paginator = Paginator(products, 9)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
-    breadcrumbs = [
-        {"name": "Home", "url": "/"},
-        {"name": "Shop", "url": "/shop/"},
-        {"name": base_category.name, "url": None},
-    ]
+    # ----------------------------
+    # FILTER STATE FLAG (CRITICAL)
+    # ----------------------------
+    has_filters = any([
+        bool(selected_category_ids),
+        bool(selected_sizes),
+        bool(min_price),
+        bool(max_price),
+        bool(search_query),
+        bool(sort),
+    ])
+
+    # ----------------------------
+    # QUERY PARAMS (FOR PAGINATION)
+    # ----------------------------
     query_params = request.GET.copy()
-    if "page" in query_params:
-        query_params.pop("page")
+    query_params.pop("page", None)
 
+    # ----------------------------
+    # BREADCRUMBS
+    # ----------------------------
+    breadcrumbs = [
+        {"label": "Home", "url": "/"},
+        {"label": "Shop", "url": "/shop/"},
+        {"label": base_category.name, "url": None},
+    ]
 
+    # ----------------------------
+    # CONTEXT
+    # ----------------------------
     context = {
         "category": base_category,
         "categories": Category.objects.filter(is_active=True),
@@ -181,6 +246,7 @@ def product_list_by_category(request, category_id):
         "search_query": search_query,
         "breadcrumbs": breadcrumbs,
         "query_params": query_params.urlencode(),
+        "has_filters": has_filters,
     }
 
     return render(request, "products/products_list.html", context)

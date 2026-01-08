@@ -8,8 +8,18 @@ from apps.cart.models import Cart
 
 @login_required
 def checkout_page(request):
-    # 🔥 RESET checkout session every time
     request.session.pop("checkout_address_id", None)
+    cart = getattr(request.user, "cart", None)
+    if not cart or not cart.items.exists():
+        return redirect("cart_page")
+
+    for item in cart.items.select_related("variant", "product"):
+        if item.quantity > item.variant.stock:
+            messages.error(
+                request,
+                f"{item.product.name} ({item.variant.size}) stock reduced. Please update cart."
+            )
+            return redirect("cart_page")
 
     cart = getattr(request.user, "cart", None)
     if not cart or not cart.items.exists():
@@ -19,27 +29,37 @@ def checkout_page(request):
     subtotal = Decimal("0.00")
     has_invalid_items = False
 
-    for item in cart.items.select_related("product", "variant", "product__category"):
-        product = item.product
-        variant = item.variant
+
+    for cart_item in cart.items.select_related("product", "variant", "product__category"):
+        product = cart_item.product
+        variant = cart_item.variant
 
         is_invalid = (
             not product.is_active or
             not product.category.is_active or
             not variant.is_active or
-            variant.stock < item.quantity
+            variant.stock <= 0
         )
+
+        if cart_item.quantity > variant.stock:
+            messages.error(
+                request,
+                f"{product.name} only has {variant.stock} left. Cart updated."
+            )
+            cart_item.quantity = variant.stock
+            cart_item.save()
+            return redirect("cart_page")
 
         if is_invalid:
             has_invalid_items = True
         else:
-            subtotal += product.base_price * item.quantity
+            subtotal += product.base_price * cart_item.quantity
 
         cart_items.append({
-            "item": item,
+            "item": cart_item,
             "product": product,
             "variant": variant,
-            "line_total": product.base_price * item.quantity,
+            "line_total": product.base_price * cart_item.quantity,
             "is_invalid": is_invalid,
         })
 

@@ -1,0 +1,175 @@
+{% extends "adminpanel/base.html" %}
+{% block content %}
+
+<div class="admin-order-edit">
+
+    <h2>Edit Order</h2>
+
+    <div class="edit-layout">
+
+        <!-- LEFT: PRODUCT LIST -->
+        <div class="box">
+            <h3>Products</h3>
+
+            {% for item in items %}
+                <div class="row">
+                    <div>
+                        <strong>{{ item.product.name }}</strong>
+                        {% if item.variant %}
+                            <small>({{ item.variant.name }})</small>
+                        {% endif %}
+                    </div>
+                    <div>Qty: {{ item.quantity }}</div>
+                    <div>₹ {{ item.price }}</div>
+                </div>
+            {% empty %}
+                <p>No items found.</p>
+            {% endfor %}
+        </div>
+
+        <!-- CENTER: CUSTOMER DETAILS -->
+        <div class="box">
+            <h3>Customer Details</h3>
+
+            {% if order.address_snapshot %}
+                <p><strong>Name:</strong> {{ order.address_snapshot.full_name }}</p>
+                <p><strong>Phone:</strong> {{ order.address_snapshot.phone }}</p>
+                <p><strong>Email:</strong> {{ order.user.email }}</p>
+
+                <p>
+                    <strong>Address:</strong><br>
+                    {{ order.address_snapshot.house_name }}<br>
+                    {{ order.address_snapshot.street }}<br>
+                    {{ order.address_snapshot.city }} -
+                    {{ order.address_snapshot.pincode }}
+                </p>
+            {% else %}
+                <p class="text-muted">No address snapshot available.</p>
+            {% endif %}
+
+            <p><strong>Payment Method:</strong> {{ order.payment_method|upper }}</p>
+        </div>
+
+        <!-- RIGHT: STATUS UPDATE -->
+        <div class="box">
+            <h3>Order Update</h3>
+
+            <p><strong>Order ID:</strong> {{ order.order_id }}</p>
+            <p><strong>Ordered On:</strong> {{ order.created_at|date:"d M Y" }}</p>
+            <p><strong>Current Status:</strong>
+                <span class="status-pill {{ order.status }}">
+                    {{ order.status|title }}
+                </span>
+            </p>
+
+            {% if allowed_next_statuses %}
+                <form method="post"
+                      action="{% url 'admin_order_update' order.order_id %}">
+                    {% csrf_token %}
+
+                    <label for="status"><strong>Next Status</strong></label>
+
+                    <select name="status" id="status" required>
+                        <option value="" disabled selected>
+                            Select next status
+                        </option>
+                        {% for status in allowed_next_statuses %}
+                            <option value="{{ status }}">
+                                {{ status|title }}
+                            </option>
+                        {% endfor %}
+                    </select>
+
+                    <button type="submit" class="btn-update">
+                        Update Status
+                    </button>
+                </form>
+            {% else %}
+                <p class="text-muted locked-text">
+                    This order is locked and cannot be updated further.
+                </p>
+            {% endif %}
+        </div>
+
+    </div>
+
+</div>
+
+<style>
+.admin-order-edit {
+    padding: 30px;
+}
+
+.edit-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+}
+
+.box {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.box h3 {
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.status-pill {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.status-pill.pending { background: #fff3cd; color: #856404; }
+.status-pill.shipped { background: #cce5ff; color: #004085; }
+.status-pill.out_for_delivery { background: #d1ecf1; color: #0c5460; }
+.status-pill.delivered { background: #d4edda; color: #155724; }
+.status-pill.cancelled { background: #f8d7da; color: #721c24; }
+
+select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+.btn-update {
+    width: 100%;
+    padding: 10px;
+    background: #000;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.btn-update:hover {
+    background: #222;
+}
+
+.text-muted {
+    color: #888;
+    font-size: 14px;
+}
+
+.locked-text {
+    margin-top: 20px;
+    font-weight: 600;
+    text-align: center;
+}
+</style>
+
+{% endblock %}

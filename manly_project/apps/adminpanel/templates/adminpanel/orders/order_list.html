@@ -1,0 +1,621 @@
+{% extends "adminpanel/base.html" %}
+{% block content %}
+
+<style>
+/* ========================================
+   MANLY ADMIN - ORDERS PAGE
+   Using Dark Theme Color Palette
+======================================== */
+
+.admin-orders-wrapper {
+    padding: 0;
+    animation: fadeIn 0.5s ease;
+}
+
+/* Page Header */
+.orders-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 35px;
+    animation: slideInDown 0.6s ease;
+}
+
+.orders-header h2 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.5px;
+    margin: 0;
+}
+
+/* Search Form in Header */
+.order-search-form {
+    position: relative;
+}
+
+.order-search-form input[type="text"] {
+    width: 280px;
+    padding: 14px 20px;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    color: #e0e0e0;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.order-search-form input[type="text"]::placeholder {
+    color: #666;
+}
+
+.order-search-form input[type="text"]:focus {
+    outline: none;
+    border-color: #fff;
+    background: #151515;
+    box-shadow: 0 0 20px rgba(255,255,255,0.1);
+}
+
+.order-search-form button {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 8px 20px;
+    background: linear-gradient(135deg, #ff8c00, #ff6b00);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.order-search-form button:hover {
+    transform: translateY(-50%) scale(1.05);
+    box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
+}
+
+/* Order Controls (Filters) */
+.order-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 30px;
+    padding: 25px;
+    background: rgba(26, 26, 26, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid #2a2a2a;
+    border-radius: 16px;
+    animation: slideInUp 0.6s ease;
+}
+
+.control-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex: 1;
+    min-width: 200px;
+}
+
+.control-group input[type="text"],
+.control-group select {
+    flex: 1;
+    padding: 12px 16px;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
+    color: #e0e0e0;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.control-group input[type="text"]:focus,
+.control-group select:focus {
+    outline: none;
+    border-color: #ff8c00;
+    background: #151515;
+    box-shadow: 0 0 15px rgba(255, 140, 0, 0.1);
+}
+
+.control-group select {
+    cursor: pointer;
+}
+
+.control-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.control-actions button,
+.btn-clear {
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.control-actions button {
+    background: linear-gradient(135deg, #ff8c00, #ff6b00);
+    color: #fff;
+}
+
+.control-actions button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
+}
+
+.btn-clear {
+    background: #2a2a2a;
+    color: #fff;
+    border: 1px solid #3a3a3a;
+    display: inline-block;
+}
+
+.btn-clear:hover {
+    background: #3a3a3a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Table Container with Liquid Effect */
+.orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(26, 26, 26, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid #2a2a2a;
+    border-radius: 16px;
+    overflow: hidden;
+    animation: slideInUp 0.6s ease 0.2s backwards;
+    position: relative;
+}
+
+.orders-table::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 140, 0, 0.03), transparent);
+    animation: liquidFlow 6s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes liquidFlow {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    33% { transform: translate(10%, -10%) rotate(120deg); }
+    66% { transform: translate(-10%, 10%) rotate(240deg); }
+}
+
+/* Table Styling */
+.orders-table thead {
+    background: #0f0f0f;
+    position: relative;
+    z-index: 1;
+}
+
+.orders-table th {
+    padding: 20px 24px;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    text-transform: capitalize;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.orders-table tbody {
+    position: relative;
+    z-index: 1;
+}
+
+.orders-table tbody tr {
+    border-bottom: 1px solid #2a2a2a;
+    transition: all 0.3s ease;
+    animation: fadeInRow 0.5s ease forwards;
+    opacity: 0;
+}
+
+.orders-table tbody tr:nth-child(1) { animation-delay: 0.1s; }
+.orders-table tbody tr:nth-child(2) { animation-delay: 0.15s; }
+.orders-table tbody tr:nth-child(3) { animation-delay: 0.2s; }
+.orders-table tbody tr:nth-child(4) { animation-delay: 0.25s; }
+.orders-table tbody tr:nth-child(5) { animation-delay: 0.3s; }
+
+.orders-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.orders-table tbody tr:hover {
+    background: rgba(255, 140, 0, 0.05);
+    transform: translateX(5px);
+}
+
+.orders-table td {
+    padding: 20px 24px;
+    font-size: 14px;
+    color: #e0e0e0;
+}
+
+/* Empty State */
+.orders-table tbody tr td[colspan] {
+    text-align: center;
+    padding: 80px 20px !important;
+    color: #666;
+    font-size: 16px;
+}
+
+/* Action Button with Liquid Effect */
+.orders-table a {
+    padding: 8px 20px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #fff;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-block;
+    position: relative;
+    overflow: hidden;
+}
+
+.orders-table a::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+}
+
+.orders-table a:active::before {
+    width: 300px;
+    height: 300px;
+}
+
+.orders-table a:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 35px;
+    animation: fadeIn 0.8s ease 0.3s backwards;
+}
+
+.pagination a,
+.pagination span {
+    min-width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 20px;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
+    color: #e0e0e0;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.pagination a::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+}
+
+.pagination a:active::before {
+    width: 200px;
+    height: 200px;
+}
+
+.pagination a:hover {
+    background: #2a2a2a;
+    border-color: #ff8c00;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 140, 0, 0.2);
+}
+
+.pagination span {
+    background: linear-gradient(135deg, #ff8c00, #ff6b00);
+    border-color: #ff8c00;
+    color: #fff;
+    font-weight: 700;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInRow {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+    .orders-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .order-search-form input[type="text"] {
+        width: 100%;
+    }
+
+    .order-controls {
+        flex-direction: column;
+    }
+
+    .control-group {
+        width: 100%;
+        min-width: auto;
+    }
+
+    .control-actions {
+        width: 100%;
+    }
+
+    .control-actions button,
+    .btn-clear {
+        flex: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .orders-header h2 {
+        font-size: 24px;
+    }
+
+    .orders-table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .orders-table thead,
+    .orders-table tbody,
+    .orders-table tr,
+    .orders-table th,
+    .orders-table td {
+        display: block;
+    }
+
+    .orders-table thead {
+        display: none;
+    }
+
+    .orders-table tbody tr {
+        margin-bottom: 15px;
+        border: 1px solid #2a2a2a;
+        border-radius: 12px;
+        padding: 15px;
+    }
+
+    .orders-table td {
+        padding: 10px 0;
+        text-align: right;
+        position: relative;
+        padding-left: 50%;
+    }
+
+    .orders-table td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 0;
+        width: 45%;
+        padding-right: 10px;
+        text-align: left;
+        font-weight: 600;
+        color: #fff;
+    }
+
+    .pagination {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .pagination a,
+    .pagination span {
+        min-width: 36px;
+        height: 36px;
+        font-size: 13px;
+        padding: 0 15px;
+    }
+}
+</style>
+
+<div class="admin-orders-wrapper">
+
+    <!-- HEADER -->
+    <div class="orders-header">
+        <h2>Orders</h2>
+
+        <!-- SEARCH -->
+        <form method="get" class="order-search-form">
+            <input
+                type="text"
+                name="q"
+                placeholder="Search by user, product, order ID..."
+                value="{{ search }}"
+            >
+            <button type="submit">Search</button>
+        </form>
+    </div>
+
+    <!-- FILTERS -->
+    <form method="get" class="order-controls">
+
+        <!-- SEARCH -->
+        <div class="control-group">
+            <input
+                type="text"
+                name="q"
+                placeholder="Search by order ID or user email"
+                value="{{ search }}"
+            >
+
+            {% if search %}
+                <a href="{% url 'admin_order_list' %}" class="btn-clear">Clear Search</a>
+            {% endif %}
+        </div>
+
+        <!-- FILTERS -->
+        <div class="control-group">
+            <select name="status">
+                <option value="">All Status</option>
+                <option value="pending" {% if status == "pending" %}selected{% endif %}>Pending</option>
+                <option value="shipped" {% if status == "shipped" %}selected{% endif %}>Shipped</option>
+                <option value="delivered" {% if status == "delivered" %}selected{% endif %}>Delivered</option>
+                <option value="returned" {% if status == "returned" %}selected{% endif %}>Returned</option>
+                <option value="refunded" {% if status == "refunded" %}selected{% endif %}>Refunded</option>
+            </select>
+
+            <select name="payment">
+                <option value="">All Payments</option>
+                <option value="cod" {% if payment == "cod" %}selected{% endif %}>COD</option>
+                <option value="razorpay" {% if payment == "razorpay" %}selected{% endif %}>Razorpay</option>
+                <option value="wallet" {% if payment == "wallet" %}selected{% endif %}>Wallet</option>
+            </select>
+        </div>
+
+        <!-- SORT -->
+        <div class="control-group">
+            <select name="sort">
+                <option value="">Default Sort</option>
+                <option value="newest" {% if sort == "newest" %}selected{% endif %}>Newest First</option>
+                <option value="oldest" {% if sort == "oldest" %}selected{% endif %}>Oldest First</option>
+                <option value="amount_desc" {% if sort == "amount_desc" %}selected{% endif %}>Amount High → Low</option>
+                <option value="amount_asc" {% if sort == "amount_asc" %}selected{% endif %}>Amount Low → High</option>
+                <option value="pending" {% if sort == "pending" %}selected{% endif %}>Pending First</option>
+                <option value="shipped" {% if sort == "shipped" %}selected{% endif %}>Shipped First</option>
+                <option value="delivered" {% if sort == "delivered" %}selected{% endif %}>Delivered First</option>
+            </select>
+        </div>
+
+        <!-- ACTIONS -->
+        <div class="control-actions">
+            <button type="submit">Apply</button>
+            <a href="{% url 'admin_order_list' %}" class="btn-clear">Clear Filters</a>
+        </div>
+
+    </form>
+
+    <!-- TABLE -->
+    <table class="orders-table">
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>User</th>
+                <th>Payment</th>
+                <th>Status</th>
+                <th>Total</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td data-label="Order ID">#{{ order.order_id }}</td>
+                <td data-label="User">{{ order.user.email }}</td>
+                <td data-label="Payment">{{ order.payment_method|upper }}</td>
+                <td data-label="Status">{{ order.status|title }}</td>
+                <td data-label="Total">₹ {{ order.total_amount }}</td>
+                <td data-label="Action">
+                    <a href="{% url 'admin_order_edit' order.order_id %}">
+                        View
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6">No orders found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- PAGINATION -->
+    {% if orders.paginator.num_pages > 1 %}
+    <div class="pagination">
+        {% if orders.has_previous %}
+            <a href="?page={{ orders.previous_page_number }}&q={{ search }}&sort={{ sort }}">Prev</a>
+        {% endif %}
+
+        <span>Page {{ orders.number }} of {{ orders.paginator.num_pages }}</span>
+
+        {% if orders.has_next %}
+            <a href="?page={{ orders.next_page_number }}&q={{ search }}&sort={{ sort }}">Next</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="return-wrapper">
+    <h2>Request Return</h2>
+
+    <p><strong>Product:</strong> {{ item.product.name }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <label>Reason</label>
+        <select name="reason" required>
+            <option value="">Select reason</option>
+            <option value="wrong_size">Wrong Size</option>
+            <option value="damaged">Damaged Product</option>
+            <option value="quality">Quality Issue</option>
+            <option value="wrong_item">Wrong Item</option>
+            <option value="late_delivery">Late Delivery</option>
+            <option value="changed_mind">Changed Mind</option>
+            <option value="other">Other</option>
+        </select>
+
+        <label>Description (optional)</label>
+        <textarea name="description"></textarea>
+
+        <button type="submit">Submit Return Request</button>
+    </form>
+</div>
+
+{% endblock %}

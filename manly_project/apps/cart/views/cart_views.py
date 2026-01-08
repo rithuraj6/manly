@@ -40,16 +40,16 @@ def cart_page(request):
                     product.base_price * item.quantity if not is_invalid else 0
                 )
             })
-        context = {
+            
+    breadcrumbs = [
+    {"name": "Home", "url": "/"},
+    {"name": "Cart", "url": None},
+]          
+    context = {
         "cart_items": cart_items,
         "subtotal": subtotal,
         "has_invalid_items": has_invalid_items,
-
+}
        
-        "breadcrumbs": [
-            {"name": "Home", "url": "/"},
-            {"name": "Cart"}
-        ]
-    }
-
+  
     return render(request, "cart/cart.html", context)

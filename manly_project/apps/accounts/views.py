@@ -195,21 +195,14 @@ def profile_view(request):
         return redirect("login")
 
     breadcrumbs = [
-        {"name": "Home", "url": "/"},
-        {"name": "Account", "url": None},
-        {"name": "Profile", "url": None},
+        {"label": "Home", "url": "/"},
+        {"label": "Account", "url": None},
+        {"label": "Profile", "url": None},
     ]
 
     profile = UserProfile.objects.filter(user=request.user).first()
 
-    return render(
-        request,
-        "account/profile_view.html",
-        {
-            "profile": profile,
-            "breadcrumbs": breadcrumbs,
-        },
-    )
+    return render(request,"account/profile_view.html",{"profile": profile,"breadcrumbs": breadcrumbs,},)
 
 def get_client_ip(request):
     x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
@@ -221,7 +214,7 @@ def get_client_ip(request):
 @login_required
 def profile_edit(request):
     profile = request.user.profile
-    # 🔐 HARD SYNC FOR GOOGLE USERS (FINAL SAFETY NET)
+
     if request.user.socialaccount_set.filter(provider="google").exists():
         if request.user.auth_provider != "google":
             request.user.auth_provider = "google"
@@ -295,10 +288,10 @@ def profile_edit(request):
     
         return redirect("account_profile")
     breadcrumbs = [
-        {"name": "Home", "url": "/"},
-        {"name": "Account", "url": "/account/profile/"},
-        {"name": "Edit Profile", "url": None},
-    ]
+        {"label": "Home", "url": "/"},
+        {"label": "Account", "url": "/account/profile/"},
+        {"label": "Edit Profile", "url": None},
+        ]
        
 
     return render(request, "account/profile_edit.html",  {"profile": profile,"breadcrumbs": breadcrumbs,})
@@ -352,8 +345,14 @@ def verify_email_change(request):
 
         messages.success(request, "Email updated successfully")
         return redirect("account_profile")
+    breadcrumbs = [
+    {"label": "Home", "url": "/"},
+    {"label": "Account", "url": "/account/profile/"},
+    {"label": "Change Email", "url": "/account/change-email/"},
+    {"label": "Verify Email", "url": None},
+]
 
-    return render(request, "account/verify_email_change.html")
+    return render(request, "account/verify_email_change.html" , {"breadcrumbs": breadcrumbs})
 
     
 @login_required
@@ -368,15 +367,14 @@ def address(request):
 
 
     breadcrumbs = [
-        {"name": "Home", "url": "/"},
-        {"name": "Account", "url": "/account/profile/"},
-        {"name": "Address", "url": None},
+        {"label": "Home", "url": "/"},
+        {"label": "Account", "url": "/account/profile/"},
+        {"label": "Address", "url": None},
     ]
 
     context = {
-        'addresses': addresses,
-        'breadcrumps': breadcrumbs,   # existing (kept)
-        'breadcrumbs': breadcrumbs,   # added (correct key)
+        'addresses': addresses,  
+        'breadcrumbs': breadcrumbs,   
     }
 
     return render(request,"account/address_list.html",context)
@@ -387,10 +385,10 @@ def address_add(request):
         return redirect('login')
 
     breadcrumbs = [
-        {"name": "Home", "url": "/"},
-        {"name": "Account", "url": "/account/profile/"},
-        {"name": "Address", "url": "/account/addresses/"},
-        {"name": "Add Address", "url": None},
+        {"label": "Home", "url": "/"},
+        {"label": "Account", "url": "/account/profile/"},
+        {"label": "Address", "url": "/account/addresses/"},
+        {"label": "Add Address", "url": None},
     ]
 
     if request.method == 'POST':
@@ -439,11 +437,7 @@ def address_add(request):
         messages.success(request, 'Address added successfully')
         return redirect('account_addresses')
 
-    return render(
-        request,
-        'account/address_add.html',
-        {'breadcrumbs': breadcrumbs}
-    )
+    return render(request,'account/address_add.html',{'breadcrumbs': breadcrumbs})
 
 @login_required
 def address_edit(request,address_id):
@@ -455,10 +449,10 @@ def address_edit(request,address_id):
     )
     
     breadcrumbs = [
-        {"name": "Home", "url": "/"},
-        {"name": "Account", "url": "/account/profile/"},
-        {"name": "Address", "url": "/account/addresses/"},
-        {"name": "Edit Address", "url": None},
+        {"label": "Home", "url": "/"},
+        {"label": "Account", "url": "/account/profile/"},
+        {"label": "Address", "url": "/account/addresses/"},
+        {"label": "Edit Address", "url": None},
     ]
     
     is_default = request.POST.get('is_default') == 'on'
@@ -475,9 +469,13 @@ def address_edit(request,address_id):
         
         messages.success(request,'Address updated successfully')
         return redirect('account_addresses')
+    context = {
+        'address': address,
+        'breadcrumbs': breadcrumbs,
+    }
     
     
-    return render(request,'account/address_edit.html',{'address': address})  
+    return render(request,'account/address_edit.html',{'context': context})  
     
     
 @login_required
@@ -506,9 +504,9 @@ def orders(request):
         return redirect("login")
 
     breadcrumbs = [
-        {"name": "Home", "url": "/"},
-        {"name": "Account", "url": "/account/profile/"},
-        {"name": "Orders", "url": None},
+        {"label": "Home", "url": "/"},
+        {"label": "Account", "url": "/account/profile/"},
+        {"label": "Orders", "url": None},
     ]
 
     return render(request,"account/orders.html",{"breadcrumbs": breadcrumbs})
@@ -525,26 +523,25 @@ def change_password(request):
 
         user = request.user
 
-        # 1️⃣ Old password validation
+      
         if not user.check_password(old_password):
             messages.error(request, "Old password is incorrect")
             return redirect("change_password")
 
-        # 2️⃣ New password match check
+
         if new_password != confirm_password:
             messages.error(request, "New passwords do not match")
             return redirect("change_password")
 
-        # 3️⃣ Prevent same password reuse
+       
         if old_password == new_password:
             messages.error(request, "New password cannot be same as old password")
             return redirect("change_password")
 
-        # 4️⃣ Set new password
         user.set_password(new_password)
         user.save()
 
-        # 5️⃣ IMPORTANT: keep user logged in
+      
         update_session_auth_hash(request, user)
 
         messages.success(request, "Password changed successfully")
@@ -553,9 +550,9 @@ def change_password(request):
     
     
     breadcrumbs = [
-        {"name": "Home", "url": "/"},
-        {"name": "Account", "url": "/account/profile/"},
-        {"name": "Change Password", "url": None},
+        {"label": "Home", "url": "/"},
+        {"label": "Account", "url": "/account/profile/"},
+        {"label": "Change Password", "url": None},
     ]
 
     return render(request,"account/password_change.html",{"breadcrumbs": breadcrumbs})

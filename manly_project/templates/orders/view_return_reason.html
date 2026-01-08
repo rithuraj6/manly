@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="return-reason-wrapper">
+    <h2>Return Request Details</h2>
+
+    <div class="box">
+        <p><strong>Product:</strong> {{ order_item.product.name }}</p>
+        <p><strong>Status:</strong> {{ order_item.status|title }}</p>
+        <p><strong>Reason:</strong> {{ return_request.get_reason_display }}</p>
+
+        {% if return_request.description %}
+            <p><strong>Description:</strong></p>
+            <p>{{ return_request.description }}</p>
+        {% endif %}
+
+        <p><strong>Requested On:</strong>
+            {{ return_request.created_at|date:"d M Y" }}
+        </p>
+    </div>
+
+    <a href="{% url 'order_detail' order_item.order.order_id %}">
+        ← Back to Order
+    </a>
+</div>
+
+{% endblock %}

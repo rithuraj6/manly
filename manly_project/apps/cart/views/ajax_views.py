@@ -42,6 +42,8 @@ def add_to_cart(request):
         defaults={"is_active": True}
     )
 
+   
+
     cart_item, created = CartItem.objects.get_or_create(
         cart=cart,
         product=product,
@@ -85,20 +87,37 @@ def update_cart_qty(request):
     if not cart:
         return JsonResponse({"success": False})
 
-    item = CartItem.objects.filter(id=item_id, cart=cart).first()
+    item = CartItem.objects.select_related("variant", "product").filter(
+        id=item_id, cart=cart
+    ).first()
+
     if not item:
         return JsonResponse({"success": False})
 
-    if action == "plus" and item.quantity < 10:
+    if action == "plus":
+        if item.quantity >= item.variant.stock:
+            return JsonResponse({
+                "success": False,
+                "message": f"Only {item.variant.stock} left in stock"
+            })
         item.quantity += 1
-    elif action == "minus" and item.quantity > 1:
+
+    elif action == "minus":
+        if item.quantity <= 1:
+            return JsonResponse({"success": False})
         item.quantity -= 1
 
     item.save()
 
-    return JsonResponse({"success": True,"quantity": item.quantity,"line_total": item.product.base_price * item.quantity,})
+    cart_count = sum(i.quantity for i in cart.items.all())
 
-
+    return JsonResponse({
+        "success": True,
+        "quantity": item.quantity,
+        "line_total": item.quantity * item.product.base_price,
+        "cart_count": cart_count
+    })
+    
 @login_required
 @require_POST
 def change_cart_variant(request):
@@ -180,25 +199,22 @@ def cart_fragment(request):
         "has_invalid_items": has_invalid_items,
     })
 
-
 @login_required
 @require_POST
-def remove_from_cart(request):
-    item_id = request.POST.get("item_id")
-
+def remove_from_cart(request, item_id):
     cart = getattr(request.user, "cart", None)
     if not cart:
         return JsonResponse({"success": False})
 
     item = CartItem.objects.filter(id=item_id, cart=cart).first()
-
     if not item:
         return JsonResponse({"success": False})
 
     item.delete()
 
+    # ✅ FIX: Calculate and return cart_count
     cart_count = sum(i.quantity for i in cart.items.all())
-
+    
     return JsonResponse({
         "success": True,
         "cart_count": cart_count

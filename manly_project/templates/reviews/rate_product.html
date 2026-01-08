@@ -1,0 +1,370 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="review-page-wrapper">
+    <div class="review-card">
+        <h2 class="review-title">{% if is_edit %}Edit Review{% else %}Rate Product{% endif %}</h2>
+        
+        <p class="product-name">{{ order_item.product.name }}</p>
+
+        <form method="post" id="reviewForm">
+            {% csrf_token %}
+
+            <div class="rating-wrapper">
+                <label class="rating-label">Rating</label>
+                <div class="star-container">
+                    <div class="stars" id="starRating">
+                        <input type="radio" name="rating" value="5" id="star5" {% if review.rating == 5 %}checked{% endif %} required>
+                        <label for="star5" data-value="5">
+                            <svg viewBox="0 0 24 24" class="star-icon">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                        </label>
+                        
+                        <input type="radio" name="rating" value="4" id="star4" {% if review.rating == 4 %}checked{% endif %}>
+                        <label for="star4" data-value="4">
+                            <svg viewBox="0 0 24 24" class="star-icon">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                        </label>
+                        
+                        <input type="radio" name="rating" value="3" id="star3" {% if review.rating == 3 %}checked{% endif %}>
+                        <label for="star3" data-value="3">
+                            <svg viewBox="0 0 24 24" class="star-icon">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                        </label>
+                        
+                        <input type="radio" name="rating" value="2" id="star2" {% if review.rating == 2 %}checked{% endif %}>
+                        <label for="star2" data-value="2">
+                            <svg viewBox="0 0 24 24" class="star-icon">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                        </label>
+                        
+                        <input type="radio" name="rating" value="1" id="star1" {% if review.rating == 1 %}checked{% endif %}>
+                        <label for="star1" data-value="1">
+                            <svg viewBox="0 0 24 24" class="star-icon">
+                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                        </label>
+                    </div>
+                    <div class="rating-text" id="ratingText">Select a rating</div>
+                </div>
+            </div>
+
+            <div class="review-text">
+                <label class="review-label">Your Review</label>
+                <textarea 
+                    name="review_text" 
+                    placeholder="Share your experience with this product..."
+                    rows="5"
+                    required
+                >{{ review.review_text|default:'' }}</textarea>
+                <div class="char-count" id="charCount">0 characters</div>
+            </div>
+
+            <button type="submit" class="submit-btn">
+                <span class="btn-text">{% if is_edit %}Update Review{% else %}Submit Review{% endif %}</span>
+            </button>
+        </form>
+    </div>
+</div>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.review-page-wrapper {
+    min-height: calc(100vh - 200px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+    background: #ffffff;
+}
+
+.review-card {
+    background: #ffffff;
+    padding: 50px 40px;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 540px;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+    border: 1px solid #f0f0f0;
+    animation: slideUp 0.5s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.review-title {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #1a1a1a;
+}
+
+.product-name {
+    text-align: center;
+    color: #666;
+    font-size: 16px;
+    margin-bottom: 40px;
+    font-weight: 500;
+}
+
+/* STAR RATING SYSTEM */
+.rating-wrapper {
+    margin-bottom: 30px;
+}
+
+.rating-label {
+    display: block;
+    font-weight: 600;
+    font-size: 15px;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.star-container {
+    text-align: center;
+}
+
+.stars {
+    display: inline-flex;
+    flex-direction: row-reverse;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 12px;
+}
+
+.stars input {
+    display: none;
+}
+
+.stars label {
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    position: relative;
+}
+
+.star-icon {
+    width: 48px;
+    height: 48px;
+    fill: #e8e8e8;
+    stroke: #d0d0d0;
+    stroke-width: 1;
+    transition: all 0.3s ease;
+}
+
+/* Hover effect - fills stars from right to left */
+.stars label:hover .star-icon,
+.stars label:hover ~ label .star-icon {
+    fill: #ffd700;
+    stroke: #ffc700;
+    transform: scale(1.15) rotate(-5deg);
+}
+
+/* Selected state */
+.stars input:checked ~ label .star-icon {
+    fill: #ffd700;
+    stroke: #ffc700;
+    animation: starPop 0.5s ease;
+}
+
+@keyframes starPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.25) rotate(10deg); }
+    100% { transform: scale(1); }
+}
+
+.rating-text {
+    font-size: 14px;
+    color: #333;
+    font-weight: 600;
+    min-height: 20px;
+    transition: all 0.3s ease;
+}
+
+/* REVIEW TEXT */
+.review-text {
+    margin-bottom: 25px;
+}
+
+.review-label {
+    display: block;
+    font-weight: 600;
+    font-size: 15px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.review-text textarea {
+    width: 100%;
+    padding: 16px;
+    border-radius: 12px;
+    border: 2px solid #e8e8e8;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    resize: vertical;
+    transition: all 0.3s ease;
+    background: #fafafa;
+}
+
+.review-text textarea:focus {
+    outline: none;
+    border-color: #1a1a1a;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
+    transform: translateY(-2px);
+}
+
+.char-count {
+    text-align: right;
+    font-size: 12px;
+    color: #999;
+    margin-top: 6px;
+    transition: color 0.3s ease;
+}
+
+/* SUBMIT BUTTON */
+.submit-btn {
+    width: 100%;
+    padding: 16px;
+    background: #1a1a1a;
+    color: #fff;
+    border-radius: 12px;
+    border: none;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.submit-btn:hover {
+    background: #000;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.submit-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-text {
+    position: relative;
+    z-index: 2;
+}
+
+.submit-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+}
+
+.submit-btn:hover::before {
+    width: 400px;
+    height: 400px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .review-card {
+        padding: 40px 30px;
+    }
+    
+    .star-icon {
+        width: 42px;
+        height: 42px;
+    }
+    
+    .review-title {
+        font-size: 24px;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const stars = document.querySelectorAll('.stars label');
+    const ratingText = document.getElementById('ratingText');
+    const textarea = document.querySelector('textarea');
+    const charCount = document.getElementById('charCount');
+    
+    const ratingLabels = {
+        1: '⭐ Poor',
+        2: '⭐⭐ Fair',
+        3: '⭐⭐⭐ Good',
+        4: '⭐⭐⭐⭐ Very Good',
+        5: '⭐⭐⭐⭐⭐ Excellent'
+    };
+    
+    // Star rating functionality
+    stars.forEach(star => {
+        star.addEventListener('click', function() {
+            const value = this.getAttribute('data-value');
+            ratingText.textContent = ratingLabels[value];
+            ratingText.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                ratingText.style.transform = 'scale(1)';
+            }, 200);
+        });
+        
+        star.addEventListener('mouseenter', function() {
+            const value = this.getAttribute('data-value');
+            ratingText.textContent = ratingLabels[value];
+        });
+    });
+    
+    document.querySelector('.stars').addEventListener('mouseleave', function() {
+        const checked = document.querySelector('.stars input:checked');
+        if (checked) {
+            const value = checked.value;
+            ratingText.textContent = ratingLabels[value];
+        } else {
+            ratingText.textContent = 'Select a rating';
+        }
+    });
+    
+    // Initialize rating text if editing
+    const checkedStar = document.querySelector('.stars input:checked');
+    if (checkedStar) {
+        ratingText.textContent = ratingLabels[checkedStar.value];
+    }
+    
+    // Character counter
+    function updateCharCount() {
+        const count = textarea.value.length;
+        charCount.textContent = count + ' character' + (count !== 1 ? 's' : '');
+    }
+    
+    textarea.addEventListener('input', updateCharCount);
+    updateCharCount();
+});
+</script>
+
+{% endblock %}

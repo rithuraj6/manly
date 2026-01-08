@@ -338,24 +338,6 @@
 </style>
 
 <script>
-cartCountEl.innerText = data.cart_count;
-cartCountEl.setAttribute("data-count", data.cart_count);
-
-const cartCountEl = document.querySelector(".cart-count");
-
-function updateCartCount(count) {
-    if (!cartCountEl) return;
-
-    cartCountEl.innerText = count;
-    cartCountEl.setAttribute("data-count", count);
-
-    if (count <= 0) {
-        cartCountEl.style.display = "none";
-    } else {
-        cartCountEl.style.display = "flex";
-    }
-}
-
 // Add scroll effect to navbar
 window.addEventListener('scroll', function() {
     const navbar = document.querySelector('.navbar');
@@ -366,7 +348,7 @@ window.addEventListener('scroll', function() {
     }
 });
 
-// Mobile menu toggle (optional)
+// Mobile menu toggle
 document.addEventListener('DOMContentLoaded', function() {
     const toggle = document.querySelector('.navbar-toggle');
     const menu = document.querySelector('.navbar-menu');
@@ -387,4 +369,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+// ✅ FIX: Function in same script block
+window.updateNavbarCartCount = function (count) {
+    const badge = document.querySelector(".cart-count");
+    if (!badge) return;
+
+    badge.innerText = count;
+    badge.style.display = count > 0 ? "flex" : "none";
+};
 </script>

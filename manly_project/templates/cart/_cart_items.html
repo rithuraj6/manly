@@ -29,7 +29,7 @@
                     <div class="item-details">
                         <div class="item-header">
                             <h4 class="item-name">{{ entry.product.name }}</h4>
-                            <button class="remove-btn" data-id="{{ entry.item.id }}">
+                            <button class="remove-btn" data-item-id="{{ entry.item.id }}">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <polyline points="3 6 5 6 21 6"></polyline>
                                     <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -58,26 +58,23 @@
                         </div>
 
                         <div class="item-actions">
-                            <div class="qty-controls" data-item-id="{{ entry.item.id }}">
-                                <button class="qty-btn minus" data-id="{{ entry.item.id }}">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                                    </svg>
+                            <div class="qty-controls"
+                                data-item-id="{{ entry.item.id }}"
+                                data-stock="{{ entry.variant.stock }}">
+
+                                <button class="qty-btn minus" data-item-id="{{ entry.item.id }}">
+                                    …
                                 </button>
 
-                                <span class="qty-value {% if entry.item.quantity >= 10 %}max{% endif %}">
-                                    {{ entry.item.quantity }}
-                                </span>
+                                <span class="qty-value">{{ entry.item.quantity }}</span>
 
-                                <button class="qty-btn plus"
-                                        data-id="{{ entry.item.id }}"
-                                        {% if entry.item.quantity >= 10 %}disabled{% endif %}>
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <line x1="12" y1="5" x2="12" y2="19"></line>
-                                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                                    </svg>
-                                </button>
+                                <button class="qty-btn plus" data-item-id="{{ entry.item.id }}">
                             </div>
+
+                            <p class="qty-error"
+                                    style="display:none;color:#c62828;font-size:12px;margin-top:6px;">
+                                    Only {{ entry.variant.stock }} left in stock
+                            </p>
 
                             <div class="item-total" data-item-total="{{ entry.item.id }}">
                                 <span class="total-label">Total:</span>
@@ -112,6 +109,7 @@
 
                 {% if has_invalid_items %}
                     <p class="error-text">
+                        
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <circle cx="12" cy="12" r="10"></circle>
                             <line x1="12" y1="8" x2="12" y2="12"></line>
@@ -222,7 +220,7 @@
 
 .cart-item.disabled {
     opacity: 0.6;
-    pointer-events: none;
+ 
     background: #f5f5f5;
 }
 
@@ -231,6 +229,16 @@
     position: relative;
 }
 
+.cart-item.disabled .qty-btn,
+.cart-item.disabled .variant-select {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+.cart-item.disabled .remove-btn {
+    pointer-events: auto;
+    opacity: 1;
+}
 .item-image {
     width: 140px;
     height: 170px;
@@ -278,6 +286,7 @@
     cursor: pointer;
     padding: 8px;
     color: #999;
+    pointer-events: auto;
     transition: all 0.3s ease;
     border-radius: 8px;
 }

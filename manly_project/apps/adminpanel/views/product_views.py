@@ -2,13 +2,14 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
 
 from apps.products.models import Product, ProductVariant, ProductImage
 from apps.categories.models import Category
 
 
 
-
+@login_required(login_url='admin_login')
 def admin_product_list(request):
     if not request.user.is_authenticated or not request.user.is_superuser:
         return redirect("admin_login")
