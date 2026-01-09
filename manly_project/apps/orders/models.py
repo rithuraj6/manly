@@ -102,19 +102,25 @@ class OrderItem(models.Model):
 
     quantity = models.PositiveIntegerField()
 
-    
     price = models.DecimalField(max_digits=10, decimal_places=2)
     line_total = models.DecimalField(max_digits=10, decimal_places=2)
+
+    # ✅ ONLY FIELD — NO LOGIC
+    final_price_paid = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        help_text="Final amount paid for this item (used for refunds)"
+    )
 
     status = models.CharField(
         max_length=30,
         choices=STATUS_CHOICES,
-        default=STATUS_PENDING
+        default=STATUS_PENDING,
+        db_index=True 
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
 
 
 class OrderStatusHistory(models.Model):
@@ -188,7 +194,8 @@ class ReturnRequest(models.Model):
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
-        default=STATUS_PENDING
+        default=STATUS_PENDING,
+        db_index=True
     )
 
     created_at = models.DateTimeField(auto_now_add=True)

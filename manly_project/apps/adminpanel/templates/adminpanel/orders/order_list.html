@@ -497,15 +497,7 @@
         <h2>Orders</h2>
 
         <!-- SEARCH -->
-        <form method="get" class="order-search-form">
-            <input
-                type="text"
-                name="q"
-                placeholder="Search by user, product, order ID..."
-                value="{{ search }}"
-            >
-            <button type="submit">Search</button>
-        </form>
+        
     </div>
 
     <!-- FILTERS -->
@@ -528,7 +520,7 @@
         <!-- FILTERS -->
         <div class="control-group">
             <select name="status">
-                <option value="">All Status</option>
+                <option value="">✅ Status</option>
                 <option value="pending" {% if status == "pending" %}selected{% endif %}>Pending</option>
                 <option value="shipped" {% if status == "shipped" %}selected{% endif %}>Shipped</option>
                 <option value="delivered" {% if status == "delivered" %}selected{% endif %}>Delivered</option>
@@ -537,7 +529,7 @@
             </select>
 
             <select name="payment">
-                <option value="">All Payments</option>
+                <option value="">💳 Payments</option>
                 <option value="cod" {% if payment == "cod" %}selected{% endif %}>COD</option>
                 <option value="razorpay" {% if payment == "razorpay" %}selected{% endif %}>Razorpay</option>
                 <option value="wallet" {% if payment == "wallet" %}selected{% endif %}>Wallet</option>
@@ -547,14 +539,16 @@
         <!-- SORT -->
         <div class="control-group">
             <select name="sort">
-                <option value="">Default Sort</option>
-                <option value="newest" {% if sort == "newest" %}selected{% endif %}>Newest First</option>
-                <option value="oldest" {% if sort == "oldest" %}selected{% endif %}>Oldest First</option>
-                <option value="amount_desc" {% if sort == "amount_desc" %}selected{% endif %}>Amount High → Low</option>
-                <option value="amount_asc" {% if sort == "amount_asc" %}selected{% endif %}>Amount Low → High</option>
-                <option value="pending" {% if sort == "pending" %}selected{% endif %}>Pending First</option>
-                <option value="shipped" {% if sort == "shipped" %}selected{% endif %}>Shipped First</option>
-                <option value="delivered" {% if sort == "delivered" %}selected{% endif %}>Delivered First</option>
+                <option value="">📆 Months </option>
+                <option value="7d" {% if sort == "7d" %}selected{% endif %}>Last 7 Days</option>
+                <option value="1m" {% if sort == "1m" %}selected{% endif %}>Last 1 Month</option>
+                <option value="3m" {% if sort == "3m" %}selected{% endif %}>Last 3 Months</option>
+                <option value="6m" {% if sort == "6m" %}selected{% endif %}>Last 6 Months</option>
+                <option value="1y" {% if sort == "1y" %}selected{% endif %}>Last 1 Year</option>
+                <option value="prev_year" {% if sort == "prev_year" %}selected{% endif %}>Previous Year</option>
+                                
+                        
+              
             </select>
         </div>
 
@@ -604,15 +598,16 @@
     <!-- PAGINATION -->
     {% if orders.paginator.num_pages > 1 %}
     <div class="pagination">
-        {% if orders.has_previous %}
-            <a href="?page={{ orders.previous_page_number }}&q={{ search }}&sort={{ sort }}">Prev</a>
-        {% endif %}
-
-        <span>Page {{ orders.number }} of {{ orders.paginator.num_pages }}</span>
-
         {% if orders.has_next %}
-            <a href="?page={{ orders.next_page_number }}&q={{ search }}&sort={{ sort }}">Next</a>
+            <a href="?page={{ orders.next_page_number }}
+            &q={{ search }}
+            &status={{ status }}
+            &payment={{ payment }}
+            &sort={{ sort }}">
+                Next
+            </a>
         {% endif %}
+
     </div>
     {% endif %}
 

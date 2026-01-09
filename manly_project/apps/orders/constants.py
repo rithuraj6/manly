@@ -1,9 +1,7 @@
 ORDER_STATUS_FLOW = {
     "pending": ["shipped", "cancelled"],
-    "shipped": ["out_for_delivery"],
+    "shipped": ["out_for_delivery", "cancelled"],
     "out_for_delivery": ["delivered"],
-    "delivered": [],  
+    "delivered": [],
     "cancelled": [],
-    "returned": [],
-    "refunded": [],
 }

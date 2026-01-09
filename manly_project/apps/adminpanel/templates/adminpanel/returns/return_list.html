@@ -1,0 +1,35 @@
+{% extends "adminpanel/base.html" %}
+{% block content %}
+
+<h2>Return Requests</h2>
+
+<table>
+    <tr>
+        <th>Order</th>
+        <th>User</th>
+        <th>Product</th>
+        <th>Reason</th>
+        <th>Status</th>
+        <th>Action</th>
+    </tr>
+
+    {% for r in returns %}
+    <tr>
+        <td>{{ r.order_item.order.order_id }}</td>
+        <td>{{ r.user.email }}</td>
+        <td>{{ r.order_item.product.name }}</td>
+        <td>{{ r.get_reason_display }}</td>
+        <td>{{ r.status }}</td>
+        <td>
+            {% if r.status == "pending" %}
+                <a href="{% url 'admin_approve_return' r.id %}">Approve</a>
+                <a href="{% url 'admin_reject_return' r.id %}">Reject</a>
+            {% else %}
+                —
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

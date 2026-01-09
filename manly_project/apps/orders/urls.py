@@ -10,6 +10,7 @@ from apps.orders.views.invoice_views import print_invoice,order_invoice
 from apps.orders.views.return_views import request_return ,view_return_reason
 from .views.order_action_views import cancel_order_item
 
+
 urlpatterns = [
     path("checkout/", checkout_page, name="checkout_page"),
     path("payment/", payment_page, name="payment_page"),
@@ -25,6 +26,9 @@ urlpatterns = [
     
     path("item/<int:item_id>/cancel/", cancel_order_item, name="cancel_order_item"),
     path("item/<int:item_id>/return/reason/",view_return_reason,name="view_return_reason"),
+    
+    
+    
     
     
 ]

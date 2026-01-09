@@ -61,14 +61,12 @@ def place_order(request):
         total_amount=total,
         payment_method="cod",
         is_paid=False,
-        address_snapshot = {
+        address_snapshot={
             "full_name": address.full_name,
             "phone": address.phone,
-
             "house_name": address.house_name,
             "street": address.street,
             "land_mark": address.land_mark,
-
             "city": address.city,
             "state": address.state,
             "country": address.country,
@@ -76,18 +74,35 @@ def place_order(request):
         },
     )
 
+    # 🔥 FIX STARTS HERE
     for item in cart.items.select_related("product", "variant"):
+        item_subtotal = item.product.base_price * item.quantity
+
+        # proportional distribution
+        shipping_share = (
+            (item_subtotal / subtotal) * shipping
+        ).quantize(Decimal("0.01")) if shipping > 0 else Decimal("0.00")
+
+        tax_share = (
+            (item_subtotal / subtotal) * tax
+        ).quantize(Decimal("0.01"))
+
+        final_price_paid = item_subtotal + shipping_share + tax_share
+
         OrderItem.objects.create(
             order=order,
             product=item.product,
             variant=item.variant,
             quantity=item.quantity,
             price=item.product.base_price,
-            line_total=item.product.base_price * item.quantity,
+            line_total=item_subtotal,
+            final_price_paid=final_price_paid,  # ✅ REQUIRED
+            status="pending",
         )
 
         item.variant.stock -= item.quantity
         item.variant.save()
+    # 🔥 FIX ENDS HERE
 
     cart.items.all().delete()
 

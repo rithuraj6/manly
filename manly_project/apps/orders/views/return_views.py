@@ -32,12 +32,11 @@ def request_return(request, item_id):
         order__user=request.user
     )
 
-    # 🚫 Only delivered items can be returned
     if item.status != "delivered":
         messages.error(request, "This item is not eligible for return.")
         return redirect("order_detail", order_id=item.order.order_id)
 
-    # 🚫 Prevent duplicate return requests
+   
     if hasattr(item, "return_request"):
         messages.warning(request, "Return already requested for this item.")
         return redirect("order_detail", order_id=item.order.order_id)
@@ -57,7 +56,7 @@ def request_return(request, item_id):
             description=description
         )
 
-        # Update item status
+       
         item.status = "return_requested"
         item.save()
 

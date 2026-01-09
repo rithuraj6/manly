@@ -162,6 +162,13 @@
                                     </div>
                                 </div>
                             {% endif %}
+                            {% if item.status == "returned" or item.status == "cancelled" %}
+                                <p class="refund-text">
+                                    Refunded Amount: ₹ {{ item.final_price_paid }}
+                                    <br>
+                                    <small>(Will be credited to wallet soon)</small>
+                                </p>
+                            {% endif %}
 
                             <!-- Action Buttons -->
                             <div class="action-buttons">
