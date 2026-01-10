@@ -62,27 +62,38 @@
                 <div class="summary-card">
                     <h3 class="summary-title">Order Summary</h3>
 
-                    <div class="summary-details">
+                    <div class="order-summary">
+
                         <div class="summary-row">
-                            <span class="summary-label">Subtotal</span>
-                            <span class="summary-value">₹{{ subtotal }}</span>
+                            <span>Items Subtotal</span>
+                            <span>₹ {{ subtotal }}</span>
                         </div>
+
                         <div class="summary-row">
-                            <span class="summary-label">Shipping</span>
-                            <span class="summary-value shipping-free">
-                                {% if shipping == 0 %}Free{% else %}₹{{ shipping }}{% endif %}
+                            <span>Delivery Fee</span>
+                            <span>
+                                {% if shipping == 0 %}
+                                    Free
+                                {% else %}
+                                    ₹ {{ shipping }}
+                                {% endif %}
                             </span>
                         </div>
+
                         <div class="summary-row">
-                            <span class="summary-label">IGST (18%)</span>
-                            <span class="summary-value">₹{{ tax }}</span>
+                            <span>Tax (18% GST)</span>
+                            <span>₹ {{ tax }}</span>
                         </div>
-                        <div class="summary-divider"></div>
-                        <div class="summary-row total-row">
-                            <span class="summary-label">Total</span>
-                            <span class="summary-value">₹{{ total }}</span>
+
+                        <hr>
+
+                        <div class="summary-row total">
+                            <strong>Total</strong>
+                            <strong>₹ {{ total }}</strong>
                         </div>
+
                     </div>
+
 
                     <button type="submit" class="confirm-order-btn">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -97,6 +108,19 @@
 </div>
 
 <style>
+
+    .summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.summary-row.total {
+    font-size: 16px;
+    font-weight: 700;
+}
+
 /* Payment Confirm Wrapper */
 .payment-confirm-wrapper {
     min-height: calc(100vh - 200px);

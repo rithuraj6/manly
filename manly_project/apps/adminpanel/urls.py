@@ -44,6 +44,25 @@ from apps.adminpanel.views.order_views import (
     admin_order_update_success,
 )
 
+
+
+
+from apps.adminpanel.views.inventory_views import (
+    inventory_category_list,
+    inventory_product_list,
+)
+
+
+
+
+
+
+
+
+
+
+
+
 urlpatterns = [
     path("login/", admin_login, name="admin_login"),
     path("logout/", admin_logout, name="admin_logout"),
@@ -94,5 +113,12 @@ urlpatterns = [
     path("returns/approve/<int:return_id>/", admin_approve_return, name="admin_approve_return"),
     path("returns/reject/<int:return_id>/", admin_reject_return, name="admin_reject_return"),
     
+    
+    
+    
+    
+    path("inventory/", inventory_category_list, name="inventory_categories"),
+    path("inventory/<int:category_id>/",inventory_product_list,name="inventory_products"),
+
 
 ]

@@ -74,7 +74,11 @@
                     {% for order in orders %}
                         <tr class="order-row">
                             <td class="order-id-cell">
-                                <span class="order-id">#{{ order.order_id }}</span>
+                                <span class="order-id toggle-items"
+                                data-order-id="{{ order.id }}">
+                                #{{ order.order_id }}
+                            </span>
+
                             </td>
                             <td class="items-cell">
                                 <span class="items-count">{{ order.items.count }}</span>
@@ -123,6 +127,26 @@
                                 </div>
                             </td>
                         </tr>
+                        <tr class="order-items-row" id="items-{{ order.id }}">
+                            <td colspan="4">
+                                <div class="order-items-dropdown">
+                                    {% for item in order.items.all %}
+                                        {% with image=item.product.images.first %}
+                                            <div class="order-item-thumb">
+                                                {% if image %}
+                                                    <img src="{{ image.image.url }}" alt="{{ item.product.name }}">
+                                                {% else %}
+                                                    <img src="{% static 'images/placeholder.png' %}">
+                                                {% endif %}
+                                                <span class="thumb-name">{{ item.product.name }}</span>
+                                            </div>
+                                        {% endwith %}
+                                    {% endfor %}
+                                </div>
+                            </td>
+                        </tr>
+
+                        
                     {% empty %}
                         <tr>
                             <td colspan="4" class="empty-state">
@@ -139,6 +163,25 @@
                                 </div>
                             </td>
                         </tr>
+                        <tr class="order-items-row" id="items-{{ order.id }}">
+                            <td colspan="4">
+                                <div class="order-items-dropdown">
+                                    {% for item in order.items.all %}
+                                        {% with image=item.product.images.first %}
+                                            <div class="order-item-thumb">
+                                                {% if image %}
+                                                    <img src="{{ image.image.url }}" alt="{{ item.product.name }}">
+                                                {% else %}
+                                                    <img src="{% static 'images/placeholder.png' %}">
+                                                {% endif %}
+                                                <span class="thumb-name">{{ item.product.name }}</span>
+                                            </div>
+                                        {% endwith %}
+                                    {% endfor %}
+                                </div>
+                            </td>
+                        </tr>
+
                     {% endfor %}
                 </tbody>
             </table>
@@ -164,10 +207,9 @@
                         {% endif %}
                     {% endfor %}
                 </div>
-
                 {% if orders.has_next %}
-                    <a href="?page={{ num }}&filter={{ filter_value }}{% if search_query %}&q={{ search_query }}{% endif %}
-                            " class="pagination-btn next">
+                    <a href="?page={{ orders.next_page_number }}&filter={{ filter_value }}{% if search_query %}&q={{ search_query }}{% endif %}"
+                    class="pagination-btn next">
                         Next
                     </a>
                 {% else %}
@@ -179,6 +221,50 @@
 </div>
 
 <style>
+/* Order items dropdown */
+.order-items-row {
+    display: none;
+}
+
+.order-items-dropdown {
+    padding: 20px;
+    background: #fafafa;
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.order-item-thumb {
+    width: 90px;
+    text-align: center;
+}
+
+.order-item-thumb img {
+    width: 90px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.thumb-name {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #333;
+}
+
+.toggle-items {
+    cursor: pointer;
+    position: relative;
+}
+
+.toggle-items::after {
+    content: "▾";
+    margin-left: 6px;
+    font-size: 12px;
+}
 
 
     .order-search-form {
@@ -615,6 +701,33 @@
         text-align: center;
     }
 }
+.toggle-items.open::after {
+    content: "▴";
+}
+
 </style>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const toggles = document.querySelectorAll(".toggle-items");
+
+    toggles.forEach(toggle => {
+        toggle.addEventListener("click", function () {
+            const orderId = this.dataset.orderId;
+            const row = document.getElementById(`items-${orderId}`);
+
+            if (!row) return;
+
+            // Toggle visibility
+            if (row.style.display === "table-row") {
+                row.style.display = "none";
+                this.classList.remove("open");
+            } else {
+                row.style.display = "table-row";
+                this.classList.add("open");
+            }
+        });
+    });
+});
+</script>
 
 {% endblock %}

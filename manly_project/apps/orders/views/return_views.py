@@ -1,6 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from apps.orders.services.order_state import recalculate_order_state
 
 from apps.orders.models import OrderItem, ReturnRequest
 

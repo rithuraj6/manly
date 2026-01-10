@@ -67,24 +67,39 @@
             <div class="order-summary-sidebar">
                 <div class="summary-card">
                     <h3 class="summary-title">Order Summary</h3>
+                        <div class="order-summary">
 
-                    <div class="summary-details">
-                        <div class="summary-row">
-                            <span class="summary-label">Item Sub Total</span>
-                            <span class="summary-value">₹{{ subtotal }}</span>
+                           <div class="summary-row">
+                                <span>Items Subtotal</span>
+                                <span>₹ {{ subtotal }}</span>
+                            </div>
+
+                            <div class="summary-row">
+                                <span>Delivery Fee</span>
+                                <span>
+                                    {% if delivery_fee == 0 %}
+                                        Free
+                                    {% else %}
+                                        ₹ {{ delivery_fee }}
+                                    {% endif %}
+                                </span>
+                            </div>
+
+                            <div class="summary-row">
+                                <span>Tax (18% GST)</span>
+                                <span>₹ {{ tax }}</span>
+                            </div>
+
+                            <hr>
+
+                            <div class="summary-row total">
+                                <strong>Total Payable</strong>
+                                <strong>₹ {{ total_amount }}</strong>
+                            </div>
+
+
                         </div>
-                        <div class="summary-row">
-                            <span class="summary-label">Shipping</span>
-                            <span class="summary-value shipping-free">
-                                {% if shipping == 0 %}Free{% else %}₹{{ shipping }}{% endif %}
-                            </span>
-                        </div>
-                        <div class="summary-divider"></div>
-                        <div class="summary-row total-row">
-                            <span class="summary-label">Total</span>
-                            <span class="summary-value">₹{{ total }}</span>
-                        </div>
-                    </div>
+
 
                     <button type="submit" class="checkout-submit-btn">
                         <span>Continue</span>
@@ -100,6 +115,18 @@
 </div>
 
 <style>
+    .summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.summary-row.total {
+    font-size: 16px;
+    font-weight: 700;
+}
+
 /* Checkout Wrapper */
 .checkout-wrapper {
     min-height: calc(100vh - 200px);

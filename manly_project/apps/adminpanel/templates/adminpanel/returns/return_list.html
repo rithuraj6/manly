@@ -1,35 +1,719 @@
 {% extends "adminpanel/base.html" %}
 {% block content %}
 
-<h2>Return Requests</h2>
+<div class="returns-wrapper">
+    <div class="returns-header">
+        <div class="header-left">
+            <h2>Return Requests</h2>
+            <div class="header-stats">
+                <div class="stat-item pending">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span>{{ returns|length }} Total</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<table>
-    <tr>
-        <th>Order</th>
-        <th>User</th>
-        <th>Product</th>
-        <th>Reason</th>
-        <th>Status</th>
-        <th>Action</th>
-    </tr>
+    <div class="returns-table-wrapper">
+        <table class="returns-table">
+            <thead>
+                <tr>
+                    <th>
+                        <div class="th-content">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                            </svg>
+                            Order ID
+                        </div>
+                    </th>
+                    <th>
+                        <div class="th-content">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            User
+                        </div>
+                    </th>
+                    <th>
+                        <div class="th-content">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                            </svg>
+                            Product
+                        </div>
+                    </th>
+                    <th>
+                        <div class="th-content">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                            </svg>
+                            Reason
+                        </div>
+                    </th>
+                    <th>
+                        <div class="th-content">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="16" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                            </svg>
+                            Status
+                        </div>
+                    </th>
+                    <th>
+                        <div class="th-content">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="3"></circle>
+                                <path d="M12 1v6m0 6v6m8.66-12.66l-4.24 4.24m-4.24 4.24l-4.24 4.24M23 12h-6m-6 0H1m20.66 8.66l-4.24-4.24m-4.24-4.24l-4.24-4.24"></path>
+                            </svg>
+                            Actions
+                        </div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in returns %}
+                <tr class="return-row">
+                    <td data-label="Order ID">
+                        <div class="order-id">
+                            <span class="id-badge">{{ r.order_item.order.order_id }}</span>
+                        </div>
+                    </td>
+                    <td data-label="User">
+                        <div class="user-info">
+                            <div class="user-avatar">
+                                {{ r.user.email|first|upper }}
+                            </div>
+                            <span class="user-email">{{ r.user.email }}</span>
+                        </div>
+                    </td>
+                    <td data-label="Product">
+                        <div class="product-info">
+                            <span class="product-name">{{ r.order_item.product.name }}</span>
+                        </div>
+                    </td>
+                    <td data-label="Reason">
+                        <div class="reason-badge">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                            </svg>
+                            {{ r.get_reason_display }}
+                        </div>
+                    </td>
+                    <td data-label="Status">
+                        <span class="status-badge status-{{ r.status|lower }}">
+                            {% if r.status == "pending" %}
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                                Pending
+                            {% elif r.status == "approved" %}
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                Approved
+                            {% elif r.status == "rejected" %}
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                                Rejected
+                            {% else %}
+                                {{ r.status }}
+                            {% endif %}
+                        </span>
+                    </td>
+                    <td data-label="Actions">
+                        <div class="action-buttons">
+                            {% if r.status == "pending" %}
+                                <a href="{% url 'admin_approve_return' r.id %}" class="action-btn approve-btn">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                    </svg>
+                                    Approve
+                                </a>
+                                <a href="{% url 'admin_reject_return' r.id %}" class="action-btn reject-btn">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    </svg>
+                                    Reject
+                                </a>
+                            {% else %}
+                                <span class="no-action">—</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="empty-state">
+                        <div class="empty-content">
+                            <div class="empty-icon">
+                                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                                </svg>
+                            </div>
+                            <p class="empty-text">No return requests found</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 
-    {% for r in returns %}
-    <tr>
-        <td>{{ r.order_item.order.order_id }}</td>
-        <td>{{ r.user.email }}</td>
-        <td>{{ r.order_item.product.name }}</td>
-        <td>{{ r.get_reason_display }}</td>
-        <td>{{ r.status }}</td>
-        <td>
-            {% if r.status == "pending" %}
-                <a href="{% url 'admin_approve_return' r.id %}">Approve</a>
-                <a href="{% url 'admin_reject_return' r.id %}">Reject</a>
-            {% else %}
-                —
-            {% endif %}
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+<style>
+/* ========================================
+   RETURN REQUESTS PAGE
+   Dark Theme with Liquid Effects
+======================================== */
+
+.returns-wrapper {
+    padding: 0;
+    animation: fadeIn 0.5s ease;
+}
+
+/* Header */
+.returns-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    animation: slideInDown 0.6s ease;
+}
+
+.header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.returns-header h2 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.5px;
+    margin: 0;
+    background: linear-gradient(135deg, #fff 0%, #e0e0e0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.header-stats {
+    display: flex;
+    gap: 15px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: rgba(26, 26, 26, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #e0e0e0;
+    transition: all 0.3s ease;
+}
+
+.stat-item svg {
+    color: #ff8c00;
+}
+
+.stat-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 140, 0, 0.2);
+    border-color: #ff8c00;
+}
+
+/* Table Wrapper */
+.returns-table-wrapper {
+    position: relative;
+    overflow-x: auto;
+    background: rgba(26, 26, 26, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid #2a2a2a;
+    border-radius: 16px;
+    animation: slideInUp 0.6s ease 0.2s backwards;
+}
+
+/* Liquid Background Effect */
+.returns-table-wrapper::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 140, 0, 0.03), transparent);
+    animation: liquidFlow 8s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes liquidFlow {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    33% { transform: translate(10%, -10%) rotate(120deg); }
+    66% { transform: translate(-10%, 10%) rotate(240deg); }
+}
+
+/* Table */
+.returns-table {
+    width: 100%;
+    border-collapse: collapse;
+    position: relative;
+    z-index: 1;
+}
+
+.returns-table thead {
+    background: #0f0f0f;
+}
+
+.returns-table th {
+    padding: 20px 24px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.th-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.th-content svg {
+    color: #ff8c00;
+    flex-shrink: 0;
+}
+
+/* Table Rows */
+.return-row {
+    border-bottom: 1px solid #2a2a2a;
+    transition: all 0.3s ease;
+    animation: fadeInRow 0.5s ease forwards;
+    opacity: 0;
+}
+
+.return-row:nth-child(1) { animation-delay: 0.1s; }
+.return-row:nth-child(2) { animation-delay: 0.15s; }
+.return-row:nth-child(3) { animation-delay: 0.2s; }
+.return-row:nth-child(4) { animation-delay: 0.25s; }
+.return-row:nth-child(5) { animation-delay: 0.3s; }
+
+.return-row:last-child {
+    border-bottom: none;
+}
+
+.return-row:hover {
+    background: rgba(255, 140, 0, 0.05);
+    transform: translateX(5px);
+}
+
+.returns-table td {
+    padding: 20px 24px;
+    font-size: 14px;
+    color: #e0e0e0;
+}
+
+/* Order ID */
+.order-id {
+    display: flex;
+    align-items: center;
+}
+
+.id-badge {
+    padding: 6px 14px;
+    background: rgba(255, 140, 0, 0.15);
+    border: 1px solid rgba(255, 140, 0, 0.3);
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #ff8c00;
+    font-family: 'Courier New', monospace;
+    transition: all 0.3s ease;
+}
+
+.return-row:hover .id-badge {
+    background: rgba(255, 140, 0, 0.25);
+    transform: scale(1.05);
+}
+
+/* User Info */
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff8c00, #ff6b00);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    color: #fff;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.return-row:hover .user-avatar {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 4px 15px rgba(255, 140, 0, 0.4);
+}
+
+.user-email {
+    font-size: 14px;
+    color: #e0e0e0;
+}
+
+/* Product Info */
+.product-info {
+    display: flex;
+    align-items: center;
+}
+
+.product-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+}
+
+/* Reason Badge */
+.reason-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: rgba(100, 100, 100, 0.2);
+    border: 1px solid #3a3a3a;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #bbb;
+    transition: all 0.3s ease;
+}
+
+.return-row:hover .reason-badge {
+    background: rgba(100, 100, 100, 0.3);
+    border-color: #4a4a4a;
+}
+
+.reason-badge svg {
+    flex-shrink: 0;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+}
+
+.status-badge svg {
+    flex-shrink: 0;
+}
+
+.status-pending {
+    background: rgba(251, 191, 36, 0.15);
+    color: #fbbf24;
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.9; }
+}
+
+.status-approved {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.status-rejected {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.return-row:hover .status-badge {
+    transform: scale(1.05);
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border: none;
+    cursor: pointer;
+}
+
+.action-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+}
+
+.action-btn:active::before {
+    width: 200px;
+    height: 200px;
+}
+
+.approve-btn {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #fff;
+}
+
+.approve-btn:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+}
+
+.reject-btn {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: #fff;
+}
+
+.reject-btn:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+}
+
+.action-btn svg {
+    flex-shrink: 0;
+}
+
+.no-action {
+    font-size: 18px;
+    color: #666;
+    font-weight: 700;
+}
+
+/* Empty State */
+.empty-state {
+    padding: 0 !important;
+}
+
+.empty-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+}
+
+.empty-icon {
+    margin-bottom: 20px;
+    color: #666;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.empty-text {
+    font-size: 16px;
+    color: #999;
+    margin: 0;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInRow {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+    .returns-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .returns-table-wrapper {
+        overflow-x: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .returns-header h2 {
+        font-size: 24px;
+    }
+
+    .returns-table {
+        display: block;
+    }
+
+    .returns-table thead {
+        display: none;
+    }
+
+    .returns-table tbody,
+    .returns-table tr,
+    .returns-table td {
+        display: block;
+    }
+
+    .return-row {
+        margin-bottom: 20px;
+        border: 1px solid #2a2a2a;
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+    .returns-table td {
+        padding: 12px 0;
+        text-align: right;
+        position: relative;
+        padding-left: 50%;
+        border-bottom: 1px solid #2a2a2a;
+    }
+
+    .returns-table td:last-child {
+        border-bottom: none;
+    }
+
+    .returns-table td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 0;
+        width: 45%;
+        padding-right: 10px;
+        text-align: left;
+        font-weight: 700;
+        color: #fff;
+        text-transform: uppercase;
+        font-size: 11px;
+        letter-spacing: 0.5px;
+    }
+
+    .user-info,
+    .product-info,
+    .order-id,
+    .action-buttons {
+        justify-content: flex-end;
+    }
+
+    .action-buttons {
+        gap: 8px;
+    }
+
+    .action-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .returns-header h2 {
+        font-size: 20px;
+    }
+
+    .stat-item {
+        padding: 8px 16px;
+        font-size: 13px;
+    }
+
+    .return-row {
+        padding: 16px;
+    }
+
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 12px;
+    }
+}
+</style>
 
 {% endblock %}

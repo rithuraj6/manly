@@ -1,6 +1,6 @@
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse
+from django.contrib import messages
 
 from apps.orders.models import OrderItem
 from apps.reviews.models import ProductReview
@@ -15,43 +15,35 @@ def rate_product(request, item_id):
         status="delivered"
     )
 
-    product = order_item.product
-
-    review, created = ProductReview.objects.get_or_create(
+    # ❌ Prevent duplicate review
+    if ProductReview.objects.filter(
         user=request.user,
-        product=product
-    )
+        product=order_item.product
+    ).exists():
+        messages.warning(request, "You have already reviewed this product.")
+        return redirect("order_detail", order_id=order_item.order.order_id)
 
     if request.method == "POST":
         rating = request.POST.get("rating")
-        review.rating = int(float(rating))
-        review.review_text = request.POST.get("review_text")
-        review.save()
+        review_text = request.POST.get("review", "").strip()
 
-        return redirect(
-            "order_detail",
-            order_id=order_item.order.order_id
+        # ✅ HARD VALIDATION (THIS FIXES YOUR ERROR)
+        if not rating:
+            messages.error(request, "Please select a rating.")
+            return render(
+                request,
+                "reviews/rate_product.html",
+                {"order_item": order_item}
+            )
+
+        ProductReview.objects.create(
+            user=request.user,
+            product=order_item.product,
+            rating=int(rating),
+            review_text=review_text
         )
 
-    breadcrumbs = [
-        {"label": "Home", "url": "/"},
-        {"label": "My Orders", "url": reverse("user_orders")},
-        {
-            "label": f"Order {order_item.order.order_id}",
-            "url": reverse("order_detail", args=[order_item.order.order_id]),
-        },
-        {
-            "label": "Edit Review" if not created else "Rate Product",
-            "url": None,
-        },
-    ]
+        messages.success(request, "Thank you for your review!")
+        return redirect("order_detail", order_id=order_item.order.order_id)
 
-    context = {
-        "order_item": order_item,
-        "product": product,
-        "review": review,
-        "is_edit": not created,
-        "breadcrumbs": breadcrumbs,
-    }
-
-    return render(request, "reviews/rate_product.html", context)
+    return render(request,"reviews/rate_product.html",{"order_item": order_item})

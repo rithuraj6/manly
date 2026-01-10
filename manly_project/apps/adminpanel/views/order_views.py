@@ -261,7 +261,7 @@ def admin_order_update(request, order_id):
     if request.method != "POST":
         return redirect("admin_order_list")
 
-    if order.status in ["delivered", "cancelled"]:
+    if order.status == "cancelled" :
         messages.error(request, "This order can no longer be modified")
         return redirect("admin_order_edit", order_id=order.order_id)
 
@@ -289,7 +289,7 @@ def admin_order_update(request, order_id):
 
 @login_required(login_url="admin_login")
 def admin_order_update_success(request):
-    return render(
-        request,
-        "adminpanel/orders/order_update_success.html"
-    )
+    
+    
+    
+    return render(request,"adminpanel/orders/order_update_success.html")

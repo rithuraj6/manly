@@ -55,36 +55,57 @@
 
                     <div class="divider"></div>
 
-                    <div class="info-section">
-                        <h4 class="section-heading">Payment Method</h4>
-                        <div class="payment-info">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="12" y1="1" x2="12" y2="23"></line>
-                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                            </svg>
-                            <span>{{ order.payment_method|upper }}</span>
-                        </div>
-                    </div>
+                       <div class="info-section">
+                            <h4 class="section-heading">Order Summary</h4>
 
-                    <div class="divider"></div>
+                            <div class="summary-row">
+                                <span class="summary-label">Cart Total:</span>
+                                <span class="summary-value">₹ {{ order.subtotal }}</span>
+                            </div>
 
-                    <div class="info-section">
-                        <h4 class="section-heading">Order Summary</h4>
-                        <div class="summary-row">
-                            <span class="summary-label">Subtotal:</span>
-                            <span class="summary-value">₹ {{ order.subtotal }}</span>
+                            <div class="summary-row">
+                                <span class="summary-label">GST (18%):</span>
+                                <span class="summary-value">₹ {{ order.tax }}</span>
+                            </div>
+
+                            <div class="summary-row">
+                                <span class="summary-label">Delivery Fee:</span>
+                                <span class="summary-value">₹ {{ order.shipping_charge }}</span>
+                            </div>
+
+                            <div class="summary-divider"></div>
+
+                            <div class="summary-row">
+                                <span class="summary-label">Total Paid:</span>
+                                <span class="summary-value">₹ {{ paid_total }}</span>
+                            </div>
+
+                            {% if refunded_total > 0 %}
+                            <div class="summary-row cancelled">
+                                <span class="summary-label">Refunded:</span>
+                                <span class="summary-value">- ₹ {{ refunded_total }}</span>
+                            </div>
+                            {% endif %}
+
+                            <div class="summary-divider"></div>
+
+                            <div class="summary-row total">
+                                <span class="summary-label">Net Payable:</span>
+                                <span class="summary-value">₹ {{ payable_total }}</span>
+                            </div>
+
+                            {% if payable_total == 0 %}
+                                <p style="margin-top:10px;font-size:13px;color:#2e7d32;font-weight:600;">
+                                    ✅ Fully refunded
+                                </p>
+                            {% endif %}
                         </div>
-                        <div class="summary-row">
-                            <span class="summary-label">Shipping:</span>
-                            <span class="summary-value">Free</span>
-                        </div>
-                        <div class="summary-divider"></div>
-                        <div class="summary-row total">
-                            <span class="summary-label">Total:</span>
-                            <span class="summary-value">₹ {{ order.total_amount }}</span>
-                        </div>
-                    </div>
-                </div>
+
+
+
+
+                     </div>
+
                 {% if can_download_invoice %}
                 <div style="margin-top: 20px;">
                     <a href="{% url 'order_invoice' order.order_id %}"
@@ -227,6 +248,10 @@
 </div>
 
 <style>
+.summary-row.cancelled {
+    color: #c62828;
+    font-size: 13px;
+}
 /* Order Detail Wrapper */
 .order-detail-wrapper {
     min-height: calc(100vh - 200px);

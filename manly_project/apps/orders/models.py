@@ -13,9 +13,11 @@ class Order(models.Model):
         ("shipped", "Shipped"),
         ("out_for_delivery", "Out for Delivery"),
         ("delivered", "Delivered"),
+        ("partially_cancelled", "Partially Cancelled"),
+        ("partially_returned", "Partially Returned"),
         ("cancelled", "Cancelled"),
     ]
-
+    
     PAYMENT_METHOD_CHOICES = [
         ("cod", "Cash on Delivery"),
        

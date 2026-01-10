@@ -62,11 +62,10 @@ def checkout_page(request):
             "line_total": product.base_price * cart_item.quantity,
             "is_invalid": is_invalid,
         })
-
-    shipping = Decimal("0.00") if subtotal >= 3000 else Decimal("150.00")
-    tax = ((subtotal + shipping) * Decimal("0.18")).quantize(Decimal("0.01"))
-    total = subtotal + shipping + tax
-
+    delivery_fee = Decimal("0.00") if subtotal >= 3000 else Decimal("150.00")
+    tax = ((subtotal + delivery_fee) * Decimal("0.18")).quantize(Decimal("0.01"))
+    total_amount = subtotal + delivery_fee + tax
+    
     addresses = UserAddress.objects.filter(
         user=request.user
     ).order_by("-is_default", "-id")
@@ -75,9 +74,11 @@ def checkout_page(request):
         "cart_items": cart_items,
         "addresses": addresses,
         "subtotal": subtotal,
-        "shipping": shipping,
+        "delivery_fee":delivery_fee,
+       "delivery_fee": delivery_fee,
+
         "tax": tax,
-        "total": total,
+        "total_amount": total_amount,
         "has_invalid_items": has_invalid_items,
     }
 
