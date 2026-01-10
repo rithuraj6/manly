@@ -21,7 +21,7 @@ def mark_google_user(sender, request, sociallogin, **kwargs):
 def create_profile_for_google_user(request, sociallogin, **kwargs):
     user = sociallogin.user
 
-    # 🔥 THIS IS MISSING
+    
     user.auth_provider = "google"
     user.save(update_fields=["auth_provider"])
 

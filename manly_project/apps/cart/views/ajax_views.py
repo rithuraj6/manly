@@ -216,7 +216,7 @@ def remove_from_cart(request, item_id):
 
     item.delete()
 
-    # ✅ FIX: Calculate and return cart_count
+   
     cart_count = sum(i.quantity for i in cart.items.all())
     
     return JsonResponse({

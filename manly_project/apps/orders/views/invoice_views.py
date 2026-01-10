@@ -17,7 +17,7 @@ def print_invoice(request, order_id):
     context = {
         "order": order,
         "items": items,
-        "print_mode": True,  # used in template
+        "print_mode": True,  
     }
 
     return render(request, "orders/invoice_print.html", context)

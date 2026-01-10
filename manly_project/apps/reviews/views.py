@@ -15,7 +15,7 @@ def rate_product(request, item_id):
         status="delivered"
     )
 
-    # ❌ Prevent duplicate review
+    
     if ProductReview.objects.filter(
         user=request.user,
         product=order_item.product
@@ -27,7 +27,7 @@ def rate_product(request, item_id):
         rating = request.POST.get("rating")
         review_text = request.POST.get("review", "").strip()
 
-        # ✅ HARD VALIDATION (THIS FIXES YOUR ERROR)
+       
         if not rating:
             messages.error(request, "Please select a rating.")
             return render(

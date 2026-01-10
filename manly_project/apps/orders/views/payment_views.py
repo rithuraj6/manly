@@ -13,7 +13,7 @@ def payment_page(request):
     if not cart or not cart.items.exists():
         return redirect("cart_page")
 
-    # ✅ Save address from checkout
+    
     if request.method == "POST":
         address_id = request.POST.get("address_id")
         if not address_id:

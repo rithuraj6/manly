@@ -50,32 +50,31 @@ def recalculate_order_status(order):
 
     items = order.items.all()
 
-    # If any item is pending → order is pending
+   
     if items.filter(status="pending").exists():
         order.status = "pending"
 
-    # If any item shipped → order shipped
+  
     elif items.filter(status="shipped").exists():
         order.status = "shipped"
 
-    # If any item out for delivery
-    
+  
     
     elif items.filter(status="out_for_delivery").exists():
         order.status = "out_for_delivery"
 
-    # Partial cancel / refund case
+    
     elif (
         items.filter(status="cancelled").exists()
         and items.exclude(status="cancelled").exists()
     ):
         order.status = "partially_refunded"
 
-    # All cancelled
+   
     elif items.filter(status="cancelled").count() == items.count():
         order.status = "cancelled"
 
-    # All delivered
+    
     elif items.filter(status="delivered").count() == items.count():
         order.status = "delivered"
 

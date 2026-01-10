@@ -49,7 +49,7 @@ def send_otp(user, purpose, email_override=None):
         user=user,
         email=email,
         action="otp_sent",
-        ip_address=None  # request not available here
+        ip_address=None  
     )
 
     send_mail(
