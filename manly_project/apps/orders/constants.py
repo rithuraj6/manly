@@ -4,4 +4,5 @@ ORDER_STATUS_FLOW = {
     "out_for_delivery": ["delivered"],
     "delivered": [],
     "cancelled": [],
+    "partially_refunded": ["shipped"],
 }

@@ -1,7 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from apps.orders.services.order_state import recalculate_order_state
+from apps.orders.services.order_state import recalculate_order_status
+
 
 from apps.orders.models import OrderItem, ReturnRequest
 
@@ -64,8 +65,4 @@ def request_return(request, item_id):
         messages.success(request, "Return request submitted successfully.")
         return redirect("order_detail", order_id=item.order.order_id)
 
-    return render(
-        request,
-        "orders/request_return.html",
-        {"item": item}
-    )
+    return render(request,"orders/request_return.html",{"item": item})

@@ -457,6 +457,66 @@
         padding: 10px 14px;
     }
 }
+.status-pill.partially_refunded {
+    background: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.status-pill.refunded {
+    background: rgba(99, 102, 241, 0.2);
+    color: #6366f1;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+}
+.status-indicator.partially_cancelled {
+    background: #fb7185; /* rose */
+    box-shadow: 0 0 8px rgba(251, 113, 133, 0.45);
+}
+
+.status-pill.partially_cancelled {
+    background: rgba(251, 113, 133, 0.18);
+    color: #fb7185;
+    border: 1px solid rgba(251, 113, 133, 0.35);
+}
+
+.status-text.partially_cancelled {
+    color: #fb7185;
+    font-weight: 600;
+}
+
+.status-indicator.refunded,
+.status-indicator.fully_refunded {
+    background: #6366f1; /* indigo */
+    box-shadow: 0 0 8px rgba(99, 102, 241, 0.45);
+}
+
+.status-pill.refunded,
+.status-pill.fully_refunded {
+    background: rgba(99, 102, 241, 0.18);
+    color: #6366f1;
+    border: 1px solid rgba(99, 102, 241, 0.35);
+}
+
+.status-text.refunded,
+.status-text.fully_refunded {
+    color: #6366f1;
+    font-weight: 600;
+}
+.status-indicator.partially_cancelled {
+    background: #f97316; /* orange */
+    box-shadow: 0 0 8px rgba(249, 115, 22, 0.45);
+}
+
+.status-pill.partially_cancelled {
+    background: rgba(249, 115, 22, 0.18);
+    color: #f97316;
+    border: 1px solid rgba(249, 115, 22, 0.35);
+}
+
+.status-text.partially_cancelled {
+    color: #f97316;
+    font-weight: 600;
+}
 </style>
 
 <div class="admin-order-edit">
@@ -533,33 +593,28 @@
                 </span>
             </p>
 
-            {% if allowed_next_statuses %}
-                <form method="post"
-                      action="{% url 'admin_order_update' order.order_id %}">
-                    {% csrf_token %}
+          {% if order.status not in "delivered cancelled refunded partially_refunded" %}
+    <form method="post" action="{% url 'admin_order_update' order.order_id %}">
+        {% csrf_token %}
 
-                    <label for="status"><strong>Next Status</strong></label>
+        <label for="status"><strong>Next Status</strong></label>
 
-                    <select name="status" id="status" required>
-                        <option value="" disabled selected>
-                            Select next status
-                        </option>
-                        {% for status in allowed_next_statuses %}
-                            <option value="{{ status }}">
-                                {{ status|title }}
-                            </option>
-                        {% endfor %}
-                    </select>
+        <select name="status" id="status" required>
+            <option value="" disabled selected>Select next status</option>
+            {% for status in allowed_next_statuses %}
+                <option value="{{ status }}">{{ status|title }}</option>
+            {% endfor %}
+        </select>
 
-                    <button type="submit" class="btn-update">
-                        Update Status
-                    </button>
-                </form>
-            {% else %}
-                <p class="text-muted locked-text">
-                    This order is locked and cannot be updated further.
-                </p>
-            {% endif %}
+        <button type="submit" class="btn-update">
+            Update Status
+        </button>
+    </form>
+{% else %}
+    <p class="locked-text">
+        This order is completed and locked.
+    </p>
+{% endif %}
         </div>
 
     </div>

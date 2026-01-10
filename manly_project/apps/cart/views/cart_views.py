@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from apps.cart.models import Cart
 
-@login_required
+@login_required(login_url="login")
 def cart_page(request):
     cart_items = []
     subtotal = 0

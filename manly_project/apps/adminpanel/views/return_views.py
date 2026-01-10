@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db import transaction
 from apps.orders.models import ReturnRequest ,OrderItem  
-from apps.orders.services.order_state import recalculate_order_state 
+from apps.orders.services.order_state import recalculate_order_status
 
 
 
@@ -16,11 +16,7 @@ def admin_return_request_list(request):
         "user"
     ).order_by("-created_at")
 
-    return render(
-        request,
-        "adminpanel/returns/return_list.html",
-        {"returns": returns}
-    )
+    return render(request,"adminpanel/returns/return_list.html",{"returns": returns})
 
 
 
@@ -42,7 +38,7 @@ def admin_approve_return(request, return_id):
     order_item.status = OrderItem.STATUS_RETURNED
     order_item.save(update_fields=['status'])
     
-    recalculate_order_state(order_item.order)
+    recalculate_order_status(order_item.order)
     
     
     messages.success(request, "Return approved successfully")

@@ -458,9 +458,69 @@
                 width: 100%;
             }
         }
+        #admin-popup {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    z-index: 9999;
+}
+
+.popup-message {
+    min-width: 320px;
+    padding: 18px 26px;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+    animation: slideIn 0.4s ease, fadeOut 0.4s ease 4.5s forwards;
+}
+
+/* SUCCESS */
+.popup-success {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+/* ERROR */
+.popup-error {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+/* INFO */
+.popup-info {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+}
+
     </style>
 </head>
 <body>
+{% if messages %}
+<div id="admin-popup">
+    {% for message in messages %}
+        <div class="popup-message popup-{{ message.tags }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
 
 <nav class="admin-navbar">
     <!-- Center MANLY Text -->
@@ -618,7 +678,12 @@
             }
         });
     });
-   
+   setTimeout(() => {
+    const popup = document.getElementById("admin-popup");
+    if (popup) {
+        popup.remove();
+    }
+}, 4000);
 </script>
 
 

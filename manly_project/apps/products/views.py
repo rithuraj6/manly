@@ -116,9 +116,7 @@ def product_detail(request, product_id):
 def product_list_by_category(request, category_id):
     base_category = get_object_or_404(Category, id=category_id, is_active=True)
 
-    # ----------------------------
-    # FILTER PARAMS (DEFINE FIRST)
-    # ----------------------------
+
     selected_category_ids = request.GET.getlist("category")
     selected_sizes = request.GET.getlist("size")
 
@@ -128,32 +126,22 @@ def product_list_by_category(request, category_id):
     search_query = request.GET.get("q", "").strip()
     sort = request.GET.get("sort", "").strip()
 
-    # ----------------------------
-    # BASE QUERYSET
-    # ----------------------------
     products = Product.objects.filter(is_active=True)
 
-    # ----------------------------
-    # CATEGORY FILTER
-    # ----------------------------
+
     category_ids = [base_category.id]
     if selected_category_ids:
         category_ids.extend([int(cid) for cid in selected_category_ids])
 
     products = products.filter(category_id__in=category_ids)
 
-    # ----------------------------
-    # SEARCH FILTER
-    # ----------------------------
     if search_query:
         products = products.filter(
             Q(name__icontains=search_query) |
             Q(description__icontains=search_query)
         )
 
-    # ----------------------------
-    # DEFAULT SIZE FROM MEASUREMENT
-    # ----------------------------
+ 
     default_size = None
     if request.user.is_authenticated and hasattr(request.user, "measurement"):
         default_size = request.user.measurement.mapped_size
@@ -161,9 +149,7 @@ def product_list_by_category(request, category_id):
     if not selected_sizes and default_size:
         selected_sizes = [default_size]
 
-    # ----------------------------
-    # SIZE FILTER
-    # ----------------------------
+
     if selected_sizes:
         products = products.filter(
             variants__size__in=selected_sizes,
@@ -171,17 +157,13 @@ def product_list_by_category(request, category_id):
             variants__stock__gt=0
         )
 
-    # ----------------------------
-    # PRICE FILTER
-    # ----------------------------
+
     if min_price:
         products = products.filter(base_price__gte=min_price)
     if max_price:
         products = products.filter(base_price__lte=max_price)
 
-    # ----------------------------
-    # SORTING
-    # ----------------------------
+   
     if sort == "price_low":
         products = products.order_by("base_price")
     elif sort == "price_high":
@@ -195,16 +177,12 @@ def product_list_by_category(request, category_id):
 
     products = products.prefetch_related("images", "variants").distinct()
 
-    # ----------------------------
-    # PAGINATION
-    # ----------------------------
+  
     paginator = Paginator(products, 9)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
-    # ----------------------------
-    # FILTER STATE FLAG (CRITICAL)
-    # ----------------------------
+   
     has_filters = any([
         bool(selected_category_ids),
         bool(selected_sizes),
@@ -214,24 +192,19 @@ def product_list_by_category(request, category_id):
         bool(sort),
     ])
 
-    # ----------------------------
-    # QUERY PARAMS (FOR PAGINATION)
-    # ----------------------------
+
     query_params = request.GET.copy()
     query_params.pop("page", None)
 
-    # ----------------------------
-    # BREADCRUMBS
-    # ----------------------------
+ 
+  
     breadcrumbs = [
         {"label": "Home", "url": "/"},
         {"label": "Shop", "url": "/shop/"},
         {"label": base_category.name, "url": None},
     ]
 
-    # ----------------------------
-    # CONTEXT
-    # ----------------------------
+ 
     context = {
         "category": base_category,
         "categories": Category.objects.filter(is_active=True),

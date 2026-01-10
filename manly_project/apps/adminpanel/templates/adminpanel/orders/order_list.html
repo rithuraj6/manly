@@ -453,6 +453,78 @@
         font-size: 13px;
     }
 }
+.status-indicator.partially_refunded {
+    background: #f59e0b; /* amber */
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+}
+
+.status-indicator.refunded {
+    background: #6366f1; /* indigo */
+    box-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
+}
+.status-pill.partially_refunded {
+    background: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.status-pill.refunded {
+    background: rgba(99, 102, 241, 0.2);
+    color: #6366f1;
+    border: 1px solid rgba(99, 102, 241, 0.3);
+}
+.status-text.partially_refunded {
+    color: #f59e0b;
+    font-weight: 600;
+}
+
+.status-text.refunded {
+    color: #6366f1;
+    font-weight: 600;
+}
+
+.status-text.partially_refunded {
+    color: #f59e0b;
+    font-weight: 600;
+}
+
+.status-text.refunded {
+    color: #6366f1;
+    font-weight: 600;
+}
+.status-indicator.refunded,
+.status-indicator.fully_refunded {
+    background: #6366f1; /* indigo */
+    box-shadow: 0 0 8px rgba(99, 102, 241, 0.45);
+}
+
+.status-pill.refunded,
+.status-pill.fully_refunded {
+    background: rgba(99, 102, 241, 0.18);
+    color: #6366f1;
+    border: 1px solid rgba(99, 102, 241, 0.35);
+}
+
+.status-text.refunded,
+.status-text.fully_refunded {
+    color: #6366f1;
+    font-weight: 600;
+}
+.status-indicator.partially_cancelled {
+    background: #f97316; /* orange */
+    box-shadow: 0 0 8px rgba(249, 115, 22, 0.45);
+}
+
+.status-pill.partially_cancelled {
+    background: rgba(249, 115, 22, 0.18);
+    color: #f97316;
+    border: 1px solid rgba(249, 115, 22, 0.35);
+}
+
+.status-text.partially_cancelled {
+    color: #f97316;
+    font-weight: 600;
+}
 </style>
 
 <div class="admin-orders">

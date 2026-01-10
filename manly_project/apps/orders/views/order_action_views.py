@@ -1,7 +1,8 @@
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from apps.orders.models import OrderItem
-from apps.orders.services.order_state import recalculate_order_state
+from apps.orders.services.order_state import recalculate_order_status
+
 
 
 
@@ -17,7 +18,7 @@ def cancel_order_item(request, item_id):
     item.status = "cancelled"
     item.save(update_fields=["status"])
     
-    recalculate_order_state(item.order)
+    recalculate_order_status(item.order)
     
     
     return redirect("order_detail", order_id=item.order.order_id)

@@ -162,14 +162,13 @@
                     <div class="review-card">
                         <div class="review-header">
                             <div class="reviewer-info">
-                                <div class="reviewer-avatar">
-                                    {{ r.user.email|first|upper }}
-                                </div>
-                               <strong class="reviewer-name">
-                                    {{ r.user.get_full_name|default:r.user.email }}
-                                </strong>
+                             <strong class="reviewer-name">
+                                     {{ r.user.first_name }}
+                             </strong>
                                 <span style="font-size:12px;color:#999;">
-                                    {{ r.created_at|date:"d M Y" }}
+                             {{ r.user.profile.first_name }}
+
+
                                 </span>
                             </div>
                             <div class="review-rating">
@@ -254,6 +253,9 @@ function getCookie(name) {
     return cookieValue;
 }
 
+// ✅ CHECK IF USER IS AUTHENTICATED
+const isAuthenticated = {{ user.is_authenticated|yesno:"true,false" }};
+
 // Variant Stock Map
 const variantStockMap = {
     {% for v in variants %}
@@ -300,11 +302,17 @@ function updateStockUI() {
 
 sizeSelect?.addEventListener("change", updateStockUI);
 
-// ✅ Add to Cart - WITH NAVBAR UPDATE
+// ✅ Add to Cart - WITH AUTH CHECK
 cartBtn?.addEventListener("click", function () {
     const variantId = sizeSelect.value;
     if (!variantId) {
         alert("Please select a size");
+        return;
+    }
+
+    // ✅ REDIRECT TO LOGIN IF NOT AUTHENTICATED
+    if (!isAuthenticated) {
+        window.location.href = "{% url 'login' %}?next={{ request.path }}";
         return;
     }
 
@@ -349,11 +357,17 @@ cartBtn?.addEventListener("click", function () {
     });
 });
 
-// ✅ Buy Now - WITH NAVBAR UPDATE
+// ✅ Buy Now - WITH AUTH CHECK
 buyBtn?.addEventListener("click", function () {
     const variantId = sizeSelect.value;
     if (!variantId) {
         alert("Please select a size");
+        return;
+    }
+
+    // ✅ REDIRECT TO LOGIN IF NOT AUTHENTICATED
+    if (!isAuthenticated) {
+        window.location.href = "{% url 'login' %}?next={{ request.path }}";
         return;
     }
 
@@ -487,6 +501,7 @@ nextBtn?.addEventListener('click', () => {
     slider.style.transform = `translateX(-${scrollAmount}px)`;
 });
 </script>
+
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
