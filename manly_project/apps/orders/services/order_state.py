@@ -1,24 +1,3 @@
-from decimal import Decimal
-from django.db import models
-from apps.orders.models import OrderItem
-
-
-ACTIVE_STATUSES = [
-    OrderItem.STATUS_PENDING,
-    OrderItem.STATUS_CONFIRMED,
-    OrderItem.STATUS_SHIPPED,
-    OrderItem.STATUS_DELIVERED,
-]
-
-CANCELLED_STATUSES = [
-    OrderItem.STATUS_CANCELLED,
-]
-
-RETURNED_STATUSES = [
-    OrderItem.STATUS_RETURNED,
-]
-
-
 
 from decimal import Decimal
 from django.db import models
@@ -43,10 +22,7 @@ RETURNED_STATUSES = [
 
 
 def recalculate_order_status(order):
-    """
-    Recalculate parent Order.status based on OrderItem statuses.
-    This supports partial cancellation, partial refund, and shipping remaining items.
-    """
+
 
     items = order.items.all()
 

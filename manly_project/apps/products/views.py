@@ -89,6 +89,7 @@ def product_detail(request, product_id):
 
     average_rating = round(reviews_agg["avg_rating"] or 0, 1)
     total_reviews = reviews_agg["total_reviews"] or 0
+    
 
    
     breadcrumbs = [
@@ -195,8 +196,34 @@ def product_list_by_category(request, category_id):
 
     query_params = request.GET.copy()
     query_params.pop("page", None)
+    FILTER_KEYS = ["category", "size", "min_price", "max_price"]
+    has_search = bool(search_query)
+    has_sort = bool(sort)
+    has_filter_only = any([
+        selected_category_ids,
+        selected_sizes,
+        min_price,
+        max_price,
+    ])
+    # Clean query params (remove empty values)
+    clean_params = request.GET.copy()
+    for key in list(clean_params.keys()):
+        if not clean_params.get(key):
+            clean_params.pop(key)
 
- 
+    def build_clear_url(remove_keys):
+        params = clean_params.copy()
+        for key in remove_keys:
+            params.pop(key, None)
+        return params.urlencode()
+
+
+    clear_search_url = build_clear_url(["q"])
+    clear_sort_url = build_clear_url(["sort"])
+    clear_filter_url = build_clear_url(FILTER_KEYS)
+
+
+
   
     breadcrumbs = [
         {"label": "Home", "url": "/"},
@@ -218,8 +245,18 @@ def product_list_by_category(request, category_id):
         "sort": sort,
         "search_query": search_query,
         "breadcrumbs": breadcrumbs,
-        "query_params": query_params.urlencode(),
+       
         "has_filters": has_filters,
+            "filter_keys": FILTER_KEYS,
+             "query_params": query_params.urlencode(),
+
+         "query_params_dict": request.GET.copy(),
+         "has_search": has_search,
+    "has_sort": has_sort,
+    "has_filter_only": has_filter_only,
+     "clear_search_url": clear_search_url,
+    "clear_sort_url": clear_sort_url,
+    "clear_filter_url": clear_filter_url,
     }
 
     return render(request, "products/products_list.html", context)

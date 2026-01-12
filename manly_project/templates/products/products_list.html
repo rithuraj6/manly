@@ -339,11 +339,14 @@
         <button type="submit" style="margin-top:20px;padding:10px 20px;border-radius:20px;background:#000;color:#fff;border:none;">
             Apply
         </button>
-        {% if has_filters %}
-            <a href="?" class="clear-btn filled" style="margin-top:30px;display:inline-block;text-align:center;">
-                Clear All Filters
-            </a>
-        {% endif %}
+            {% if has_filter_only %}
+                <a href="?{{ clear_filter_url }}" class="clear-btn filled">
+                    Clear All Filters
+                </a>
+            {% endif %}
+
+
+
 
     </aside>
 
@@ -355,9 +358,14 @@
 
             <button type="submit" class="product-search-btn">Search</button>
 
-            {% if search_query %}
-                <a href="?" class="clear-btn">Clear</a>
-            {% endif %}
+         {% if has_search %}
+        <a href="?{{ clear_search_url }}" class="clear-btn">
+            Clear
+        </a>
+        {% endif %}
+
+
+
         </div>
 
             
@@ -382,11 +390,14 @@
                         <option value="name_desc" {% if sort == 'name_desc' %}selected{% endif %}>Name: Z → A</option>
                     </select>
 
-                    {% if sort %}
-                        <a href="?{{ query_params|cut:'sort='|cut:sort }}" class="clear-btn">
-                            Reset
-                        </a>
-                    {% endif %}
+                 {% if has_sort %}
+                 <a href="?{{ clear_sort_url }}" class="clear-btn">
+                    Reset
+                 </a>
+                {% endif %}
+
+
+
                 </div>
      </div>
 

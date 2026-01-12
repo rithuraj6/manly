@@ -439,6 +439,7 @@ def address_add(request):
 
     return render(request,'account/address_add.html',{'breadcrumbs': breadcrumbs})
 
+
 @login_required
 def address_edit(request,address_id):
     if request.user.is_superuser:
@@ -448,14 +449,17 @@ def address_edit(request,address_id):
         UserAddress,id=address_id,user=request.user
     )
     
-    breadcrumbs = [
-        {"label": "Home", "url": "/"},
-        {"label": "Account", "url": "/account/profile/"},
-        {"label": "Address", "url": "/account/addresses/"},
-        {"label": "Edit Address", "url": None},
-    ]
+
+     
+    if request.method == "POST":
+        address.house_name = request.POST.get("house_name")
+        address.street = request.POST.get("street")
+        address.city = request.POST.get("city")
+        address.state = request.POST.get("state")
+        address.pincode = request.POST.get("pincode")
     
     is_default = request.POST.get('is_default') == 'on'
+    
     
     if is_default :
         UserAddress.objects.filter(
@@ -469,13 +473,21 @@ def address_edit(request,address_id):
         
         messages.success(request,'Address updated successfully')
         return redirect('account_addresses')
+    
+    
+    breadcrumbs = [
+        {"label": "Home", "url": "/"},
+        {"label": "Account", "url": "/account/profile/"},
+        {"label": "Address", "url": "/account/addresses/"},
+        {"label": "Edit Address", "url": None},
+    ]
     context = {
         'address': address,
         'breadcrumbs': breadcrumbs,
     }
     
     
-    return render(request,'account/address_edit.html',{'context': context})  
+    return render(request,'account/address_edit.html',context)  
     
     
 @login_required
