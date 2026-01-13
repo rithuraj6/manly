@@ -3,71 +3,96 @@
 
 <div class="payment-confirm-wrapper">
     <div class="payment-confirm-container">
-        <h2 class="page-title">Confirm Payment</h2>
+        <h2 class="page-title">Checkout</h2>
 
         <form method="POST" action="{% url 'place_order' %}" class="confirm-form">
             {% csrf_token %}
 
-            <!-- Delivery Address Section -->
-            <div class="form-section">
+            <div class="main-content">
+                <!-- Payment Method Section (Moved to top) -->
+                <div class="payment-method-card">
+                    <div class="section-header">
+                        <h3 class="section-title">Payment Method</h3>
+                        <span class="section-subtitle">Choose how you'd like to pay</span>
+                    </div>
+
+                    <div class="payment-options-grid">
+                        <!-- Razorpay -->
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="razorpay" checked>
+                            <div class="payment-option-content">
+                                <div class="payment-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                                        <line x1="1" y1="10" x2="23" y2="10"></line>
+                                    </svg>
+                                </div>
+                                <div class="payment-info">
+                                    <span class="payment-name">Online Payment</span>
+                                    <span class="payment-desc">Cards, UPI, Wallets</span>
+                                </div>
+                                <div class="payment-badge">Recommended</div>
+                            </div>
+                        </label>
+
+                        <!-- COD -->
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="cod">
+                            <div class="payment-option-content">
+                                <div class="payment-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                    </svg>
+                                </div>
+                                <div class="payment-info">
+                                    <span class="payment-name">Cash on Delivery</span>
+                                    <span class="payment-desc">Pay when received</span>
+                                </div>
+                            </div>
+                        </label>
+
+                        <!-- Wallet (disabled) -->
+                        <label class="payment-option disabled">
+                            <input type="radio" disabled>
+                            <div class="payment-option-content">
+                                <div class="payment-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path>
+                                        <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path>
+                                        <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path>
+                                    </svg>
+                                </div>
+                                <div class="payment-info">
+                                    <span class="payment-name">Wallet</span>
+                                    <span class="payment-desc">Coming soon</span>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Delivery Address Section -->
                 <div class="delivery-address-card">
                     <div class="section-header">
                         <h3 class="section-title">Delivery Address</h3>
+                        <a href="#" class="edit-link">Change</a>
                     </div>
                     
                     <div class="address-content">
                         <div class="address-icon">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
                             </svg>
                         </div>
                         <div class="address-details">
                             <strong class="recipient-name">{{ address.full_name }}</strong>
                             <p class="address-line">{{ address.address_line_1 }}, {{ address.city }}</p>
-                            <p class="address-meta">{{ address.pincode }} | {{ address.phone }}</p>
+                            <p class="address-meta">{{ address.pincode }} • {{ address.phone }}</p>
                         </div>
                     </div>
                 </div>
-
-                    <!-- Payment Method Section -->
-            <div class="payment-method-card">
-                <div class="section-header">
-                    <h3 class="section-title">Payment Method</h3>
-                </div>
-
-                <!-- COD -->
-                <label class="payment-option">
-                    <div class="payment-option-content">
-                        <input type="radio" name="payment_method" value="cod" checked>
-                        <div class="payment-info">
-                            <span class="payment-name">Cash on Delivery</span>
-                            <span class="payment-desc">Pay when you receive your order</span>
-                        </div>
-                    </div>
-                </label>
-
-                <!-- Razorpay -->
-                <label class="payment-option">
-                    <div class="payment-option-content">
-                        <input type="radio" name="payment_method" value="razorpay">
-                        <div class="payment-info">
-                            <span class="payment-name">Online Payment</span>
-                            <span class="payment-desc">Pay securely using Razorpay</span>
-                        </div>
-                    </div>
-                </label>
-
-                <!-- Wallet (disabled for now) -->
-                <label class="payment-option disabled">
-                    <div class="payment-option-content">
-                        <input type="radio" disabled>
-                        <div class="payment-info">
-                            <span class="payment-name">Wallet</span>
-                            <span class="payment-desc">Coming soon</span>
-                        </div>
-                    </div>
-                </label>
             </div>
 
             <!-- Order Summary Sidebar -->
@@ -76,41 +101,50 @@
                     <h3 class="summary-title">Order Summary</h3>
 
                     <div class="order-summary">
-
                         <div class="summary-row">
-                            <span>Items Subtotal</span>
-                            <span>₹ {{ subtotal }}</span>
+                            <span>Subtotal</span>
+                            <span>₹{{ subtotal }}</span>
                         </div>
 
                         <div class="summary-row">
-                            <span>Delivery Fee</span>
-                            <span>
+                            <span>Shipping</span>
+                            <span class="shipping-value">
                                 {% if shipping == 0 %}
-                                    Free
+                                    <span class="free-badge">FREE</span>
                                 {% else %}
-                                    ₹ {{ shipping }}
+                                    ₹{{ shipping }}
                                 {% endif %}
                             </span>
                         </div>
 
                         <div class="summary-row">
-                            <span>Tax (18% GST)</span>
-                            <span>₹ {{ tax }}</span>
+                            <span>Tax (GST 18%)</span>
+                            <span>₹{{ tax }}</span>
                         </div>
 
-                        <hr>
+                        <div class="summary-divider"></div>
 
                         <div class="summary-row total">
                             <strong>Total</strong>
-                            <strong>₹ {{ total }}</strong>
+                            <strong>₹{{ total }}</strong>
                         </div>
-
                     </div>
 
-
                     <button type="button" id="confirm-payment-btn" class="confirm-order-btn">
-                        Confirm Order
+                        <span>Place Order</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
                     </button>
+
+                    <div class="secure-message">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                        <span>Secure checkout powered by Razorpay</span>
+                    </div>
                 </div>
             </div>
         </form>
@@ -118,187 +152,155 @@
 </div>
 
 <style>
-
-    .summary-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 12px;
-    font-size: 14px;
-}
-
-.summary-row.total {
-    font-size: 16px;
-    font-weight: 700;
-}
-
-/* Payment Confirm Wrapper */
+/* Base Styles */
 .payment-confirm-wrapper {
     min-height: calc(100vh - 200px);
     padding: 40px 20px;
-    background: #fafafa;
+    background: #ffffff;
 }
 
 .payment-confirm-container {
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 0 auto;
-    animation: fadeIn 0.5s ease;
 }
 
 .page-title {
-    font-size: 32px;
-    font-weight: 700;
+    font-size: 28px;
+    font-weight: 600;
     color: #1a1a1a;
-    margin: 0 0 40px 0;
-    animation: slideInDown 0.5s ease;
+    margin: 0 0 32px 0;
+    letter-spacing: -0.5px;
 }
 
-/* Confirm Form Layout */
+/* Form Layout */
 .confirm-form {
     display: grid;
-    grid-template-columns: 1fr 400px;
-    gap: 30px;
+    grid-template-columns: 1fr 380px;
+    gap: 24px;
     align-items: start;
 }
 
-/* Form Section */
-.form-section {
+.main-content {
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
-/* Delivery Address Card */
+/* Section Styles */
+.payment-method-card,
 .delivery-address-card {
-    background: #fff;
-    border-radius: 16px;
-    padding: 30px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    animation: slideInLeft 0.5s ease 0.1s forwards;
-    opacity: 0;
+    background: #ffffff;
+    border: 1px solid #e8e8e8;
+    border-radius: 12px;
+    padding: 24px;
+    transition: all 0.3s ease;
+}
+
+.payment-method-card:hover,
+.delivery-address-card:hover {
+    border-color: #d0d0d0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
 }
 
 .section-header {
     margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .section-title {
-    font-size: 18px;
-    font-weight: 700;
+    font-size: 16px;
+    font-weight: 600;
     color: #1a1a1a;
     margin: 0;
 }
 
-.address-content {
-    display: flex;
-    gap: 20px;
-}
-
-.address-icon {
-    width: 50px;
-    height: 50px;
-    background: #f8f8f8;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    color: #1a1a1a;
-}
-
-.address-details {
-    flex: 1;
-}
-
-.recipient-name {
-    display: block;
-    font-size: 18px;
-    font-weight: 700;
-    color: #1a1a1a;
-    margin-bottom: 8px;
-}
-
-.address-line,
-.address-meta {
-    font-size: 15px;
+.section-subtitle {
+    font-size: 13px;
     color: #666;
-    margin: 4px 0;
-    line-height: 1.6;
+    display: block;
+    margin-top: 4px;
 }
 
-.address-meta {
+.edit-link {
+    font-size: 14px;
+    color: #1a1a1a;
+    text-decoration: none;
     font-weight: 500;
+    transition: opacity 0.2s;
 }
 
-/* Payment Method Card */
-.payment-method-card {
-    background: #fff;
-    border-radius: 16px;
-    padding: 30px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    animation: slideInLeft 0.5s ease 0.2s forwards;
-    opacity: 0;
+.edit-link:hover {
+    opacity: 0.7;
+}
+
+/* Payment Options Grid */
+.payment-options-grid {
+    display: grid;
+    gap: 12px;
 }
 
 .payment-option {
     display: block;
-    cursor: default;
+    cursor: pointer;
+    position: relative;
+}
+
+.payment-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
 }
 
 .payment-option-content {
     display: flex;
     align-items: center;
-    gap: 15px;
-    padding: 20px;
-    background: #f8f8f8;
-    border: 2px solid #1a1a1a;
-    border-radius: 12px;
-}
-
-.radio-wrapper {
-    position: relative;
-    width: 22px;
-    height: 22px;
-    flex-shrink: 0;
-}
-
-.payment-radio {
-    position: absolute;
-    opacity: 0;
-}
-
-.radio-indicator {
-    width: 22px;
-    height: 22px;
-    border: 2px solid #1a1a1a;
-    border-radius: 50%;
-    position: relative;
+    gap: 14px;
+    padding: 16px;
+    background: #fafafa;
+    border: 3px solid #e8e8e8;
+    border-radius: 10px;
     transition: all 0.3s ease;
 }
 
-.radio-indicator.checked::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 12px;
-    height: 12px;
-    background: #1a1a1a;
-    border-radius: 50%;
+.payment-option:not(.disabled) input[type="radio"]:checked ~ .payment-option-content {
+    background: #f5f5f5;
+    border-color: #10d331ff;
+}
+
+.payment-option:not(.disabled):hover .payment-option-content {
+    border-color: #27991cff;
+}
+
+.payment-option.disabled {
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.payment-icon {
+    width: 44px;
+    height: 44px;
+    background: #f0f0f0ff;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #1a1a1a;
+    border: 0.5px solid #ff3a3aa6;
 }
 
 .payment-info {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
 }
 
 .payment-name {
-    font-size: 16px;
-    font-weight: 700;
+    font-size: 15px;
+    font-weight: 600;
     color: #1a1a1a;
 }
 
@@ -307,17 +309,56 @@
     color: #666;
 }
 
-.payment-icon {
-    width: 45px;
-    height: 45px;
-    background: #fff;
-    border-radius: 10px;
+.payment-badge {
+    font-size: 11px;
+    font-weight: 600;
+    color: #1a1a1a;
+    background: #ffffff;
+    padding: 4px 10px;
+    border-radius: 12px;
+    border: 1px solid #e8e8e8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Delivery Address */
+.address-content {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.address-icon {
+    width: 40px;
+    height: 40px;
+    background: #fafafa;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
     color: #1a1a1a;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border: 1px solid #e8e8e8;
+}
+
+.address-details {
+    flex: 1;
+}
+
+.recipient-name {
+    display: block;
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 6px;
+}
+
+.address-line,
+.address-meta {
+    font-size: 14px;
+    color: #666;
+    margin: 3px 0;
+    line-height: 1.5;
 }
 
 /* Order Summary Sidebar */
@@ -327,93 +368,86 @@
 }
 
 .summary-card {
-    background: #f8f8f8;
-    border-radius: 16px;
-    padding: 30px;
-    animation: slideInRight 0.5s ease 0.3s forwards;
-    opacity: 0;
+    background: #fafafa;
+    border: 1px solid #e8e8e8;
+    border-radius: 12px;
+    padding: 24px;
 }
 
 .summary-title {
-    font-size: 20px;
-    font-weight: 700;
+    font-size: 16px;
+    font-weight: 600;
     color: #1a1a1a;
-    margin: 0 0 25px 0;
+    margin: 0 0 20px 0;
 }
 
-.summary-details {
+.order-summary {
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    margin-bottom: 25px;
+    gap: 14px;
 }
 
 .summary-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
-
-.summary-label {
-    font-size: 15px;
+    font-size: 14px;
     color: #666;
-    font-weight: 500;
 }
 
-.summary-value {
+.summary-row.total {
     font-size: 16px;
-    font-weight: 600;
     color: #1a1a1a;
+    padding-top: 4px;
 }
 
-.shipping-free {
-    color: #4caf50;
-    font-weight: 700;
+.shipping-value {
+    display: flex;
+    align-items: center;
+}
+
+.free-badge {
+    font-size: 12px;
+    font-weight: 600;
+    color: #16a34a;
+    background: #f0fdf4;
+    padding: 3px 8px;
+    border-radius: 6px;
 }
 
 .summary-divider {
     height: 1px;
-    background: #ddd;
-    margin: 10px 0;
-}
-
-.total-row {
-    padding-top: 10px;
-}
-
-.total-row .summary-label,
-.total-row .summary-value {
-    font-size: 18px;
-    font-weight: 700;
-    color: #1a1a1a;
+    background: #e8e8e8;
+    margin: 6px 0;
 }
 
 /* Confirm Order Button */
 .confirm-order-btn {
     width: 100%;
-    padding: 16px 24px;
+    padding: 14px 24px;
     background: #1a1a1a;
-    color: #fff;
-    font-size: 16px;
-    font-weight: 700;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
     border: none;
-    border-radius: 30px;
+    border-radius: 8px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
     transition: all 0.3s ease;
+    margin-top: 20px;
 }
 
 .confirm-order-btn:hover {
-    background: #333;
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    background: #333333;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .confirm-order-btn:active {
-    transform: translateY(-1px);
+    transform: translateY(0);
 }
 
 .confirm-order-btn svg {
@@ -421,49 +455,25 @@
 }
 
 .confirm-order-btn:hover svg {
-    transform: scale(1.2);
+    transform: translateX(3px);
 }
 
-/* Animations */
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+/* Secure Message */
+.secure-message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+    font-size: 12px;
+    color: #666;
 }
 
-@keyframes slideInDown {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.secure-message svg {
+    color: #666;
 }
 
-@keyframes slideInLeft {
-    from {
-        opacity: 0;
-        transform: translateX(-30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-@keyframes slideInRight {
-    from {
-        opacity: 0;
-        transform: translateX(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-/* Responsive */
+/* Responsive Design */
 @media (max-width: 1024px) {
     .confirm-form {
         grid-template-columns: 1fr;
@@ -471,45 +481,50 @@
 
     .order-summary-sidebar {
         position: static;
+        order: -1;
     }
 }
 
 @media (max-width: 768px) {
+    .payment-confirm-wrapper {
+        padding: 24px 16px;
+    }
+
     .page-title {
         font-size: 24px;
+        margin-bottom: 24px;
     }
 
-    .delivery-address-card,
-    .payment-method-card {
-        padding: 25px 20px;
+    .payment-method-card,
+    .delivery-address-card {
+        padding: 20px;
     }
 
-    .address-content {
+    .section-header {
         flex-direction: column;
-        gap: 15px;
+        align-items: flex-start;
+        gap: 8px;
     }
 
     .payment-option-content {
-        flex-wrap: wrap;
-        gap: 12px;
+        padding: 14px;
     }
 
     .payment-icon {
-        width: 100%;
-        height: 50px;
-        order: 3;
+        width: 40px;
+        height: 40px;
     }
 
     .summary-card {
-        padding: 25px 20px;
+        padding: 20px;
     }
 }
 </style>
+
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <script>
 document.getElementById("confirm-payment-btn").addEventListener("click", function () {
-
     const selectedMethod = document.querySelector(
         'input[name="payment_method"]:checked'
     ).value;
@@ -530,7 +545,6 @@ document.getElementById("confirm-payment-btn").addEventListener("click", functio
         })
         .then(response => response.json())
         .then(data => {
-
             const options = {
                 key: data.razorpay_key,
                 amount: data.amount * 100,
@@ -540,7 +554,6 @@ document.getElementById("confirm-payment-btn").addEventListener("click", functio
                 description: "Order Payment",
 
                 handler: function (response) {
-                    // Send data to backend for verification
                     const form = document.createElement("form");
                     form.method = "POST";
                     form.action = "{% url 'verify_razorpay_payment' %}";

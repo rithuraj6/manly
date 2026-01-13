@@ -102,10 +102,7 @@
                                 <span class="summary-label">Subtotal</span>
                                 <span class="summary-value">₹{{ subtotal }}</span>
                             </div>
-                           <div class="summary-row">
-                                <span class="summary-label">Shipping</span>
-                                <span class="summary-value shipping-value">Free</span>
-                            </div>
+                          
                             <div class="summary-divider"></div>
                             <div class="summary-row total-row">
                                 <span class="summary-label">Total</span>
@@ -727,14 +724,16 @@ function recalculateSubtotal() {
     let shipping = 0;
     const shippingEl = document.querySelector(".shipping-value");
 
-    if (subtotal < 3500) {
-        shipping = 150;
-        shippingEl.innerText = "₹150";
-        shippingEl.classList.remove("shipping-free");
-    } else {
-        shippingEl.innerText = "Free";
-        shippingEl.classList.add("shipping-free");
-    }
+ {% comment %}
+       if (subtotal <=3000) {
+           shipping = 150;
+           shippingEl.innerText = "₹150";
+           shippingEl.classList.remove("shipping-free");
+       } else {
+           shippingEl.innerText = "Free";
+           shippingEl.classList.add("shipping-free");
+       }
+ {% endcomment %}
 
     document.querySelectorAll(".summary-row").forEach(row => {
         const label = row.querySelector(".summary-label")?.innerText;
