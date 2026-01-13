@@ -2,8 +2,10 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from apps.orders.services.order_state import recalculate_order_status
+from django.db import transaction
+from django.contrib.admin.views.decorators import staff_member_required
 
-
+from apps.orders.utils.stock import restore_stock
 from apps.orders.models import OrderItem, ReturnRequest
 
 
@@ -66,3 +68,28 @@ def request_return(request, item_id):
         return redirect("order_detail", order_id=item.order.order_id)
 
     return render(request,"orders/request_return.html",{"item": item})
+
+
+
+@staff_member_required
+@transaction.atomic
+def approve_return_request(request, return_id):
+    return_request = get_object_or_404(
+        ReturnRequest,
+        id=return_id,
+        status="requested"
+    )
+
+    order_item = return_request.order_item
+
+   
+    if order_item.status != "returned":
+        restore_stock(order_item)
+        order_item.status = "returned"
+        order_item.save(update_fields=["status"])
+
+    return_request.status = "approved"
+    return_request.save(update_fields=["status"])
+
+
+    return redirect("admin_return_requests")

@@ -205,7 +205,7 @@ def product_list_by_category(request, category_id):
         min_price,
         max_price,
     ])
-    # Clean query params (remove empty values)
+ 
     clean_params = request.GET.copy()
     for key in list(clean_params.keys()):
         if not clean_params.get(key):
