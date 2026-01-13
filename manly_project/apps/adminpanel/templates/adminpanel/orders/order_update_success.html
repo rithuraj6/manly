@@ -1,0 +1,16 @@
+{% extends "adminpanel/base.html" %}
+{% block content %}
+
+<div class="success-wrapper">
+    <div class="success-card">
+        <div class="success-icon">✔</div>
+        <h2>Order Status Changed</h2>
+        <p>The order status has successfully changed.</p>
+
+        <a href="{% url 'admin_order_list' %}" class="btn-primary">
+            View Orders
+        </a>
+    </div>
+</div>
+
+{% endblock %}

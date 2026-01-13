@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from apps.userprofile.models import UserProfile
+from apps.accounts.models import UserProfile
 
 
 
@@ -33,12 +33,14 @@ urlpatterns = [
     path("", include("apps.core.urls")),
 
   
-    path("account/", include("apps.userprofile.urls")),
-
    
     path("", include("apps.products.urls")),
     path("cart/", include("apps.cart.urls")),
     path("wishlist/", include("apps.wishlist.urls")),
+    path("orders/", include("apps.orders.urls")),
+    path("reviews/", include("apps.reviews.urls")),
+
+
 
     path("admin/", admin.site.urls),
     path("admin-panel/", include("apps.adminpanel.urls")),

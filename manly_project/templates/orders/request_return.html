@@ -1,0 +1,386 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+/* ========================================
+   RETURN REQUEST PAGE - MODERN DARK THEME
+   Liquid Effects & Smooth Animations
+======================================== */
+
+.return-wrapper {
+    max-width: 600px;
+    margin: 60px auto;
+    padding: 0 20px;
+    animation: fadeInUp 0.6s ease;
+}
+
+/* Page Title */
+.return-wrapper h2 {
+    font-size: 36px;
+    font-weight: 700;
+    color: #fff;
+    text-align: center;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+    animation: slideInDown 0.6s ease;
+}
+
+/* Product Info */
+.return-wrapper > p {
+    text-align: center;
+    font-size: 16px;
+    color: #aaa;
+    margin-bottom: 40px;
+    animation: fadeIn 0.8s ease 0.2s backwards;
+}
+
+.return-wrapper > p strong {
+    color: #ff8c00;
+    font-weight: 600;
+}
+
+/* Form Container with Liquid Effect */
+.return-wrapper form {
+    background: rgba(26, 26, 26, 0.9);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 140, 0, 0.2);
+    border-radius: 24px;
+    padding: 45px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 
+                0 0 40px rgba(255, 140, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+    animation: scaleIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s backwards;
+}
+
+/* Animated Liquid Background */
+.return-wrapper form::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center, 
+                rgba(255, 140, 0, 0.08) 0%, 
+                transparent 50%);
+    animation: liquidRotate 12s linear infinite;
+    pointer-events: none;
+}
+
+.return-wrapper form::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, 
+                transparent, 
+                rgba(255, 140, 0, 0.03), 
+                transparent);
+    animation: liquidFlow 8s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes liquidRotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes liquidFlow {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    33% { transform: translate(5%, -5%) rotate(120deg); }
+    66% { transform: translate(-5%, 5%) rotate(240deg); }
+}
+
+/* Form Elements */
+.return-wrapper label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 10px;
+    margin-top: 24px;
+    letter-spacing: 0.3px;
+    position: relative;
+    z-index: 1;
+    animation: fadeIn 0.6s ease;
+}
+
+.return-wrapper label:first-of-type {
+    margin-top: 0;
+}
+
+/* Select Dropdown with Modern Styling */
+.return-wrapper select {
+    width: 100%;
+    padding: 16px 20px;
+    background: #1a1a1a;
+    border: 2px solid #2a2a2a;
+    border-radius: 14px;
+    color: #e0e0e0;
+    font-size: 15px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 1;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23ff8c00' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 20px;
+    padding-right: 50px;
+}
+
+.return-wrapper select:hover {
+    border-color: #ff8c00;
+    background-color: #151515;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 140, 0, 0.15);
+}
+
+.return-wrapper select:focus {
+    outline: none;
+    border-color: #ff8c00;
+    background-color: #151515;
+    box-shadow: 0 0 0 4px rgba(255, 140, 0, 0.1),
+                0 8px 25px rgba(255, 140, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+.return-wrapper select option {
+    background: #1a1a1a;
+    color: #e0e0e0;
+    padding: 12px;
+}
+
+/* Textarea with Floating Effect */
+.return-wrapper textarea {
+    width: 100%;
+    min-height: 140px;
+    padding: 16px 20px;
+    background: #1a1a1a;
+    border: 2px solid #2a2a2a;
+    border-radius: 14px;
+    color: #e0e0e0;
+    font-size: 15px;
+    font-family: inherit;
+    resize: vertical;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 1;
+}
+
+.return-wrapper textarea::placeholder {
+    color: #666;
+}
+
+.return-wrapper textarea:hover {
+    border-color: #ff8c00;
+    background-color: #151515;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 140, 0, 0.15);
+}
+
+.return-wrapper textarea:focus {
+    outline: none;
+    border-color: #ff8c00;
+    background-color: #151515;
+    box-shadow: 0 0 0 4px rgba(255, 140, 0, 0.1),
+                0 8px 25px rgba(255, 140, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Submit Button with Ripple Effect */
+.return-wrapper button[type="submit"] {
+    width: 100%;
+    padding: 18px 32px;
+    margin-top: 32px;
+    background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+    border: none;
+    border-radius: 14px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(255, 140, 0, 0.3);
+}
+
+/* Ripple Effect */
+.return-wrapper button[type="submit"]::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.8s ease, height 0.8s ease;
+}
+
+.return-wrapper button[type="submit"]:active::before {
+    width: 500px;
+    height: 500px;
+}
+
+/* Glow Effect on Hover */
+.return-wrapper button[type="submit"]::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(135deg, #ff8c00, #ff6b00);
+    border-radius: 14px;
+    z-index: -1;
+    filter: blur(20px);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.return-wrapper button[type="submit"]:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 40px rgba(255, 140, 0, 0.5);
+}
+
+.return-wrapper button[type="submit"]:hover::after {
+    opacity: 0.8;
+}
+
+.return-wrapper button[type="submit"]:active {
+    transform: translateY(-2px);
+}
+
+/* Floating Particles Effect */
+@keyframes float {
+    0%, 100% { transform: translateY(0) translateX(0); }
+    25% { transform: translateY(-10px) translateX(5px); }
+    50% { transform: translateY(-20px) translateX(-5px); }
+    75% { transform: translateY(-10px) translateX(5px); }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .return-wrapper {
+        margin: 30px auto;
+        padding: 0 15px;
+    }
+
+    .return-wrapper h2 {
+        font-size: 28px;
+    }
+
+    .return-wrapper form {
+        padding: 30px 25px;
+        border-radius: 20px;
+    }
+
+    .return-wrapper select,
+    .return-wrapper textarea {
+        font-size: 14px;
+        padding: 14px 18px;
+    }
+
+    .return-wrapper button[type="submit"] {
+        padding: 16px 28px;
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .return-wrapper h2 {
+        font-size: 24px;
+    }
+
+    .return-wrapper form {
+        padding: 25px 20px;
+    }
+
+    .return-wrapper label {
+        font-size: 13px;
+    }
+}
+
+/* Focus Visible for Accessibility */
+.return-wrapper select:focus-visible,
+.return-wrapper textarea:focus-visible,
+.return-wrapper button[type="submit"]:focus-visible {
+    outline: 2px solid #ff8c00;
+    outline-offset: 2px;
+}
+</style>
+
+<div class="return-wrapper">
+    <h2>Request Return</h2>
+    <p><strong>Product:</strong> {{ item.product.name }}</p>
+    <form method="post">
+        {% csrf_token %}
+        <label>Reason</label>
+        <select name="reason" required>
+            <option value="">Select reason</option>
+            <option value="wrong_size">Wrong Size</option>
+            <option value="damaged">Damaged Product</option>
+            <option value="quality">Quality Issue</option>
+            <option value="wrong_item">Wrong Item</option>
+            <option value="late_delivery">Late Delivery</option>
+            <option value="changed_mind">Changed Mind</option>
+            <option value="other">Other</option>
+        </select>
+        
+        <label>Description (optional)</label>
+        <textarea name="description" placeholder="Please provide additional details about your return request..."></textarea>
+        
+        <button type="submit">Submit Return Request</button>
+    </form>
+</div>
+
+{% endblock %}

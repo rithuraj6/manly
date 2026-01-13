@@ -6,6 +6,29 @@
 <div class="profile-view-container">
     <h2 class="content-title">Personal Information</h2>
 
+    <div class="profile-header">
+        <div class="profile-image-wrapper">
+            {% if profile.profile_image and profile.profile_image.url %}
+       <img
+            src="{{ profile.profile_image.url }}?v={{ profile.updated_at|date:'U' }}"
+            class="profile-img"/>
+
+            {% else %}
+                <div class="profile-default-icon">
+                    <i class="fa fa-user"></i>
+                </div>
+            {% endif %}
+            <div class="profile-image-border"></div>
+        </div>
+
+        <div class="profile-greeting">
+            <p class="welcome-text">Welcome 👋</p>
+            <h3 class="username">
+                {{ profile.first_name|default:request.user.email }}
+            </h3>
+        </div>
+    </div>
+
     <div class="profile-card">
         <!-- Basic Information -->
         <div class="info-section">
@@ -66,6 +89,93 @@
 </div>
 
 <style>
+/* Profile Header Styling */
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    margin-bottom: 40px;
+    padding: 30px;
+    background: #f8f8f8;
+    border-radius: 16px;
+    animation: slideInUp 0.6s ease;
+}
+
+.profile-image-wrapper {
+    position: relative;
+    animation: scaleIn 0.6s ease 0.2s forwards;
+    opacity: 0;
+}
+
+.profile-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #fff;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    transition: all 0.4s ease;
+}
+
+.profile-img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.18);
+}
+
+.profile-default-icon {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    color: #fff;
+    border: 4px solid #fff;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    transition: all 0.4s ease;
+}
+
+.profile-default-icon:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.18);
+}
+
+.profile-image-border {
+    position: absolute;
+    top: -6px;
+    left: -6px;
+    right: -6px;
+    bottom: -6px;
+    border-radius: 50%;
+    border: 2px solid #1a1a1a;
+    opacity: 0.1;
+    pointer-events: none;
+}
+
+.profile-greeting {
+    flex: 1;
+    animation: fadeInRight 0.6s ease 0.3s forwards;
+    opacity: 0;
+}
+
+.profile-greeting .welcome-text {
+    font-size: 15px;
+    color: #666;
+    margin: 0 0 8px 0;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+}
+
+.profile-greeting .username {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0;
+    color: #1a1a1a;
+    letter-spacing: -0.5px;
+}
+
 .profile-view-container {
     max-width: 800px;
 }
@@ -85,13 +195,13 @@
 .breadcrumbs span{margin:0 6px}
 .breadcrumbs .current{color:var(--accent-red);text-shadow:0 0 10px rgba(161, 6, 6, 0.73)}
 
-
 /* Profile Card */
 .profile-card {
     background: #f8f8f8;
     border-radius: 16px;
     padding: 40px;
-    animation: slideInUp 0.6s ease;
+    animation: slideInUp 0.6s ease 0.4s forwards;
+    opacity: 0;
 }
 
 /* Info Section */
@@ -111,10 +221,10 @@
     opacity: 0;
 }
 
-.info-row:nth-child(1) { animation-delay: 0.1s; }
-.info-row:nth-child(2) { animation-delay: 0.2s; }
-.info-row:nth-child(3) { animation-delay: 0.3s; }
-.info-row:nth-child(4) { animation-delay: 0.4s; }
+.info-row:nth-child(1) { animation-delay: 0.5s; }
+.info-row:nth-child(2) { animation-delay: 0.6s; }
+.info-row:nth-child(3) { animation-delay: 0.7s; }
+.info-row:nth-child(4) { animation-delay: 0.8s; }
 
 .info-row:last-child {
     border-bottom: none;
@@ -142,7 +252,7 @@
 
 /* Measurement Section */
 .measurement-section-view {
-    animation: slideInUp 0.6s ease 0.5s forwards;
+    animation: slideInUp 0.6s ease 0.9s forwards;
     opacity: 0;
 }
 
@@ -169,6 +279,12 @@
     padding: 20px;
     background: #fff;
     border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.measurement-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
 }
 
 .measure-label {
@@ -193,6 +309,12 @@
     padding: 25px 20px;
     background: #fff;
     border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.size-display-view:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
 }
 
 .size-label-small {
@@ -228,7 +350,7 @@
     text-decoration: none;
     transition: all 0.3s ease;
     margin-top: 35px;
-    animation: slideInUp 0.6s ease 0.6s forwards;
+    animation: slideInUp 0.6s ease 1s forwards;
     opacity: 0;
 }
 
@@ -274,8 +396,41 @@
     }
 }
 
+@keyframes fadeInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 20px;
+        padding: 25px 20px;
+    }
+
+    .profile-greeting .username {
+        font-size: 24px;
+    }
+
     .profile-card {
         padding: 30px 20px;
     }

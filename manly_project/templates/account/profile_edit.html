@@ -1,13 +1,66 @@
 {% extends "account/account_base.html" %}
 {% load static %}
 
-
 {% block account_content %}
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css"
+/>
+<script
+  src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"
+  defer
+></script>
+
 <div class="profile-edit-container">
     <h2 class="content-title">Personal Information</h2>
 
     <form method="post" class="profile-edit-form">
         {% csrf_token %}
+
+        <!-- Image Upload Section -->
+        <div class="image-upload-section">
+            <div class="image-upload-header">
+                <h3 class="image-section-title">Profile Picture</h3>
+                <p class="image-section-subtitle">Upload and crop your profile image</p>
+            </div>
+
+            <div class="image-upload-wrapper">
+                <div class="upload-preview-container">
+                    <div id="imagePreviewCircle" class="image-preview-circle">
+                        {% if profile.profile_image %}
+                                          <img
+            src="{{ profile.profile_image.url }}?v={{ profile.updated_at|date:'U' }}"
+            class="profile-img"/>
+
+                        {% else %}
+                            <div class="preview-placeholder">
+                                <i class="fa fa-user"></i>
+                                <span>No Image</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <label for="imageInput" class="upload-trigger-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                            <circle cx="12" cy="13" r="4"></circle>
+                        </svg>
+                        Choose Image
+                    </label>
+                </div>
+
+                <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                <input type="hidden" name="cropped_image" id="croppedImage">
+
+                <div id="cropperContainer" class="cropper-container-wrapper" style="display: none;">
+                    <div id="preview"></div>
+                    <div class="cropper-actions">
+                        <button type="button" id="cancelCrop" class="crop-cancel-btn">Cancel</button>
+                        <button type="button" id="applyCrop" class="crop-apply-btn">Apply Crop</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Basic Information -->
         <div class="form-group">
@@ -22,7 +75,10 @@
 
         <div class="form-group">
             <label for="email">email</label>
-            <input type="email" id="email" value="{{ request.user.email }}" disabled>
+            <input type="email" name="email" value="{{ request.user.email }}"
+                {% if request.user.auth_provider == "google" %}
+                    disabled
+                {% endif %}>
         </div>
 
         <div class="form-group">
@@ -52,9 +108,10 @@
             </div>
         </div>
 
-
         <button type="submit" class="save-btn">Save</button>
     </form>
+ 
+
 </div>
 
 <style>
@@ -72,6 +129,176 @@
     animation: fadeIn 0.5s ease;
 }
 
+/* Image Upload Section */
+.image-upload-section {
+    background: #f8f8f8;
+    border-radius: 16px;
+    padding: 35px;
+    margin-bottom: 30px;
+    animation: slideInUp 0.5s ease forwards;
+    opacity: 0;
+}
+
+.image-upload-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.image-section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0 0 8px 0;
+}
+
+.image-section-subtitle {
+    font-size: 14px;
+    color: #666;
+    margin: 0;
+    font-weight: 500;
+}
+
+.image-upload-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+}
+
+.upload-preview-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.image-preview-circle {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #fff;
+    border: 4px solid #fff;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.4s ease;
+}
+
+.image-preview-circle:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.18);
+}
+
+.preview-current-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.preview-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: #999;
+    font-size: 14px;
+}
+
+.preview-placeholder i {
+    font-size: 48px;
+    color: #ccc;
+}
+
+.upload-trigger-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 28px;
+    background: #fff;
+    color: #1a1a1a;
+    font-size: 14px;
+    font-weight: 600;
+    border: 2px solid #1a1a1a;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.upload-trigger-btn:hover {
+    background: #1a1a1a;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+
+.upload-trigger-btn svg {
+    transition: transform 0.3s ease;
+}
+
+.upload-trigger-btn:hover svg {
+    transform: scale(1.1);
+}
+
+/* Cropper Container */
+.cropper-container-wrapper {
+    width: 100%;
+    max-width: 500px;
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+}
+
+#preview {
+    margin-bottom: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+#preview img {
+    max-width: 100%;
+    display: block;
+}
+
+.cropper-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.crop-cancel-btn,
+.crop-apply-btn {
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.crop-cancel-btn {
+    background: #f5f5f5;
+    color: #666;
+}
+
+.crop-cancel-btn:hover {
+    background: #e5e5e5;
+}
+
+.crop-apply-btn {
+    background: #1a1a1a;
+    color: #fff;
+}
+
+.crop-apply-btn:hover {
+    background: #333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
 /* Form Styling */
 .profile-edit-form {
     display: flex;
@@ -87,10 +314,10 @@
     opacity: 0;
 }
 
-.form-group:nth-child(1) { animation-delay: 0.1s; }
-.form-group:nth-child(2) { animation-delay: 0.2s; }
-.form-group:nth-child(3) { animation-delay: 0.3s; }
-.form-group:nth-child(4) { animation-delay: 0.4s; }
+.form-group:nth-child(3) { animation-delay: 0.1s; }
+.form-group:nth-child(4) { animation-delay: 0.2s; }
+.form-group:nth-child(5) { animation-delay: 0.3s; }
+.form-group:nth-child(6) { animation-delay: 0.4s; }
 
 .form-group label {
     font-size: 14px;
@@ -134,7 +361,6 @@
 .breadcrumbs a{color:#777;text-decoration:none}
 .breadcrumbs span{margin:0 6px}
 .breadcrumbs .current{color:var(--accent-red);text-shadow:0 0 10px rgba(161, 6, 6, 0.73)}
-
 
 /* Measurement Section */
 .measurement-section {
@@ -278,6 +504,10 @@
 
 /* Responsive */
 @media (max-width: 768px) {
+    .image-upload-section {
+        padding: 25px 20px;
+    }
+
     .measurement-grid {
         grid-template-columns: 1fr;
         gap: 20px;
@@ -290,7 +520,97 @@
     .save-btn {
         width: 100%;
     }
+
+    .cropper-actions {
+        flex-direction: column;
+    }
+
+    .crop-cancel-btn,
+    .crop-apply-btn {
+        width: 100%;
+    }
 }
 </style>
+
+<script>
+let cropper = null;
+const input = document.getElementById("imageInput");
+const form = document.querySelector(".profile-edit-form");
+const preview = document.getElementById("preview");
+const cropperContainer = document.getElementById("cropperContainer");
+const imagePreviewCircle = document.getElementById("imagePreviewCircle");
+const cancelCropBtn = document.getElementById("cancelCrop");
+const applyCropBtn = document.getElementById("applyCrop");
+
+input.addEventListener("change", function (e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    preview.innerHTML = "";
+    cropperContainer.style.display = "block";
+
+    const img = document.createElement("img");
+    img.style.maxWidth = "100%";
+    img.src = URL.createObjectURL(file);
+    preview.appendChild(img);
+
+    if (cropper) {
+        cropper.destroy();
+    }
+
+    cropper = new Cropper(img, {
+        aspectRatio: 1,
+        viewMode: 1,
+        background: false,
+    });
+});
+
+cancelCropBtn.addEventListener("click", function() {
+    if (cropper) {
+        cropper.destroy();
+        cropper = null;
+    }
+    preview.innerHTML = "";
+    cropperContainer.style.display = "none";
+    input.value = "";
+});
+
+applyCropBtn.addEventListener("click", function() {
+    if (cropper) {
+        const canvas = cropper.getCroppedCanvas({
+            width: 400,
+            height: 400,
+        });
+
+        // Update preview circle
+        imagePreviewCircle.innerHTML = `<img src="${canvas.toDataURL('image/jpeg')}" class="preview-current-img">`;
+        
+        // Store cropped image
+        document.getElementById("croppedImage").value = canvas.toDataURL("image/jpeg");
+        
+        // Hide cropper
+        cropper.destroy();
+        cropper = null;
+        cropperContainer.style.display = "none";
+    }
+});
+
+form.addEventListener("submit", function (e) {
+    if (!document.getElementById("croppedImage").value && cropper) {
+        e.preventDefault();
+
+        const canvas = cropper.getCroppedCanvas({
+            width: 400,
+            height: 400,
+        });
+
+        document.getElementById("croppedImage").value =
+            canvas.toDataURL("image/jpeg");
+
+        form.submit();
+    }
+});
+
+</script>
 
 {% endblock %}

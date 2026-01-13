@@ -1,0 +1,796 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<div class="order-detail-wrapper">
+    <div class="order-detail-container">
+        
+        <!-- Order Header -->
+        <h2 class="page-title">Order Details</h2>
+
+        <div class="order-content">
+            <!-- Left Sidebar - Order Info -->
+            <div class="order-sidebar">
+                <div class="order-info-card">
+                    <div class="info-section">
+                        <h3 class="info-title">Order: #{{ order.order_id }}</h3>
+                        <div class="info-item">
+                            <span class="info-label">Date:</span>
+                            <span class="info-value">{{ order.created_at|date:"F d, Y" }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Status:</span>
+                            <span class="status-badge {{ order.status }}">{{ order.status|title }}</span>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="info-section">
+                        <h4 class="section-heading">Shipping Address</h4>
+                        <div class="address-box">
+                            <p class="address-name">{{ order.address_snapshot.full_name }}</p>
+                                <p class="address-line">{{ order.address_snapshot.address_line_1 }}</p>
+
+                                {% if order.address_snapshot.address_line_2 %}
+                                <p class="address-line">{{ order.address_snapshot.address_line_2 }}</p>
+                                {% endif %}
+
+                                <p class="address-line">
+                                    {{ order.address_snapshot.city }},
+                                    {{ order.address_snapshot.state }}
+                                </p>
+
+                                <p class="address-line">
+                                    {{ order.address_snapshot.pincode }},
+                                    {{ order.address_snapshot.country }}
+                                </p>
+
+                                <p class="address-line">
+                                    Phone: {{ order.address_snapshot.phone }}
+                            </p>
+
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                       <div class="info-section">
+                            <h4 class="section-heading">Order Summary</h4>
+
+                            <div class="summary-row">
+                                <span class="summary-label">Cart Total:</span>
+                                <span class="summary-value">₹ {{ order.subtotal }}</span>
+                            </div>
+
+                            <div class="summary-row">
+                                <span class="summary-label">GST (18%):</span>
+                                <span class="summary-value">₹ {{ order.tax }}</span>
+                            </div>
+
+                            <div class="summary-row">
+                                <span class="summary-label">Delivery Fee:</span>
+                                <span class="summary-value">₹ {{ order.shipping_charge }}</span>
+                            </div>
+
+                            <div class="summary-divider"></div>
+
+                            <div class="summary-row">
+                                <span class="summary-label">Total Paid:</span>
+                                <span class="summary-value">₹ {{ paid_total }}</span>
+                            </div>
+
+                            {% if refunded_total > 0 %}
+                            <div class="summary-row cancelled">
+                                <span class="summary-label">Refunded:</span>
+                                <span class="summary-value">- ₹ {{ refunded_total }}</span>
+                            </div>
+                            {% endif %}
+
+                            <div class="summary-divider"></div>
+
+                            <div class="summary-row total">
+                                <span class="summary-label">Net Payable:</span>
+                                <span class="summary-value">₹ {{ payable_total }}</span>
+                            </div>
+
+                            {% if payable_total == 0 %}
+                                <p style="margin-top:10px;font-size:13px;color:#2e7d32;font-weight:600;">
+                                    ✅ Fully refunded
+                                </p>
+                            {% endif %}
+                        </div>
+
+
+
+
+                     </div>
+
+                {% if can_download_invoice %}
+                <div style="margin-top: 20px;">
+                    <a href="{% url 'order_invoice' order.order_id %}"
+                    target="_blank"
+                    class="action-btn rate-btn">
+                        Print / Download Invoice
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+          
+
+
+            <!-- Right Content - Product List -->
+            <div class="order-products">
+                {% for item in items %}
+                <div class="product-card">
+                    <div class="product-image-wrapper">
+                        {% with image=item.product.images.first %}
+                            {% if image %}
+                                <img src="{{ image.image.url }}" alt="{{ item.product.name }}" class="product-image">
+                            {% else %}
+                                <img src="{% static 'images/placeholder.png' %}" alt="No image" class="product-image">
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+
+                    <div class="product-details">
+                        <div class="product-header">
+                            <h3 class="product-name">{{ item.product.name }}</h3>
+                            <div class="product-meta">
+                                <span class="product-qty">Qty: {{ item.quantity }}</span>
+                                <span class="product-price">₹ {{ item.price }}</span>
+                            </div>
+                        </div>
+
+                        <div class="product-status-section">
+                            {% if item.status == "delivered" %}
+                                <div class="status-box delivered">
+                                    <div class="status-indicator"></div>
+                                    <div class="status-content">
+                                        <span class="status-text">Delivered on {{ item.updated_at|date:"M d" }}</span>
+                                    </div>
+                                </div>
+                            {% elif item.status == "cancelled" %}
+                                <div class="status-box cancelled">
+                                    <div class="status-indicator"></div>
+                                    <div class="status-content">
+                                        <span class="status-text">Cancelled on {{ item.updated_at|date:"M d" }}</span>
+                                        <span class="status-subtext">Your order has been cancelled</span>
+                                    </div>
+                                </div>
+                            {% elif item.status == "return_requested" %}
+                                <div class="status-box return">
+                                    <div class="status-indicator"></div>
+                                    <div class="status-content">
+                                        <span class="status-text">Return requested on {{ item.return_request.created_at|date:"M d" }}</span>
+                                        <span class="status-subtext">Processing your return</span>
+                                    </div>
+                                </div>
+                            {% elif item.status == "returned" %}
+                                <div class="status-box returned">
+                                    <div class="status-indicator"></div>
+                                    <div class="status-content">
+                                        <span class="status-text">Returned on Sep {{ item.updated_at|date:"d" }}</span>
+                                        <span class="status-subtext">Your order has returned</span>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="status-box pending">
+                                    <div class="status-indicator"></div>
+                                    <div class="status-content">
+                                        <span class="status-text">{{ item.status|title }}</span>
+                                        <span class="status-subtext">Your order is being processed</span>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            {% if item.status == "returned" or item.status == "cancelled" %}
+                                <p class="refund-text">
+                                    Refunded Amount: ₹ {{ item.final_price_paid }}
+                                    <br>
+                                    <small>(Will be credited to wallet soon)</small>
+                                </p>
+                            {% endif %}
+
+                            <!-- Action Buttons -->
+                            <div class="action-buttons">
+                                {% if item.status == "pending" or item.status == "confirmed" %}
+                                    <a href="{% url 'cancel_order_item' item.id %}" class="action-btn cancel-btn">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                        </svg>
+                                        Cancel
+                                    </a>
+                                {% endif %}
+
+                                {% if item.status == "delivered" %}
+                                    <a href="{% url 'return_order_item' item.id %}" class="action-btn return-btn">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="1 4 1 10 7 10"></polyline>
+                                            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                                        </svg>
+                                        Return
+                                    </a>
+                                {% endif %}
+
+                                {% if item.status == "delivered" and not item.review_id %}
+                                    <a href="{% url 'rate_product' item.id %}" class="action-btn rate-btn">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                                        </svg>
+                                        RATE THIS PRODUCT
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="9 18 15 12 9 6"></polyline>
+                                        </svg>
+                                    </a>
+                                {% endif %}
+
+                                {% if item.status == "return_requested" or item.status == "returned" %}
+                                    <a href="{% url 'view_return_reason' item.id %}" class="action-btn view-reason-btn">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                                        </svg>
+                                        View Return Reason
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.summary-row.cancelled {
+    color: #c62828;
+    font-size: 13px;
+}
+/* Order Detail Wrapper */
+.order-detail-wrapper {
+    min-height: calc(100vh - 200px);
+    padding: 40px 20px;
+    background: #fafafa;
+}
+
+.order-detail-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    animation: fadeIn 0.5s ease;
+}
+
+.page-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 35px 0;
+    text-align: center;
+    animation: slideInDown 0.5s ease;
+}
+
+/* Order Content Layout */
+.order-content {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 30px;
+    align-items: start;
+}
+
+/* Left Sidebar */
+.order-sidebar {
+    position: sticky;
+    top: 20px;
+}
+
+.order-info-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    animation: slideInLeft 0.5s ease 0.2s forwards;
+    opacity: 0;
+}
+
+.info-section {
+    margin-bottom: 20px;
+}
+
+.info-section:last-child {
+    margin-bottom: 0;
+}
+
+.info-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 15px 0;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.info-label {
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+}
+
+.info-value {
+    font-size: 14px;
+    color: #1a1a1a;
+    font-weight: 600;
+}
+
+.status-badge {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: capitalize;
+}
+
+.status-badge.shipped {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.status-badge.delivered {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
+.status-badge.cancelled {
+    background: #ffebee;
+    color: #c62828;
+}
+
+.divider {
+    height: 1px;
+    background: #f0f0f0;
+    margin: 20px 0;
+}
+
+.section-heading {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 12px 0;
+}
+
+.address-box {
+    padding: 15px;
+    background: #f8f8f8;
+    border-radius: 8px;
+}
+
+.address-name {
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 8px 0;
+}
+
+.address-line {
+    font-size: 13px;
+    color: #666;
+    margin: 4px 0;
+    line-height: 1.5;
+}
+
+.payment-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: #f8f8f8;
+    border-radius: 8px;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+}
+
+.summary-label {
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+}
+
+.summary-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.summary-divider {
+    height: 1px;
+    background: #e5e5e5;
+    margin: 12px 0;
+}
+
+.summary-row.total .summary-label,
+.summary-row.total .summary-value {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+/* Right Content - Products */
+.order-products {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.product-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    transition: all 0.3s ease;
+    animation: slideInRight 0.5s ease forwards;
+    opacity: 0;
+}
+
+.product-card:nth-child(1) { animation-delay: 0.2s; }
+.product-card:nth-child(2) { animation-delay: 0.3s; }
+.product-card:nth-child(3) { animation-delay: 0.4s; }
+
+.product-card:hover {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+}
+
+.product-image-wrapper {
+  
+
+     border-radius: 12px;
+    overflow: hidden; 
+
+    position: relative;
+    width:200px;
+    height:250px;
+}
+
+.product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+    background: #f5f5f5;
+    object-position: top; 
+    display: block;
+}
+
+.product-details {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.product-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.product-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0;
+}
+
+.product-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.product-qty {
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+}
+
+.product-price {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+/* Status Box */
+.product-status-section {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.status-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px;
+    background: #f8f8f8;
+    border-radius: 12px;
+}
+
+.status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.status-box.delivered .status-indicator {
+    background: #4caf50;
+    box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+}
+
+.status-box.cancelled .status-indicator {
+    background: #f44336;
+    box-shadow: 0 0 8px rgba(244, 67, 54, 0.5);
+}
+
+.status-box.return .status-indicator,
+.status-box.returned .status-indicator {
+    background: #ff9800;
+    box-shadow: 0 0 8px rgba(255, 152, 0, 0.5);
+}
+
+.status-box.pending .status-indicator {
+    background: #2196f3;
+    box-shadow: 0 0 8px rgba(33, 150, 243, 0.5);
+}
+
+.status-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.status-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.status-subtext {
+    font-size: 12px;
+    color: #666;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.cancel-btn {
+    background: #fff;
+    color: #f44336;
+    border-color: #f44336;
+}
+
+.cancel-btn:hover {
+    background: #f44336;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+}
+
+.return-btn {
+    background: #fff;
+    color: #f44336;
+    border-color: #f44336;
+}
+
+.return-btn:hover {
+    background: #f44336;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
+}
+
+.rate-btn {
+    background: #fff;
+    color: #1a1a1a;
+    border-color: #1a1a1a;
+    flex: 1;
+    justify-content: center;
+}
+
+.rate-btn:hover {
+    background: #1a1a1a;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.view-reason-btn {
+    background: #f8f8f8;
+    color: #1a1a1a;
+    border-color: #e5e5e5;
+}
+
+.view-reason-btn:hover {
+    background: #e5e5e5;
+    transform: translateY(-2px);
+}
+
+/* Pagination */
+.pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 30px;
+    animation: fadeIn 0.5s ease 0.5s forwards;
+    opacity: 0;
+}
+
+.pagination-btn {
+    padding: 10px 24px;
+    background: #fff;
+    color: #1a1a1a;
+    border: 2px solid #1a1a1a;
+    border-radius: 30px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.pagination-btn:hover {
+    background: #1a1a1a;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.page-numbers {
+    display: flex;
+    gap: 8px;
+}
+
+.page-num {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border: 2px solid #e5e5e5;
+    border-radius: 50%;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.page-num:hover {
+    border-color: #1a1a1a;
+    transform: scale(1.1);
+}
+
+.page-num.active {
+    background: #1a1a1a;
+    color: #fff;
+    border-color: #1a1a1a;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .order-content {
+        grid-template-columns: 1fr;
+    }
+
+    .order-sidebar {
+        position: static;
+    }
+}
+
+@media (max-width: 768px) {
+    .page-title {
+        font-size: 24px;
+    }
+
+    .product-card {
+        grid-template-columns: 100px 1fr;
+        gap: 15px;
+        padding: 20px;
+    }
+
+    .product-image {
+        width: 100px;
+        height: 130px;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .action-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .pagination-wrapper {
+        flex-direction: column;
+    }
+
+    .pagination-btn {
+        width: 100%;
+    }
+}
+</style>
+
+{% endblock %}

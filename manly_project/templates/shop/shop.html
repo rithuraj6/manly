@@ -690,6 +690,13 @@ body {
     50% { transform: translate(-20px, 40px) scale(0.9); }
     75% { transform: translate(40px, 20px) scale(1.05); }
 }
+/* FIX: Featured carousel card width (same as New Launch) */
+#featuredCarousel .product-card {
+    min-width: 320px;
+    max-width: 320px;
+    flex-shrink: 0;
+}
+
 </style>
 
 <div class="shop-container">

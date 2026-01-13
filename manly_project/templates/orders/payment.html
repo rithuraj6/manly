@@ -1,0 +1,499 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="payment-confirm-wrapper">
+    <div class="payment-confirm-container">
+        <h2 class="page-title">Confirm Payment</h2>
+
+        <form method="POST" action="{% url 'place_order' %}" class="confirm-form">
+            {% csrf_token %}
+
+            <!-- Delivery Address Section -->
+            <div class="form-section">
+                <div class="delivery-address-card">
+                    <div class="section-header">
+                        <h3 class="section-title">Delivery Address</h3>
+                    </div>
+                    
+                    <div class="address-content">
+                        <div class="address-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                            </svg>
+                        </div>
+                        <div class="address-details">
+                            <strong class="recipient-name">{{ address.full_name }}</strong>
+                            <p class="address-line">{{ address.address_line_1 }}, {{ address.city }}</p>
+                            <p class="address-meta">{{ address.pincode }} | {{ address.phone }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Method Section -->
+                <div class="payment-method-card">
+                    <div class="section-header">
+                        <h3 class="section-title">Payment Method</h3>
+                    </div>
+
+                    <label class="payment-option">
+                        <div class="payment-option-content">
+                            <div class="radio-wrapper">
+                                <input type="radio" checked disabled class="payment-radio">
+                                <div class="radio-indicator checked"></div>
+                            </div>
+                            <div class="payment-info">
+                                <span class="payment-name">Cash on Delivery</span>
+                                <span class="payment-desc">Pay when you receive your order</span>
+                            </div>
+                            <div class="payment-icon">
+                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="12" y1="1" x2="12" y2="23"></line>
+                                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Order Summary Sidebar -->
+            <div class="order-summary-sidebar">
+                <div class="summary-card">
+                    <h3 class="summary-title">Order Summary</h3>
+
+                    <div class="order-summary">
+
+                        <div class="summary-row">
+                            <span>Items Subtotal</span>
+                            <span>₹ {{ subtotal }}</span>
+                        </div>
+
+                        <div class="summary-row">
+                            <span>Delivery Fee</span>
+                            <span>
+                                {% if shipping == 0 %}
+                                    Free
+                                {% else %}
+                                    ₹ {{ shipping }}
+                                {% endif %}
+                            </span>
+                        </div>
+
+                        <div class="summary-row">
+                            <span>Tax (18% GST)</span>
+                            <span>₹ {{ tax }}</span>
+                        </div>
+
+                        <hr>
+
+                        <div class="summary-row total">
+                            <strong>Total</strong>
+                            <strong>₹ {{ total }}</strong>
+                        </div>
+
+                    </div>
+
+
+                    <button type="submit" class="confirm-order-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <span>Confirm Order</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+
+    .summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-size: 14px;
+}
+
+.summary-row.total {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+/* Payment Confirm Wrapper */
+.payment-confirm-wrapper {
+    min-height: calc(100vh - 200px);
+    padding: 40px 20px;
+    background: #fafafa;
+}
+
+.payment-confirm-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    animation: fadeIn 0.5s ease;
+}
+
+.page-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 40px 0;
+    animation: slideInDown 0.5s ease;
+}
+
+/* Confirm Form Layout */
+.confirm-form {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 30px;
+    align-items: start;
+}
+
+/* Form Section */
+.form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Delivery Address Card */
+.delivery-address-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    animation: slideInLeft 0.5s ease 0.1s forwards;
+    opacity: 0;
+}
+
+.section-header {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0;
+}
+
+.address-content {
+    display: flex;
+    gap: 20px;
+}
+
+.address-icon {
+    width: 50px;
+    height: 50px;
+    background: #f8f8f8;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #1a1a1a;
+}
+
+.address-details {
+    flex: 1;
+}
+
+.recipient-name {
+    display: block;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 8px;
+}
+
+.address-line,
+.address-meta {
+    font-size: 15px;
+    color: #666;
+    margin: 4px 0;
+    line-height: 1.6;
+}
+
+.address-meta {
+    font-weight: 500;
+}
+
+/* Payment Method Card */
+.payment-method-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    animation: slideInLeft 0.5s ease 0.2s forwards;
+    opacity: 0;
+}
+
+.payment-option {
+    display: block;
+    cursor: default;
+}
+
+.payment-option-content {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    background: #f8f8f8;
+    border: 2px solid #1a1a1a;
+    border-radius: 12px;
+}
+
+.radio-wrapper {
+    position: relative;
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+}
+
+.payment-radio {
+    position: absolute;
+    opacity: 0;
+}
+
+.radio-indicator {
+    width: 22px;
+    height: 22px;
+    border: 2px solid #1a1a1a;
+    border-radius: 50%;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.radio-indicator.checked::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 12px;
+    height: 12px;
+    background: #1a1a1a;
+    border-radius: 50%;
+}
+
+.payment-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.payment-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.payment-desc {
+    font-size: 13px;
+    color: #666;
+}
+
+.payment-icon {
+    width: 45px;
+    height: 45px;
+    background: #fff;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #1a1a1a;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+/* Order Summary Sidebar */
+.order-summary-sidebar {
+    position: sticky;
+    top: 20px;
+}
+
+.summary-card {
+    background: #f8f8f8;
+    border-radius: 16px;
+    padding: 30px;
+    animation: slideInRight 0.5s ease 0.3s forwards;
+    opacity: 0;
+}
+
+.summary-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 25px 0;
+}
+
+.summary-details {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.summary-label {
+    font-size: 15px;
+    color: #666;
+    font-weight: 500;
+}
+
+.summary-value {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.shipping-free {
+    color: #4caf50;
+    font-weight: 700;
+}
+
+.summary-divider {
+    height: 1px;
+    background: #ddd;
+    margin: 10px 0;
+}
+
+.total-row {
+    padding-top: 10px;
+}
+
+.total-row .summary-label,
+.total-row .summary-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+/* Confirm Order Button */
+.confirm-order-btn {
+    width: 100%;
+    padding: 16px 24px;
+    background: #1a1a1a;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+}
+
+.confirm-order-btn:hover {
+    background: #333;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+}
+
+.confirm-order-btn:active {
+    transform: translateY(-1px);
+}
+
+.confirm-order-btn svg {
+    transition: transform 0.3s ease;
+}
+
+.confirm-order-btn:hover svg {
+    transform: scale(1.2);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .confirm-form {
+        grid-template-columns: 1fr;
+    }
+
+    .order-summary-sidebar {
+        position: static;
+    }
+}
+
+@media (max-width: 768px) {
+    .page-title {
+        font-size: 24px;
+    }
+
+    .delivery-address-card,
+    .payment-method-card {
+        padding: 25px 20px;
+    }
+
+    .address-content {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .payment-option-content {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .payment-icon {
+        width: 100%;
+        height: 50px;
+        order: 3;
+    }
+
+    .summary-card {
+        padding: 25px 20px;
+    }
+}
+</style>
+
+{% endblock %}

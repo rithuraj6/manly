@@ -16,18 +16,21 @@
     </div>
 
     <div class="navbar-icons">
-        <div class="breadcrumbs-wrapper">
-            <nav class="breadcrumbs">
-                {% for crumb in breadcrumbs %}
-                    {% if crumb.url %}
-                        <a href="{{ crumb.url }}">{{ crumb.name }}</a>
-                        <span>/</span>
-                    {% else %}
-                        <span class="current">{{ crumb.name }}</span>
-                    {% endif %}
-                {% endfor %}
-            </nav>
-        </div>
+        {% if breadcrumbs %}
+            <div class="breadcrumbs-wrapper">
+                <nav class="breadcrumbs">
+                    {% for crumb in breadcrumbs %}
+                        {% if crumb.url %}
+                            <a href="{{ crumb.url }}">{{ crumb.label }}</a>
+                            <span>/</span>
+                        {% else %}
+                            <span class="current">{{ crumb.label }}</span>
+                        {% endif %}
+                    {% endfor %}
+                </nav>
+            </div>
+        {% endif %}
+
         <a href="{% url 'account_profile' %}" class="nav-icon" title="Profile">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -39,13 +42,18 @@
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
             </svg>
         </a>
-        <a href="{% url 'cart' %}" class="nav-icon" title="Cart">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <a href="{% url 'cart_page' %}" class="nav-icon" title="Cart">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
                 <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
                 <line x1="3" y1="6" x2="21" y2="6"></line>
                 <path d="M16 10a4 4 0 0 1-8 0"></path>
             </svg>
+
+            <span class="cart-count">{{ cart_count }}</span>
+
         </a>
+
     </div>
     
 </nav>
@@ -54,6 +62,39 @@
 
 <style>
 
+.nav-icon {
+    position: relative;
+}
+
+/* Cart count badge */
+.cart-count {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+
+    min-width: 18px;
+    height: 18px;
+
+    background: #eb1e1bff;      /* red */
+    color: #fff;
+
+    font-size: 11px;
+    font-weight: 600;
+
+    border-radius: 50%;
+    padding: 0 5px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    line-height: 1;
+}
+
+.cart-count:empty,
+.cart-count[data-count="0"] {
+    display: none;
+}
 
     .breadcrumbs {
     color: #777;
@@ -307,7 +348,7 @@ window.addEventListener('scroll', function() {
     }
 });
 
-// Mobile menu toggle (optional)
+// Mobile menu toggle
 document.addEventListener('DOMContentLoaded', function() {
     const toggle = document.querySelector('.navbar-toggle');
     const menu = document.querySelector('.navbar-menu');
@@ -328,4 +369,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+// ✅ FIX: Function in same script block
+window.updateNavbarCartCount = function (count) {
+    const badge = document.querySelector(".cart-count");
+    if (!badge) return;
+
+    badge.innerText = count;
+    badge.style.display = count > 0 ? "flex" : "none";
+};
 </script>

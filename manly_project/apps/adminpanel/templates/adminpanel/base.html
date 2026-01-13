@@ -458,9 +458,69 @@
                 width: 100%;
             }
         }
+        #admin-popup {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    z-index: 9999;
+}
+
+.popup-message {
+    min-width: 320px;
+    padding: 18px 26px;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+    animation: slideIn 0.4s ease, fadeOut 0.4s ease 4.5s forwards;
+}
+
+/* SUCCESS */
+.popup-success {
+    background: linear-gradient(135deg, #e66d0bff, #da7401ff);
+}
+
+/* ERROR */
+.popup-error {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+/* INFO */
+.popup-info {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+}
+
     </style>
 </head>
 <body>
+{% if messages %}
+<div id="admin-popup">
+    {% for message in messages %}
+        <div class="popup-message popup-{{ message.tags }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
 
 <nav class="admin-navbar">
     <!-- Center MANLY Text -->
@@ -497,7 +557,7 @@
             </a>
 
             <a href="{% url 'admin_product_list' %}" 
-                class="sidebar-link">
+                class="sidebar-link {% if request.resolver_match.url_name == 'admin_product_list' %}active{% endif %}">
                 <span class="icon">📦</span>
                 <span class="text">Products</span>
             </a>
@@ -508,38 +568,56 @@
                 <span class="text">Customers</span>
             </a>
 
-            <a href="{% url 'admin_dashboard' %}"
-                class="sidebar-link">
+            <a href="{% url 'admin_order_list' %}"
+                class="sidebar-link {% if request.resolver_match.url_name == 'admin_users' %}active{% endif %}">
                 <span class="icon">🛒</span>
                 <span class="text">Orders</span>
             </a>
 
             <a href="{% url 'admin_dashboard' %}"
-                class="sidebar-link">
-                <span class="icon">🎟️</span>
-                <span class="text">Coupons</span>
+                class="sidebar-link {% if request.resolver_match.url_name == 'admin_users' %}active{% endif %}">
+                <span class="icon">💰</span>
+                <span class="text">Wallet</span>
+            </a>
+            <a href="{% url 'admin_return_request_list' %}"
+                class="sidebar-link {% if request.resolver_match.url_name == 'admin_return_request_list' %}active{% endif %}">
+                <span class="icon">↩️</span>
+                <span class="text">Return Requests</span>
+            </a>
+                        <a href="{% url 'inventory_categories' %}"
+                class="sidebar-link {% if request.resolver_match.url_name == 'admin_users' %}active{% endif %}">
+                <span class="icon">📦</span>
+                <span class="text">Inventory</span>
             </a>
 
+         
+
             <a href="{% url 'admin_category_list' %}"
-                class="sidebar-link">
+                class="sidebar-link {% if request.resolver_match.url_name == 'admin_category_list' %}active{% endif %}">
                 <span class="icon">📁</span>
                 <span class="text">Category</span>
             </a>
 
+               <a href="{% url 'admin_dashboard' %}"
+                class="sidebar-link {% if request.resolver_match.url_name == 'admin_users' %}active{% endif %}">
+                <span class="icon">🎟️</span>
+                <span class="text">Coupons</span>
+            </a>
+
             <a href="{% url 'admin_dashboard' %}" 
-                class="sidebar-link">
+                class="sidebar-link {% if request.resolver_match.url_name == 'admin_users' %}active{% endif %}">
                 <span class="icon">🔥</span>
                 <span class="text">Offers</span>
             </a>
 
             <a href="{% url 'admin_banner_list' %}" 
-                class="sidebar-link">
+                class="sidebar-link {% if request.resolver_match.url_name == 'admin_banner_list' %}active{% endif %}">
                 <span class="icon">🖼️</span>
                 <span class="text">Banner</span>
             </a>
 
             <a href="{% url 'admin_dashboard' %}"
-                class="sidebar-link">
+                class="sidebar-link {% if request.resolver_match.url_name == 'admin_users' %}active{% endif %}">
                 <span class="icon">📈</span>
                 <span class="text">Sales Report</span>
             </a>
@@ -600,7 +678,12 @@
             }
         });
     });
-   
+   setTimeout(() => {
+    const popup = document.getElementById("admin-popup");
+    if (popup) {
+        popup.remove();
+    }
+}, 4000);
 </script>
 
 

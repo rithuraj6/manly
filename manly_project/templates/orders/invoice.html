@@ -1,0 +1,108 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Invoice - {{ order.order_id }}</title>
+    <style>
+        body {
+            font-family: Nunito Sans, sans-serif;
+            padding: 40px;
+            font-size: 14px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+        th {
+            background: #f5f5f5;
+            text-align: left;
+        }
+        .right {
+            text-align: right;
+        }
+        .cancelled {
+            color: #c62828;
+            font-weight: 600;
+        }
+        .muted {
+            color: #777;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>MANLY APPAREL STORE</h2>
+<p><strong>Tax Invoice</strong></p>
+
+<hr>
+
+<p>
+    <strong>Order ID:</strong> {{ order.order_id }}<br>
+    <strong>Order Date:</strong> {{ order.created_at|date:"d M Y" }}
+</p>
+
+<hr>
+
+<h4>Billing & Shipping Address</h4>
+<p>
+    {{ order.address_snapshot.full_name }}<br>
+    {{ order.address_snapshot.phone }}<br>
+    {{ order.address_snapshot.house_name }},
+    {{ order.address_snapshot.street }}<br>
+    {{ order.address_snapshot.city }},
+    {{ order.address_snapshot.state }} - {{ order.address_snapshot.pincode }}<br>
+    {{ order.address_snapshot.country }}
+</p>
+
+<hr>
+
+<table>
+    <thead>
+        <tr>
+            <th>Product</th>
+            <th>Qty</th>
+            <th>Status</th>
+           <th class="right">Amount</th>
+
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in items %}
+        <tr>
+            <td>{{ item.product.name }}</td>
+            <td>{{ item.quantity }}</td>
+            <td class="{% if item.status in 'cancelled returned' %}cancelled{% endif %}">
+                {{ item.status|title }}
+            </td>
+           <td class="right">₹ {{ item.line_total }}</td>
+
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<hr>
+
+<p class="right">Subtotal: ₹ {{ order.subtotal }}</p>
+<p class="right">Delivery Fee: ₹ {{ order.shipping_charge }}</p>
+<p class="right">GST (18%): ₹ {{ order.tax }}</p>
+
+<hr>
+<hr>
+
+<p class="right">
+    <strong>Total Paid:</strong> ₹ {{ order.total_amount }}
+</p>
+
+<p class="muted" style="margin-top:40px;">
+    This is a system generated invoice.
+</p>
+
+</body>
+</html>

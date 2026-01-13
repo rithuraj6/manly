@@ -1,0 +1,468 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="success-wrapper">
+    <div class="success-container">
+        <!-- Success Card -->
+        <div class="success-card">
+            <!-- Animated Checkmark -->
+            <div class="success-icon-wrapper">
+                <div class="success-icon">
+                    <svg class="checkmark" viewBox="0 0 52 52">
+                        <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+                        <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Success Message -->
+            <h1 class="success-title">THANK YOU FOR YOUR ORDER!</h1>
+
+            <div class="success-badge">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>Payment done successful</span>
+            </div>
+
+            <p class="success-message">Your order has been successfully placed.</p>
+
+            <!-- Order Number -->
+            <div class="order-number">
+                <span class="order-label">Order Number:</span>
+                <span class="order-id">#{{ order.order_id }}</span>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="{% url 'user_orders'%}" class="btn-primary">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <span>My orders</span>
+                </a>
+                <a href="{% url 'shop' %}" class="btn-secondary">
+                    <span>Continue shopping</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </a>
+            </div>
+
+            <!-- Confetti Animation Elements -->
+            <div class="confetti-container">
+                <div class="confetti" style="left: 10%; animation-delay: 0s;"></div>
+                <div class="confetti" style="left: 20%; animation-delay: 0.2s;"></div>
+                <div class="confetti" style="left: 30%; animation-delay: 0.4s;"></div>
+                <div class="confetti" style="left: 40%; animation-delay: 0.6s;"></div>
+                <div class="confetti" style="left: 50%; animation-delay: 0.8s;"></div>
+                <div class="confetti" style="left: 60%; animation-delay: 1s;"></div>
+                <div class="confetti" style="left: 70%; animation-delay: 1.2s;"></div>
+                <div class="confetti" style="left: 80%; animation-delay: 1.4s;"></div>
+                <div class="confetti" style="left: 90%; animation-delay: 1.6s;"></div>
+            </div>
+        </div>
+
+        
+    </div>
+</div>
+
+<style>
+/* Success Wrapper */
+.success-wrapper {
+    min-height: calc(100vh - 200px);
+    padding: 60px 20px;
+    background: #fafafa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.success-container {
+    max-width: 900px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+/* Success Card */
+.success-card {
+    background: #fff;
+    border: 3px solid #1a1a1a;
+    border-radius: 24px;
+    padding: 60px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    animation: scaleIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+}
+
+/* Animated Success Icon */
+.success-icon-wrapper {
+    margin-bottom: 30px;
+    animation: bounceIn 0.8s ease 0.3s forwards;
+    opacity: 0;
+}
+
+.success-icon {
+    display: inline-block;
+}
+
+.checkmark {
+    width: 100px;
+    height: 100px;
+    display: block;
+    stroke-width: 3;
+    stroke: #4caf50;
+    stroke-miterlimit: 10;
+}
+
+.checkmark-circle {
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    stroke-width: 3;
+    stroke: #4caf50;
+    fill: none;
+    animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) 0.5s forwards;
+}
+
+.checkmark-check {
+    transform-origin: 50% 50%;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    stroke: #4caf50;
+    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 1.1s forwards;
+}
+
+/* Success Content */
+.success-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 20px 0;
+    letter-spacing: -0.5px;
+    animation: fadeInUp 0.6s ease 0.5s forwards;
+    opacity: 0;
+}
+
+.success-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    background: #e8f5e9;
+    color: #2e7d32;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 20px;
+    animation: fadeInUp 0.6s ease 0.6s forwards;
+    opacity: 0;
+}
+
+.success-badge svg {
+    color: #4caf50;
+}
+
+.success-message {
+    font-size: 18px;
+    color: #666;
+    margin: 0 0 30px 0;
+    line-height: 1.6;
+    animation: fadeInUp 0.6s ease 0.7s forwards;
+    opacity: 0;
+}
+
+/* Order Number */
+.order-number {
+    display: inline-block;
+    padding: 20px 40px;
+    background: #f8f8f8;
+    border-radius: 16px;
+    margin-bottom: 40px;
+    animation: fadeInUp 0.6s ease 0.8s forwards;
+    opacity: 0;
+}
+
+.order-label {
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+    margin-right: 8px;
+}
+
+.order-id {
+    font-size: 20px;
+    font-weight: 700;
+    color: #c62828;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+    animation: fadeInUp 0.6s ease 0.9s forwards;
+    opacity: 0;
+}
+
+.btn-primary,
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 32px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 30px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.btn-primary {
+    background: #1a1a1a;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: #333;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+}
+
+.btn-secondary {
+    background: #fff;
+    color: #1a1a1a;
+    border-color: #1a1a1a;
+}
+
+.btn-secondary:hover {
+    background: #1a1a1a;
+    color: #fff;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+/* Confetti Animation */
+.confetti-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #4caf50;
+    top: -10px;
+    opacity: 0;
+    animation: confettiFall 3s ease-out forwards;
+}
+
+.confetti:nth-child(2n) { background: #2196f3; }
+.confetti:nth-child(3n) { background: #ff9800; }
+.confetti:nth-child(4n) { background: #e91e63; }
+.confetti:nth-child(5n) { background: #9c27b0; }
+
+/* Order Details Card */
+.order-details-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 35px;
+    margin-top: 30px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    animation: fadeInUp 0.6s ease 1s forwards;
+    opacity: 0;
+}
+
+.details-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 30px 0;
+}
+
+.next-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.step {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    background: #f8f8f8;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.step:hover {
+    background: #f0f0f0;
+    transform: translateX(4px);
+}
+
+.step-icon {
+    width: 50px;
+    height: 50px;
+    background: #fff;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #1a1a1a;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.step-content {
+    flex: 1;
+    text-align: left;
+}
+
+.step-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 6px 0;
+}
+
+.step-text {
+    font-size: 14px;
+    color: #666;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Animations */
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+    70% {
+        transform: scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes stroke {
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes confettiFall {
+    0% {
+        opacity: 1;
+        transform: translateY(0) rotate(0deg);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(600px) rotate(720deg);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .success-card {
+        padding: 40px 25px;
+    }
+
+    .success-title {
+        font-size: 24px;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .order-details-card {
+        padding: 25px 20px;
+    }
+
+    .step {
+        flex-direction: column;
+        text-align: center;
+        align-items: center;
+    }
+
+    .step-content {
+        text-align: center;
+    }
+}
+</style>
+
+<script>
+// Add sparkle effect on load
+document.addEventListener('DOMContentLoaded', function() {
+    // Play success sound (optional)
+    // const audio = new Audio('/static/sounds/success.mp3');
+    // audio.play().catch(() => {});
+    
+    // Add pulse effect to checkmark
+    setTimeout(() => {
+        const checkmark = document.querySelector('.checkmark');
+        if (checkmark) {
+            checkmark.style.animation = 'pulse 2s ease-in-out infinite';
+        }
+    }, 1500);
+});
+
+// Pulse animation for checkmark
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+`;
+document.head.appendChild(style);
+</script>
+
+{% endblock %}

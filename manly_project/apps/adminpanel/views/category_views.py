@@ -2,8 +2,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from django.contrib import messages
 from apps.categories.models import Category
+from django.contrib.auth.decorators import login_required
 
 
+
+@login_required(login_url='admin_login')
 def admin_category_list(request):
     search_query = request.GET.get("search", "").strip()
 
@@ -24,7 +27,7 @@ def admin_category_list(request):
     })
 
 
-
+@login_required(login_url='admin_login')
 def admin_add_category(request):
     if request.method == "POST":
         name = request.POST.get("name", "").strip()
@@ -42,7 +45,7 @@ def admin_add_category(request):
     return render(request, "adminpanel/categories/category_form.html")
 
 
-
+@login_required(login_url='admin_login')
 def admin_edit_category(request, category_id):
     category = get_object_or_404(Category, id=category_id)
 
@@ -63,7 +66,7 @@ def admin_edit_category(request, category_id):
     return render(request, "adminpanel/categories/category_form.html", {
         "category": category
     })
-
+@login_required(login_url='admin_login')
 def admin_toggle_category_status(request, category_id):
     category = get_object_or_404(Category, id=category_id)
     category.is_active = not category.is_active

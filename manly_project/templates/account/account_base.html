@@ -14,7 +14,7 @@
                         <span>Personal Information</span>
                 </a>
 
-                <a href="#"class="sidebar-link {% if request.resolver_match.url_name == 'account_address' %}active{% endif %}">
+                <a href="{% url 'account_addresses'%}"class="sidebar-link {% if request.resolver_match.url_name == 'account_address' %}active{% endif %}">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                         <circle cx="12" cy="10" r="3"></circle>
@@ -22,7 +22,7 @@
                     <span>Address</span>
                 </a>
 
-                <a href="#" class="sidebar-link {% if request.resolver_match.url_name == 'account_orders' %}active{% endif %}">
+                <a href="{% url 'user_orders' %}" class="sidebar-link {% if request.resolver_match.url_name == 'account_orders' %}active{% endif %}">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
                         <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -47,7 +47,7 @@
                     <span>Coupon</span>
                 </a>
 
-                <a href="#" class="sidebar-link {% if request.resolver_match.url_name == 'account_password' %}active{% endif %}">
+                <a href="{% url 'change_password'%}" class="sidebar-link {% if request.resolver_match.url_name == 'account_password' %}active{% endif %}">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                         <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
@@ -68,6 +68,26 @@
             {% block account_content %}{% endblock %}
         </section>
     </div>
+
+    <!-- CONFIRMATION MODAL - Complete Code -->
+
+<!-- Modal HTML -->
+<div id="confirmModal" class="confirm-modal hidden">
+  <div class="confirm-box">
+    <h3 id="confirmTitle">Confirm Action</h3>
+    <p id="confirmMessage">Are you sure you want to continue?</p>
+    <div class="confirm-actions">
+      <button type="button" id="confirmCancel" class="btn btn-outline">
+        Cancel
+      </button>
+      <a href="#" id="confirmOk" class="btn btn-danger">
+        Yes, Delete
+      </a>
+    </div>
+  </div>
+</div>
+
+
 </div>
 
 <style>
@@ -254,5 +274,239 @@
         padding-left: 25px;
     }
 }
+
+
+
+
+
+/* ============================================
+   CONFIRMATION MODAL - MODERN MINIMAL WHITE UI
+   ============================================ */
+
+/* Modal Backdrop */
+.confirm-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0);
+  backdrop-filter: blur(0px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.confirm-modal:not(.hidden) {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  opacity: 1;
+  pointer-events: all;
+}
+
+.confirm-modal.hidden {
+  visibility: hidden;
+}
+
+/* Modal Box */
+.confirm-box {
+  background: white;
+  border-radius: 20px;
+  padding: 2.5rem;
+  max-width: 440px;
+  width: 100%;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(0, 0, 0, 0.05);
+  transform: scale(0.9) translateY(20px);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.confirm-modal:not(.hidden) .confirm-box {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+  animation: modalBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalBounce {
+  0% {
+    transform: scale(0.9) translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Subtle Top Accent Line */
+.confirm-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #dc2626, #ef4444);
+}
+
+/* Modal Title */
+.confirm-box h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 0.75rem 0;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+}
+
+/* Modal Message */
+.confirm-box p {
+  color: #6b7280;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0 0 2rem 0;
+}
+
+/* Action Buttons Container */
+.confirm-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.confirm-actions .btn {
+  padding: 0.75rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  min-width: 100px;
+  border-radius: 10px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+}
+
+/* Cancel Button */
+.confirm-actions .btn-outline {
+  background: #f9fafb;
+  color: #4b5563;
+  border: 1.5px solid #e5e7eb;
+}
+
+.confirm-actions .btn-outline:hover {
+  background: #f3f4f6;
+  color: #1f2937;
+  border-color: #d1d5db;
+  transform: translateY(-1px);
+}
+
+.confirm-actions .btn-outline:active {
+  transform: translateY(0);
+}
+
+/* Delete Button */
+.confirm-actions .btn-danger {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
+}
+
+.confirm-actions .btn-danger:hover {
+  background: linear-gradient(135deg, #b91c1c, #991b1b);
+  box-shadow: 0 6px 16px rgba(220, 38, 38, 0.3);
+  transform: translateY(-2px);
+}
+
+.confirm-actions .btn-danger:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .confirm-box {
+    padding: 2rem 1.5rem;
+    margin: 1rem;
+    border-radius: 16px;
+  }
+
+  .confirm-box h3 {
+    font-size: 1.25rem;
+  }
+
+  .confirm-box p {
+    font-size: 0.9rem;
+  }
+
+  .confirm-actions {
+    flex-direction: column-reverse;
+    gap: 0.5rem;
+  }
+
+  .confirm-actions .btn {
+    width: 100%;
+    min-width: auto;
+  }
+}
+
 </style>
+
+
+
+
+
+<!-- Modal JavaScript -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const modal = document.getElementById("confirmModal");
+  const messageBox = document.getElementById("confirmMessage");
+  const confirmBtn = document.getElementById("confirmOk");
+  const cancelBtn = document.getElementById("confirmCancel");
+  
+  if (!modal) return;
+  
+  // Handle all elements with data-confirm attribute
+  document.querySelectorAll("[data-confirm]").forEach(btn => {
+    btn.addEventListener("click", function (e) {
+      e.preventDefault();
+      messageBox.textContent = this.dataset.confirm;
+      confirmBtn.href = this.dataset.url;
+      modal.classList.remove("hidden");
+    });
+  });
+  
+  // Cancel button closes modal
+  cancelBtn.addEventListener("click", function () {
+    modal.classList.add("hidden");
+  });
+  
+  // Click outside modal to close
+  modal.addEventListener("click", function (e) {
+    if (e.target === modal) {
+      modal.classList.add("hidden");
+    }
+  });
+  
+  // Escape key closes modal
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && !modal.classList.contains("hidden")) {
+      modal.classList.add("hidden");
+    }
+  });
+});
+</script>
+
+
 {% endblock %}

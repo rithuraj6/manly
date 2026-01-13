@@ -27,7 +27,40 @@ from .views.banner_views import (
     admin_banner_list,
     admin_add_banner,
     admin_toggle_banner,
+    
 )
+
+from apps.adminpanel.views.return_views import (
+    admin_return_request_list,
+    admin_approve_return,
+    admin_reject_return,
+)
+
+
+from apps.adminpanel.views.order_views import (
+    admin_order_list,
+    admin_order_edit,
+    admin_order_update,
+    admin_order_update_success,
+)
+
+
+
+
+from apps.adminpanel.views.inventory_views import (
+    inventory_category_list,
+    inventory_product_list,
+)
+
+
+
+
+
+
+
+
+
+
 
 
 urlpatterns = [
@@ -54,12 +87,38 @@ urlpatterns = [
     path("variants/update/<int:variant_id>/", admin_update_variant, name="admin_update_variant"),
     path("products/toggle/<int:product_id>/", admin_toggle_product, name="admin_toggle_product"),
     path("products/<int:product_id>/images/upload/",admin_upload_product_image,name="admin_upload_product_image"),
+    
+    
+    
+    
+    path("orders/", admin_order_list, name="admin_order_list"),
+    path("orders/update-success/",admin_order_update_success,name="admin_order_update_success"),
+    path("orders/<str:order_id>/", admin_order_edit, name="admin_order_edit"),
+    path("orders/<str:order_id>/update/", admin_order_update, name="admin_order_update"),
+
+    
+    
+    
+    
+    
+    
 
     path("products/images/delete/<int:image_id>/",admin_delete_product_image,name="admin_delete_product_image"),
 
     path("banners/", admin_banner_list, name="admin_banner_list"),
+  
     path("banners/add/", admin_add_banner, name="admin_add_banner"),
     path("banners/toggle/<int:banner_id>/", admin_toggle_banner, name="admin_toggle_banner"),
-
+    path("returns/", admin_return_request_list, name="admin_return_request_list"),
+    path("returns/approve/<int:return_id>/", admin_approve_return, name="admin_approve_return"),
+    path("returns/reject/<int:return_id>/", admin_reject_return, name="admin_reject_return"),
     
+    
+    
+    
+    
+    path("inventory/", inventory_category_list, name="inventory_categories"),
+    path("inventory/<int:category_id>/",inventory_product_list,name="inventory_products"),
+
+
 ]

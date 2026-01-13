@@ -4,6 +4,7 @@ from django.core.paginator import Paginator
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 
+
 User = get_user_model()
 
 @login_required(login_url='admin_login')
