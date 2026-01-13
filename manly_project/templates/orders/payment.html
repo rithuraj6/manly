@@ -30,31 +30,44 @@
                     </div>
                 </div>
 
-                <!-- Payment Method Section -->
-                <div class="payment-method-card">
-                    <div class="section-header">
-                        <h3 class="section-title">Payment Method</h3>
-                    </div>
-
-                    <label class="payment-option">
-                        <div class="payment-option-content">
-                            <div class="radio-wrapper">
-                                <input type="radio" checked disabled class="payment-radio">
-                                <div class="radio-indicator checked"></div>
-                            </div>
-                            <div class="payment-info">
-                                <span class="payment-name">Cash on Delivery</span>
-                                <span class="payment-desc">Pay when you receive your order</span>
-                            </div>
-                            <div class="payment-icon">
-                                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <line x1="12" y1="1" x2="12" y2="23"></line>
-                                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                                </svg>
-                            </div>
-                        </div>
-                    </label>
+                    <!-- Payment Method Section -->
+            <div class="payment-method-card">
+                <div class="section-header">
+                    <h3 class="section-title">Payment Method</h3>
                 </div>
+
+                <!-- COD -->
+                <label class="payment-option">
+                    <div class="payment-option-content">
+                        <input type="radio" name="payment_method" value="cod" checked>
+                        <div class="payment-info">
+                            <span class="payment-name">Cash on Delivery</span>
+                            <span class="payment-desc">Pay when you receive your order</span>
+                        </div>
+                    </div>
+                </label>
+
+                <!-- Razorpay -->
+                <label class="payment-option">
+                    <div class="payment-option-content">
+                        <input type="radio" name="payment_method" value="razorpay">
+                        <div class="payment-info">
+                            <span class="payment-name">Online Payment</span>
+                            <span class="payment-desc">Pay securely using Razorpay</span>
+                        </div>
+                    </div>
+                </label>
+
+                <!-- Wallet (disabled for now) -->
+                <label class="payment-option disabled">
+                    <div class="payment-option-content">
+                        <input type="radio" disabled>
+                        <div class="payment-info">
+                            <span class="payment-name">Wallet</span>
+                            <span class="payment-desc">Coming soon</span>
+                        </div>
+                    </div>
+                </label>
             </div>
 
             <!-- Order Summary Sidebar -->
@@ -95,11 +108,8 @@
                     </div>
 
 
-                    <button type="submit" class="confirm-order-btn">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                        <span>Confirm Order</span>
+                    <button type="button" id="confirm-payment-btn" class="confirm-order-btn">
+                        Confirm Order
                     </button>
                 </div>
             </div>
@@ -495,5 +505,70 @@
     }
 }
 </style>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+document.getElementById("confirm-payment-btn").addEventListener("click", function () {
+
+    const selectedMethod = document.querySelector(
+        'input[name="payment_method"]:checked'
+    ).value;
+
+    // COD FLOW
+    if (selectedMethod === "cod") {
+        document.querySelector(".confirm-form").submit();
+        return;
+    }
+
+    // RAZORPAY FLOW
+    if (selectedMethod === "razorpay") {
+        fetch("{% url 'create_razorpay_order' %}", {
+            method: "GET",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest"
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+
+            const options = {
+                key: data.razorpay_key,
+                amount: data.amount * 100,
+                currency: "INR",
+                order_id: data.razorpay_order_id,
+                name: "MANLY",
+                description: "Order Payment",
+
+                handler: function (response) {
+                    // Send data to backend for verification
+                    const form = document.createElement("form");
+                    form.method = "POST";
+                    form.action = "{% url 'verify_razorpay_payment' %}";
+
+                    const csrf = document.createElement("input");
+                    csrf.type = "hidden";
+                    csrf.name = "csrfmiddlewaretoken";
+                    csrf.value = "{{ csrf_token }}";
+
+                    for (let key in response) {
+                        const input = document.createElement("input");
+                        input.type = "hidden";
+                        input.name = key;
+                        input.value = response[key];
+                        form.appendChild(input);
+                    }
+
+                    form.appendChild(csrf);
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            };
+
+            const rzp = new Razorpay(options);
+            rzp.open();
+        });
+    }
+});
+</script>
 
 {% endblock %}

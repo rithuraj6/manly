@@ -1,0 +1,22 @@
+<div class="order-failure-container">
+    <h2>❌ Payment Failed</h2>
+
+    <p>
+        Unfortunately, your payment could not be completed.
+        Please try again.
+    </p>
+
+    <div class="failure-actions">
+        <a href="{% url 'retry_payment' payment.id %}"
+           class="btn btn-primary">
+            Retry Payment
+        </a>
+
+        {% if payment.order %}
+        <a href="{% url 'order_detail' payment.order.order_id %}"
+           class="btn btn-outline">
+            View Order
+        </a>
+        {% endif %}
+    </div>
+</div>
