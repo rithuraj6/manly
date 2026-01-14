@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="wallet-page">
+
+    <h2 class="page-title">My Wallet</h2>
+
+    <!-- WALLET BALANCE CARD -->
+    <div class="wallet-balance-card">
+        <p class="balance-label">Wallet Balance</p>
+        <h1 class="balance-amount">₹ {{ wallet.balance }}</h1>
+
+        <button id="addMoneyBtn" class="add-money-btn">
+            Add Money
+        </button>
+    </div>
+
+    <!-- TRANSACTION LIST -->
+    <div class="wallet-transactions">
+        <h3 class="section-title">Transaction History</h3>
+
+        {% if transactions %}
+            <ul class="txn-list">
+                {% for txn in transactions %}
+                    <li class="txn-item {{ txn.txn_type }}">
+                        <div>
+                            <strong>
+                                {% if txn.txn_type == "credit" %}
+                                    + ₹{{ txn.amount }}
+                                {% else %}
+                                    - ₹{{ txn.amount }}
+                                {% endif %}
+                            </strong>
+                            <p class="txn-reason">{{ txn.reason }}</p>
+
+                            {% if txn.order %}
+                                <small class="txn-meta">
+                                    Order: {{ txn.order.order_id }}
+                                </small>
+                            {% endif %}
+                        </div>
+
+                        <span class="txn-date">
+                            {{ txn.created_at|date:"d M Y" }}
+                        </span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="empty-text">No wallet transactions yet.</p>
+        {% endif %}
+    </div>
+
+</div>
+
+<style>
+.wallet-page {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.page-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 30px;
+}
+
+.wallet-balance-card {
+    background: #111;
+    color: #fff;
+    border-radius: 16px;
+    padding: 30px;
+    margin-bottom: 40px;
+}
+
+.balance-label {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+.balance-amount {
+    font-size: 36px;
+    margin: 10px 0 20px;
+}
+
+.add-money-btn {
+    background: #fff;
+    color: #111;
+    padding: 12px 28px;
+    border-radius: 30px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.wallet-transactions {
+    background: #fff;
+    border-radius: 16px;
+    padding: 30px;
+}
+
+.section-title {
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+.txn-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.txn-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 16px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.txn-item.credit strong {
+    color: #2e7d32;
+}
+
+.txn-item.debit strong {
+    color: #c62828;
+}
+
+.txn-reason {
+    margin: 4px 0;
+    font-size: 14px;
+    color: #555;
+}
+
+.txn-date {
+    font-size: 13px;
+    color: #999;
+}
+
+.empty-text {
+    color: #777;
+    font-size: 14px;
+}
+</style>
+
+{% endblock %}

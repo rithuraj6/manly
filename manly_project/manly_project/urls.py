@@ -39,6 +39,9 @@ urlpatterns = [
     path("wishlist/", include("apps.wishlist.urls")),
     path("orders/", include("apps.orders.urls")),
     path("reviews/", include("apps.reviews.urls")),
+    
+    path("wallet/", include("apps.wallet.urls")),
+
 
 
 
