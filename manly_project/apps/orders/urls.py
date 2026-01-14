@@ -7,6 +7,7 @@ from .views.payment_views import (
     retry_payment,
     create_razorpay_order,
     verify_razorpay_payment,
+    wallet_payment,
 )
 from .views.order_views import place_order
 from .views.success_views import order_success
@@ -15,7 +16,6 @@ from .views.return_views import request_return, view_return_reason
 from .views.invoice_views import print_invoice, order_invoice
 from .views.order_list_views import user_orders
 from .views.order_detail_views import order_detail
-
 
 
 urlpatterns = [
@@ -41,7 +41,7 @@ urlpatterns = [
     path("razorpay/create/", create_razorpay_order, name="create_razorpay_order"),
     path("razorpay/verify/", verify_razorpay_payment, name="verify_razorpay_payment"),
 
-    
+    path("payment/wallet/", wallet_payment, name="wallet_payment")
     
     
     

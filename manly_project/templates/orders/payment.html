@@ -31,46 +31,67 @@
                                     <span class="payment-name">Online Payment</span>
                                     <span class="payment-desc">Cards, UPI, Wallets</span>
                                 </div>
-                                <div class="payment-badge">Recommended</div>
+                                
                             </div>
                         </label>
 
                         <!-- COD -->
-                        <label class="payment-option">
-                            <input type="radio" name="payment_method" value="cod">
+                        <label class="payment-option {% if not cod_allowed %}disabled{% endif %}">
+                            <input
+                                type="radio"
+                                name="payment_method"
+                                value="cod"
+                                {% if not cod_allowed %}disabled{% endif %}
+                            >
                             <div class="payment-option-content">
                                 <div class="payment-icon">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <line x1="12" y1="1" x2="12" y2="23"></line>
-                                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                                    </svg>
+                                    <!-- icon -->
+                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"> <line x1="12" y1="1" x2="12" y2="23"></line> <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path> </svg>
                                 </div>
                                 <div class="payment-info">
                                     <span class="payment-name">Cash on Delivery</span>
-                                    <span class="payment-desc">Pay when received</span>
+                                    <span class="payment-desc">
+                                        {% if not cod_allowed %}
+                                            Not available for orders above ₹5000
+                                        {% else %}
+                                            Pay when received
+                                        {% endif %}
+                                    </span>
                                 </div>
                             </div>
                         </label>
 
                         <!-- Wallet (disabled) -->
-                        <label class="payment-option disabled">
-                            <input type="radio" disabled>
+                      <label class="payment-option {% if wallet_balance < total %}disabled{% endif %}">
+                            <input
+                                type="radio"
+                                name="payment_method"
+                                value="wallet"
+                                {% if wallet_balance < total %}disabled{% endif %}
+                            >
                             <div class="payment-option-content">
                                 <div class="payment-icon">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path>
-                                        <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path>
-                                        <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path>
-                                    </svg>
+                                    <!-- icon -->
+                                
+                                                            <!-- icon --><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"> <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path> <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path> <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path> </svg>
+                                                
                                 </div>
                                 <div class="payment-info">
                                     <span class="payment-name">Wallet</span>
-                                    <span class="payment-desc">Coming soon</span>
+                                    <span class="payment-desc">
+                                        {% if wallet_balance < total %}
+                                            Insufficient balance (₹{{ wallet_balance }})
+                                        {% else %}
+                                            Wallet balance: ₹{{ wallet_balance }}
+                                        {% endif %}
+                                    </span>
                                 </div>
                             </div>
                         </label>
+
                     </div>
                 </div>
+                 
 
                 <!-- Delivery Address Section -->
                 <div class="delivery-address-card">
@@ -535,15 +556,30 @@ document.getElementById("confirm-payment-btn").addEventListener("click", functio
         return;
     }
 
+    // WALLET FLOW
+    if (selectedMethod === "wallet") {
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = "{% url 'wallet_payment' %}";
+
+        const csrf = document.createElement("input");
+        csrf.type = "hidden";
+        csrf.name = "csrfmiddlewaretoken";
+        csrf.value = "{{ csrf_token }}";
+
+        form.appendChild(csrf);
+        document.body.appendChild(form);
+        form.submit();
+        return;
+    }
+
     // RAZORPAY FLOW
     if (selectedMethod === "razorpay") {
         fetch("{% url 'create_razorpay_order' %}", {
             method: "GET",
-            headers: {
-                "X-Requested-With": "XMLHttpRequest"
-            }
+            headers: { "X-Requested-With": "XMLHttpRequest" }
         })
-        .then(response => response.json())
+        .then(res => res.json())
         .then(data => {
             const options = {
                 key: data.razorpay_key,
@@ -577,8 +613,7 @@ document.getElementById("confirm-payment-btn").addEventListener("click", functio
                 }
             };
 
-            const rzp = new Razorpay(options);
-            rzp.open();
+            new Razorpay(options).open();
         });
     }
 });

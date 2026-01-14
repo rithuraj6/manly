@@ -9,43 +9,98 @@ from decimal import Decimal
 from apps.orders.models import Payment
 from apps.orders.services.order_creation import create_order
 from apps.orders.utils.pricing import calculate_grand_total
-
+from apps.wallet.services.wallet_services import pay_order_using_wallet
 from apps.accounts.models import UserAddress
+from django.contrib import messages
+
+# @login_required
+# def payment_page(request):
+#     cart = getattr(request.user, "cart", None)
+#     if not cart or not cart.items.exists():
+#         return redirect("cart_page")
+
+    
+#     if request.method == "POST":
+#         address_id = request.POST.get("address_id")
+#         if not address_id:
+#             messages.error(request, "Please select an address")
+#             return redirect("checkout_page")
+
+#         request.session["checkout_address_id"] = address_id
+
+#     address_id = request.session.get("checkout_address_id")
+#     if not address_id:
+#         return redirect("checkout_page")
+
+#     address = UserAddress.objects.get(id=address_id, user=request.user)
+
+#     subtotal = Decimal("0.00")
+#     for item in cart.items.select_related("product"):
+#         subtotal += item.product.base_price * item.quantity
+
+#     shipping = Decimal("0.00") if subtotal >= 3000 else Decimal("150.00")
+#     tax = ((subtotal + shipping) * Decimal("0.18")).quantize(Decimal("0.01"))
+#     total = subtotal + shipping + tax
+
+#     return render(request, "orders/payment.html", { "address": address,"subtotal": subtotal,"shipping": shipping,"tax": tax,"total": total,})
+
+
 
 
 @login_required
 def payment_page(request):
-    cart = getattr(request.user, "cart", None)
+    cart = getattr(request.user,'cart',None)
     if not cart or not cart.items.exists():
-        return redirect("cart_page")
-
+        return redirect('cart_page')
     
-    if request.method == "POST":
-        address_id = request.POST.get("address_id")
+    
+    if request.method == 'POST'and 'address_id' in request.POST:
+        address_id = request.POST.get('address_id')
+        
         if not address_id:
-            messages.error(request, "Please select an address")
-            return redirect("checkout_page")
-
-        request.session["checkout_address_id"] = address_id
-
-    address_id = request.session.get("checkout_address_id")
+            messages.error(request,'Please select an address')
+            return redirect ('checkout_page')
+        
+        
+        request.session['checkout_address_id']=address_id
+        return redirect('payment_page')
+    
+    
+    
+    address_id = request.session.get('checkout_address_id')
     if not address_id:
-        return redirect("checkout_page")
-
-    address = UserAddress.objects.get(id=address_id, user=request.user)
-
-    subtotal = Decimal("0.00")
-    for item in cart.items.select_related("product"):
+        return redirect('checkout_page')
+    
+    address = UserAddress.objects.get(id=address_id,user=request.user)
+    
+    subtotal = Decimal('0.00')
+    for item in cart.items.select_related('product'):
         subtotal += item.product.base_price * item.quantity
-
-    shipping = Decimal("0.00") if subtotal >= 3000 else Decimal("150.00")
-    tax = ((subtotal + shipping) * Decimal("0.18")).quantize(Decimal("0.01"))
+        
+        
+    shipping = Decimal('0.00')if subtotal>=3000 else Decimal('150.00')
+    tax = ((subtotal+shipping)*Decimal('0.18')).quantize(Decimal('0.01'))
     total = subtotal + shipping + tax
+    wallet = getattr(request.user, "wallet", None)
+    wallet_balance = wallet.balance if wallet else Decimal("0.00")
 
-    return render(request, "orders/payment.html", { "address": address,"subtotal": subtotal,"shipping": shipping,"tax": tax,"total": total,})
+    cod_allowed = total <= Decimal("5000.00")
 
-
-
+    return render(
+        request,
+        "orders/payment.html",
+        {
+            "address": address,
+            "subtotal": subtotal,
+            "shipping": shipping,
+            "tax": tax,
+            "total": total,
+            "wallet_balance": wallet_balance,
+            "cod_allowed": cod_allowed,
+        }
+    )
+        
+    
 @login_required
 def create_razorpay_order(request):
     user = request.user
@@ -174,3 +229,49 @@ def retry_payment(request,payment_id):
         'payment':payment,
         'razorpay_key': settings.RAZORPAY_KEY_ID
     })
+    
+    
+    
+
+    
+    
+@login_required
+def wallet_payment(request):
+    user = request.user
+    cart = getattr(user, "cart", None)
+
+    if not cart or not cart.items.exists():
+        return redirect("cart_page")
+
+    address_id = request.session.get("checkout_address_id")
+    if not address_id:
+        return redirect("checkout_page")
+
+    address = UserAddress.objects.get(id=address_id, user=user)
+
+    order = create_order(
+        user=user,
+        cart=cart,
+        address_snapshot={
+            "full_name": address.full_name,
+            "phone": address.phone,
+            "house_name": address.house_name,
+            "street": address.street,
+            "land_mark": address.land_mark,
+            "city": address.city,
+            "state": address.state,
+            "country": address.country,
+            "pincode": address.pincode,
+        },
+        payment_method="wallet",
+        is_paid=False 
+    )
+
+    try:
+        pay_order_using_wallet(user=user, order=order)
+    except ValueError as e:
+        order.delete()  
+        messages.error(request, str(e))
+        return redirect("payment_page")
+
+    return redirect("order_success", order_id=order.order_id)
