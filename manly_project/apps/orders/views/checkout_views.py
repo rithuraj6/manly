@@ -69,6 +69,11 @@ def checkout_page(request):
     addresses = UserAddress.objects.filter(
         user=request.user
     ).order_by("-is_default", "-id")
+    breadcrumbs = [
+    {"label": "Home", "url": "/"},
+    {"label": "Cart", "url":"cart/"},
+    {"label": "Checkoutpage", "url":None},
+] 
 
     context = {
         "cart_items": cart_items,
@@ -76,7 +81,7 @@ def checkout_page(request):
         "subtotal": subtotal,
         "delivery_fee":delivery_fee,
        "delivery_fee": delivery_fee,
-
+       "breadcrumbs":breadcrumbs,
         "tax": tax,
         "total_amount": total_amount,
         "has_invalid_items": has_invalid_items,

@@ -107,11 +107,125 @@
                 <p class="empty-subtext">Your transaction history will appear here</p>
             </div>
         {% endif %}
+        {% if page_obj.has_other_pages %}
+            <div class="wallet-pagination">
+
+                <!-- PREVIOUS -->
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="page-btn">
+                        ← Prev
+                    </a>
+                {% endif %}
+
+                <!-- PAGE NUMBERS -->
+                <div class="page-numbers">
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if num == page_obj.number %}
+                            <span class="page-number active">{{ num }}</span>
+                        {% elif num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
+                            <a href="?page={{ num }}" class="page-number">
+                                {{ num }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <!-- NEXT -->
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="page-btn">
+                        Next →
+                    </a>
+                {% endif %}
+
+            </div>
+        {% endif %}
+
+
     </div>
 </div>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+
+.page-numbers {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.page-number {
+    min-width: 36px;
+    height: 36px;
+    padding: 0 12px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    color: #667eea;
+    background: #ffffff;
+    border: 2px solid #e5e7eb;
+    transition: all 0.3s ease;
+}
+
+.page-number:hover {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(102, 126, 234, 0.35);
+}
+
+.page-number.active {
+    background: linear-gradient(135deg, #4664e7ff 0%, #5e10acff 100%);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 8px 22px rgba(92, 118, 233, 0.6);
+    cursor: default;
+}
+
+/* PAGINATION */
+.wallet-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    margin-top: 30px;
+}
+
+.page-btn {
+    padding: 10px 22px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    color: #fff;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.35);
+    transition: all 0.3s ease;
+}
+
+.page-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.45);
+}
+
+.page-btn:active {
+    transform: translateY(0);
+}
+
+.page-indicator {
+    font-size: 14px;
+    font-weight: 600;
+    color: #555;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 8px 18px;
+    border-radius: 20px;
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(0,0,0,0.05);
+}
 
 * {
     box-sizing: border-box;

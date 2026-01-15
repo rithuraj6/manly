@@ -6,11 +6,11 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-
+from django.core.paginator import Paginator
 from apps.wallet.models import WalletTransaction, Wallet
 from apps.orders.models import Payment
 
-
+from django.urls import reverse
 client = razorpay.Client(
     auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
 )
@@ -20,21 +20,33 @@ client = razorpay.Client(
 def wallet_page(request):
     wallet, _ = Wallet.objects.get_or_create(user=request.user)
 
-    transactions = (
+    transactions_qs = (
         WalletTransaction.objects
         .filter(wallet=wallet)
         .select_related("order")
         .order_by("-created_at")
     )
+    paginator = Paginator(transactions_qs, 8)  
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
 
-    return render(
-        request,
-        "wallet/wallet.html",
-        {
-            "wallet": wallet,
-            "transactions": transactions,
-        }
-    )
+    
+    breadcrumbs = [
+    {"label": "Home", "url": "/"},
+     {"label": "Account", "url": reverse("account_profile")},
+     {"label": "Wallet",  "url": None},
+    
+    
+    ]
+    
+    context={
+        "breadcrumbs":breadcrumbs,
+        "wallet": wallet,
+             "transactions": page_obj,
+             "page_obj": page_obj,
+        
+    }
+    return render(   request,"wallet/wallet.html",context)
 
 
 @require_POST

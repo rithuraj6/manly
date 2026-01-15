@@ -29,7 +29,8 @@ def shop_page(request):
     ).order_by("-created_at")
 
     new_launches = Product.objects.filter(
-        is_active=True
+    is_active=True,
+    is_featured=False
     ).prefetch_related("images").order_by("-created_at")[:12]
 
     breadcrumbs = [

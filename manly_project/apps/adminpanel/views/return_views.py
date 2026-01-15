@@ -10,16 +10,26 @@ from decimal import Decimal
 from apps.wallet.models import Wallet,WalletTransaction
 from apps.orders.models import Payment
 from apps.wallet.services.wallet_services import refund_to_wallet
+from django.core.paginator import Paginator
+
+
 
 @login_required(login_url="admin_login")
 def admin_return_request_list(request):
-    returns = ReturnRequest.objects.select_related(
+    
+    
+    
+    
+    returns_qs= ReturnRequest.objects.select_related(
         "order_item",
         "order_item__order",
         "user"
     ).order_by("-created_at")
+    paginator = Paginator(returns_qs, 11)  
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
 
-    return render(request,"adminpanel/returns/return_list.html",{"returns": returns})
+    return render(request,"adminpanel/returns/return_list.html",{"returns": page_obj,"page_obj":page_obj})
 
 
 

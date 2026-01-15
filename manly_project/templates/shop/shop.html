@@ -748,37 +748,37 @@ body {
 </section>
 
 <!-- FEATURED PRODUCTS -->
-<section class="featured-section">
+  <section class="featured-section">
     <div class="section-header">
         <h2 class="section-title">Featured Products</h2>
-        <p class="section-subtitle">Handpicked selections just for you</p>
+        <p class="section-subtitle">Handpicked selections crafted for the modern gentleman</p>
     </div>
 
     <div class="featured-products-wrapper">
+
+        <!-- CONTROLS (same style as new launch) -->
         <div class="featured-carousel-controls">
-            <button class="carousel-btn" onclick="scrollFeatured(-1)">
-                ‹
-            </button>
-            <button class="carousel-btn" onclick="scrollFeatured(1)">
-                ›
-            </button>
+            <button class="carousel-btn" onclick="scrollFeatured(-1)">‹</button>
+            <button class="carousel-btn" onclick="scrollFeatured(1)">›</button>
         </div>
-        
+
+        <!-- CAROUSEL -->
         <div class="product-carousel" id="featuredCarousel">
             {% for product in featured_products %}
-            <a href="{% url 'product_detail' product.id %}" class="product-card">
-                <div class="image-wrapper">
-                    {% if product.images.first %}
-                        <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
-                    {% else %}
-                        <img src="{% static 'images/placeholder.jpg' %}" alt="{{ product.name }}">
-                    {% endif %}
-                </div>
-                <h3>{{ product.name }}</h3>
-                <p class="price">₹{{ product.base_price }}</p>
-            </a>
+                <a href="{% url 'product_detail' product.id %}" class="product-card">
+                    <div class="image-wrapper">
+                        {% if product.images.first %}
+                            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
+                        {% else %}
+                            <img src="{% static 'images/placeholder.jpg' %}">
+                        {% endif %}
+                    </div>
+                    <h3 class="product-name">{{ product.name }}</h3>
+                    <p class="price">₹{{ product.base_price }}</p>
+                </a>
             {% endfor %}
         </div>
+
     </div>
 </section>
 

@@ -12,39 +12,7 @@ from apps.orders.utils.pricing import calculate_grand_total
 from apps.wallet.services.wallet_services import pay_order_using_wallet
 from apps.accounts.models import UserAddress
 from django.contrib import messages
-
-# @login_required
-# def payment_page(request):
-#     cart = getattr(request.user, "cart", None)
-#     if not cart or not cart.items.exists():
-#         return redirect("cart_page")
-
-    
-#     if request.method == "POST":
-#         address_id = request.POST.get("address_id")
-#         if not address_id:
-#             messages.error(request, "Please select an address")
-#             return redirect("checkout_page")
-
-#         request.session["checkout_address_id"] = address_id
-
-#     address_id = request.session.get("checkout_address_id")
-#     if not address_id:
-#         return redirect("checkout_page")
-
-#     address = UserAddress.objects.get(id=address_id, user=request.user)
-
-#     subtotal = Decimal("0.00")
-#     for item in cart.items.select_related("product"):
-#         subtotal += item.product.base_price * item.quantity
-
-#     shipping = Decimal("0.00") if subtotal >= 3000 else Decimal("150.00")
-#     tax = ((subtotal + shipping) * Decimal("0.18")).quantize(Decimal("0.01"))
-#     total = subtotal + shipping + tax
-
-#     return render(request, "orders/payment.html", { "address": address,"subtotal": subtotal,"shipping": shipping,"tax": tax,"total": total,})
-
-
+from django.urls import reverse
 
 
 @login_required
@@ -85,20 +53,26 @@ def payment_page(request):
     wallet_balance = wallet.balance if wallet else Decimal("0.00")
 
     cod_allowed = total <= Decimal("5000.00")
-
-    return render(
-        request,
-        "orders/payment.html",
-        {
-            "address": address,
+    breadcrumbs = [
+    {"label": "Home", "url": "/"},
+    {"label": "Cart",  "url": reverse("cart_page")},
+    {"label": "Checkoutpage", "url":"checkout/"},
+    {"label": "Paymentpage", "url":None},
+    ]
+    
+    context={
+        "breadcrumbs":breadcrumbs,
+        "address": address,
             "subtotal": subtotal,
             "shipping": shipping,
             "tax": tax,
             "total": total,
+
             "wallet_balance": wallet_balance,
             "cod_allowed": cod_allowed,
-        }
-    )
+    } 
+
+    return render(  request,"orders/payment.html",context)
         
     
 @login_required
