@@ -19,8 +19,9 @@ class Order(models.Model):
     ]
     
     PAYMENT_METHOD_CHOICES = [
-        ("cod", "Cash on Delivery"),
-       
+    ("cod", "Cash on Delivery"),
+    ("razorpay", "Razorpay"),
+    ("wallet", "Wallet"),
     ]
 
     user = models.ForeignKey(
@@ -229,7 +230,13 @@ class Payment(models.Model):
                             )
     
     payment_method = models.CharField(max_length=20,choices=PAYMENT_METHODS)
-    
+    order = models.OneToOneField(
+        "orders.Order",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="payment"
+    )
     razorpay_order_id = models.CharField(max_length=100,blank=True,null=True)
     
     razorpay_payment_id = models.CharField(max_length=100,blank=True,null=True)

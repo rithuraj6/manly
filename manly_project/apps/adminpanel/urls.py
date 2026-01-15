@@ -32,7 +32,6 @@ from .views.banner_views import (
 
 from apps.adminpanel.views.return_views import (
     admin_return_request_list,
-    admin_approve_return,
     admin_reject_return,
 )
 
@@ -52,9 +51,10 @@ from apps.adminpanel.views.inventory_views import (
     inventory_product_list,
 )
 
+from apps.adminpanel.views.wallet_views import admin_wallet_dashboard
 
 
-
+from apps.adminpanel.views.return_views import approve_return
 
 
 
@@ -97,7 +97,8 @@ urlpatterns = [
     path("orders/<str:order_id>/update/", admin_order_update, name="admin_order_update"),
 
     
-    
+    path("wallet/", admin_wallet_dashboard, name="admin_wallet"),
+
     
     
     
@@ -110,7 +111,7 @@ urlpatterns = [
     path("banners/add/", admin_add_banner, name="admin_add_banner"),
     path("banners/toggle/<int:banner_id>/", admin_toggle_banner, name="admin_toggle_banner"),
     path("returns/", admin_return_request_list, name="admin_return_request_list"),
-    path("returns/approve/<int:return_id>/", admin_approve_return, name="admin_approve_return"),
+    path("returns/approve/<int:return_id>/", approve_return, name="admin_approve_return"),
     path("returns/reject/<int:return_id>/", admin_reject_return, name="admin_reject_return"),
     
     

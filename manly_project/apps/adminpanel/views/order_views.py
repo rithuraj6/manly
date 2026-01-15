@@ -7,8 +7,9 @@ from django.db.models import Q
 from django.utils import timezone
 from django.contrib import messages
 from apps.orders.services.order_state import recalculate_order_status
-
-
+from apps.wallet.services.wallet_services import credit_admin_wallet
+from django.db.models import Sum
+from decimal import Decimal
 from apps.orders.models import Order, OrderItem, OrderStatusHistory
 from apps.orders.constants import ORDER_STATUS_FLOW
 
@@ -100,11 +101,6 @@ def admin_order_update(request, order_id):
     if request.method != "POST":
         return redirect("admin_order_list")
 
-
-    if order.status in ["delivered", "cancelled", "refunded", "partially_refunded"]:
-        messages.error(request, "This order is locked and cannot be updated.")
-        return redirect("admin_order_edit", order_id=order.order_id)
-
     new_status = request.POST.get("status")
     allowed_next_statuses = ORDER_STATUS_FLOW.get(order.status, [])
 
@@ -112,30 +108,47 @@ def admin_order_update(request, order_id):
         messages.error(request, "Invalid status transition.")
         return redirect("admin_order_edit", order_id=order.order_id)
 
-   
+    # ✅ CREDIT ADMIN WALLET ONLY FOR COD ON DELIVERY
+    if (
+        new_status == "delivered"
+        and order.payment_method == "cod"
+        and not order.is_paid
+    ):
+        total_amount = (
+            order.items.aggregate(
+                total=Sum("final_price_paid")
+            )["total"] or Decimal("0.00")
+        )
+
+        credit_admin_wallet(order=order, amount=total_amount)
+
+        order.is_paid = True
+        order.save(update_fields=["is_paid"])
+
     order.items.exclude(
         status__in=["cancelled", "returned"]
     ).update(status=new_status)
 
-    
-    from apps.orders.services.order_state import recalculate_order_status
     recalculate_order_status(order)
 
-    
     OrderStatusHistory.objects.create(
         order=order,
         status=new_status,
-        changed_by="admin"
+        changed_by="admin",
     )
 
-  
-    messages.success(
-        request,
-        f"Order status updated to {order.status.replace('_', ' ').title()}"
-    )
-
-   
+    messages.success(request, "Order status updated successfully")
     return redirect("admin_order_edit", order_id=order.order_id)
+
+
+
+
+
+
+
+
+
+
 
 
 @login_required(login_url="admin_login")

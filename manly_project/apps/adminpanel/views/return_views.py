@@ -11,7 +11,7 @@ from apps.wallet.models import Wallet,WalletTransaction
 from apps.orders.models import Payment
 from apps.wallet.services.wallet_services import refund_to_wallet
 from django.core.paginator import Paginator
-
+from apps.orders.models import ReturnRequest
 
 
 @login_required(login_url="admin_login")
@@ -35,38 +35,38 @@ def admin_return_request_list(request):
 
 
 @transaction.atomic
-@login_required(login_url="admin_login")
-def admin_approve_return(request, return_id):
-    return_request = get_object_or_404(ReturnRequest, id=return_id)
-    order_item = return_request.order_item
-    
-    if return_request.status != 'pending':
-        messages.error(request,'Return already processed')
-        
-        return redirect('admin_return_request_list')
-    
-    if order_item.status != OrderItem.STATUS_RETURNED:
-        restore_stock(order_item)
-        order_item.status = OrderItem.STATUS_RETURNED
-        order_item.save(update_fields=["status"])
+def approve_return(request, return_id):
+    return_request = get_object_or_404(
+        ReturnRequest,
+        id=return_id,
+        status="pending",
+    )
 
+    order_item = return_request.order_item
+
+   
+    return_request.status = "approved"
+    return_request.save(update_fields=["status"])
+
+ 
+    order_item.status = "returned"
+    order_item.save(update_fields=["status"])
+
+   
+    order_item.variant.stock += order_item.quantity
+    order_item.variant.save(update_fields=["stock"])
+
+    
     refund_to_wallet(
         user=order_item.order.user,
+        order_item=order_item,
         amount=order_item.final_price_paid,
-        reason=f"Refund for returned item {order_item.product.name}",
-        order=order_item.order,
+        reason=f"Return refund ({order_item.order.order_id})",
     )
-        
-        
-    
-    return_request.status = 'approved'
-    return_request.save(update_fields = ['status'])
-    
-    recalculate_order_status(order_item.order)
-    
-    messages.success(request,"Return approved successfully and stock restored")
-    
-    return redirect('admin_return_request_list')
+
+    messages.success(request, "Return approved and refund credited to user wallet.")
+    return redirect("admin_return_request_list")
+
 
 
 
@@ -80,31 +80,3 @@ def admin_reject_return(request, return_id):
     messages.error(request, "Return rejected")
     return redirect("admin_return_request_list")
 
-
-@transaction.atomic
-def refund_to_wallet(*, user, amount, reason, order=None, order_item=None):
-    """
-    Credits refund amount to user's wallet.
-    Uses atomic transaction to avoid partial updates.
-    """
-
-    wallet, _ = Wallet.objects.get_or_create(user=user)
-
-    
-    wallet.balance += Decimal(amount)
-    wallet.save(update_fields=["balance"])
-
-    WalletTransaction.objects.create(
-        wallet=wallet,
-        amount=Decimal(amount),
-        txn_type=WalletTransaction.CREDIT,
-        reason=reason,
-        order=order,
-    )
-
-    Payment.objects.create(
-        user=user,
-        payment_method="wallet",
-        amount=Decimal(amount),
-        status="success",
-    )

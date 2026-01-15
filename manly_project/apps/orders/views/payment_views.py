@@ -1,3 +1,4 @@
+
 import razorpay
 from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect, render
@@ -7,12 +8,18 @@ from razorpay.errors import SignatureVerificationError
 from apps.accounts.models import UserAddress
 from decimal import Decimal
 from apps.orders.models import Payment
+from apps.wallet.models import AdminWalletTransaction
+
 from apps.orders.services.order_creation import create_order
 from apps.orders.utils.pricing import calculate_grand_total
 from apps.wallet.services.wallet_services import pay_order_using_wallet
 from apps.accounts.models import UserAddress
 from django.contrib import messages
 from django.urls import reverse
+from apps.wallet.services.wallet_services import credit_admin_wallet
+from django.db.models import Sum
+from django.db import transaction, IntegrityError
+from django.views.decorators.csrf import csrf_exempt
 
 
 @login_required
@@ -120,13 +127,18 @@ def create_razorpay_order(request):
 
     
 
-@login_required
+@csrf_exempt
+@transaction.atomic
 def verify_razorpay_payment(request):
-    data = request.POST
+    if request.method != "POST":
+        return redirect("cart_page")
 
-    payment = get_object_or_404(
-        Payment,
-        razorpay_order_id=data.get("razorpay_order_id"),
+    razorpay_order_id = request.POST.get("razorpay_order_id")
+    razorpay_payment_id = request.POST.get("razorpay_payment_id")
+    razorpay_signature = request.POST.get("razorpay_signature")
+
+    payment = Payment.objects.select_for_update().get(
+        razorpay_order_id=razorpay_order_id,
         status="initiated"
     )
 
@@ -136,48 +148,52 @@ def verify_razorpay_payment(request):
 
     try:
         client.utility.verify_payment_signature({
-            "razorpay_order_id": data.get("razorpay_order_id"),
-            "razorpay_payment_id": data.get("razorpay_payment_id"),
-            "razorpay_signature": data.get("razorpay_signature"),
+            "razorpay_order_id": razorpay_order_id,
+            "razorpay_payment_id": razorpay_payment_id,
+            "razorpay_signature": razorpay_signature,
         })
     except SignatureVerificationError:
         payment.status = "failed"
-        payment.save()
+        payment.save(update_fields=["status"])
         return redirect("order_failure", payment_id=payment.id)
 
-    payment.razorpay_payment_id = data.get("razorpay_payment_id")
-    payment.razorpay_signature = data.get("razorpay_signature")
     payment.status = "success"
-    payment.save()
+    payment.razorpay_payment_id = razorpay_payment_id
+    payment.razorpay_signature = razorpay_signature
+    payment.save(update_fields=[
+        "status",
+        "razorpay_payment_id",
+        "razorpay_signature"
+    ])
 
-    order = create_order(
-        user=payment.user,
-        cart=payment.user.cart,
-        address_snapshot=payment.address_snapshot,
-        payment_method="razorpay",
-        is_paid=True
-    )
+    # ✅ CREATE ORDER (ONCE)
+    if payment.order:
+        order = payment.order
+    else:
+        order = create_order(
+            user=payment.user,
+            cart=payment.user.cart,
+            address_snapshot=payment.address_snapshot,
+            payment_method="razorpay",
+            is_paid=True,
+        )
     payment.order = order
-    payment.save()
+    payment.save(update_fields=["order"])
+
+    # ✅ CREDIT ADMIN WALLET (ONCE — DB ENFORCED)
+    total_amount = (
+        order.items.aggregate(
+            total=Sum("final_price_paid")
+        )["total"] or Decimal("0.00")
+    )
+
+    credit_admin_wallet(order=order, amount=total_amount)
 
     return redirect("order_success", order_id=order.order_id)
 
 
-@login_required
-def order_failure(request, payment_id):
-    payment = get_object_or_404(
-        Payment,
-        id=payment_id,
-        user=request.user,
-        status="failed"
-    )
 
-    return render(request, "orders/order_failure.html", {
-        "payment": payment
-    })
 
-    
-    
 @login_required
 def retry_payment(request,payment_id):
     payment = get_object_or_404(
@@ -208,6 +224,21 @@ def retry_payment(request,payment_id):
     
 
     
+
+@login_required
+def order_failure(request, payment_id):
+    payment = get_object_or_404(
+        Payment,
+        id=payment_id,
+        user=request.user,
+        status="failed"
+    )
+
+    return render(request, "orders/order_failure.html", {
+        "payment": payment
+    })
+
+   
     
 @login_required
 def wallet_payment(request):
