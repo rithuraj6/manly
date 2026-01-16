@@ -25,16 +25,16 @@ def cancel_order_item(request, item_id):
 
     refund_amount = order_item.final_price_paid
 
-    # 1️⃣ Mark item cancelled
+   
     order_item.status = OrderItem.STATUS_CANCELLED
     order_item.save(update_fields=["status"])
 
-    # 2️⃣ Restore stock
+   
     variant = order_item.variant
     variant.stock += order_item.quantity
     variant.save(update_fields=["stock"])
 
-    # 3️⃣ Refund to user wallet
+    
     refund_to_wallet(
         user=request.user,
         order_item=order_item,

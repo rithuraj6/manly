@@ -28,6 +28,13 @@
                                 {% if entry.is_invalid %}
                                     <div class="invalid-badge">Out of Stock</div>
                                 {% endif %}
+
+                                {% if entry.offer_percentage %}
+                                    <div class="offer-badge">
+                                        {{ entry.offer_percentage }}% OFF
+                                    </div>
+                                {% endif %}
+
                             </div>
 
                             <div class="item-details">
@@ -57,8 +64,22 @@
                                     
                                     <div class="item-price">
                                         <span class="price-label">Price:</span>
-                                        <span class="price-value">₹{{ entry.product.base_price }}</span>
+
+                                        {% if entry.base_price != entry.discounted_price %}
+                                            <span class="price-value">
+                                                <del style="color:#999;font-weight:500;">
+                                                    ₹{{ entry.base_price }}
+                                                </del>
+                                                <span style="margin-left:8px;color:#1a1a1a;">
+                                                    ₹{{ entry.discounted_price }}
+                                                </span>
+                                            </span>
+                                        {% else %}
+                                            <span class="price-value">₹{{ entry.base_price }}</span>
+                                        {% endif %}
                                     </div>
+
+
                                 </div>
 
                                 <div class="item-actions">
@@ -100,15 +121,18 @@
                         <div class="summary-details">
                             <div class="summary-row">
                                 <span class="summary-label">Subtotal</span>
-                                <span class="summary-value">₹{{ subtotal }}</span>
+                                <span class="summary-value" id="cart-subtotal">
+                                    ₹{{ subtotal }}
+                                </span>
                             </div>
-                          
-                            <div class="summary-divider"></div>
+
                             <div class="summary-row total-row">
                                 <span class="summary-label">Total</span>
-                                <span class="summary-value total-value">₹{{ subtotal }}</span>
+                                <span class="summary-value total-value" id="cart-total">
+                                    ₹{{ subtotal }}
+                                </span>
                             </div>
-                        </div>
+                            </div>
 
                         {% if has_invalid_items %}
                             <p class="error-text">
@@ -160,6 +184,19 @@
 </div>
 
 <style>
+    .offer-badge {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2e7d32;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+}
+
 /* Cart Page Wrapper */
 .cart-page-wrapper {
     min-height: calc(100vh - 200px);
@@ -714,7 +751,7 @@ function getCSRF() {
 
 
 /* ================= SUBTOTAL ================= */
-function recalculateSubtotal() {
+{% comment %} function recalculateSubtotal() {                   
     let subtotal = 0;
 
     document.querySelectorAll(".item-total .total-value").forEach(el => {
@@ -735,7 +772,7 @@ function recalculateSubtotal() {
        }
  {% endcomment %}
 
-    document.querySelectorAll(".summary-row").forEach(row => {
+    {% comment %} document.querySelectorAll(".summary-row").forEach(row => {
         const label = row.querySelector(".summary-label")?.innerText;
         const value = row.querySelector(".summary-value");
 
@@ -747,7 +784,7 @@ function recalculateSubtotal() {
             value.innerText = "₹" + (subtotal + shipping);
         }
     });
-}
+} {% endcomment %} 
 /* ================= CLICK HANDLER ================= */
 document.addEventListener("click", function (e) {
 
@@ -769,9 +806,10 @@ if (removeBtn) {
             // ✅ FIX: Check if cart is empty
             const remainingItems = document.querySelectorAll(".cart-item");
             if (remainingItems.length === 0) {
-                location.reload(); // Show empty cart state
+                location.reload();
             } else {
-                recalculateSubtotal();
+                document.querySelector("#cart-subtotal").innerText =
+                    "₹" + Number(data.subtotal).toFixed(2);
             }
         }
     });
@@ -832,9 +870,19 @@ if (removeBtn) {
 
         document.querySelector(
             `[data-item-total="${itemId}"] .total-value`
-        ).innerText = "₹" + data.line_total;
+        ).innerText = "₹" + data.line_total.toFixed(2);
 
-        recalculateSubtotal();
+        // ✅ update subtotal from backend
+        const subtotalEl = document.querySelector("#cart-subtotal");
+        const totalEl = document.querySelector("#cart-total");
+
+        if (subtotalEl) {
+            subtotalEl.innerText = "₹" + Number(data.subtotal).toFixed(2);
+        }
+
+        if (totalEl) {
+            totalEl.innerText = "₹" + Number(data.subtotal).toFixed(2);
+        }
         updateNavbarCartCount(data.cart_count);
     });
 });

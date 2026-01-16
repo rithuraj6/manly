@@ -62,7 +62,7 @@ INSTALLED_APPS = [
     "apps.cart.apps.CartConfig",
     "apps.wallet.apps.WalletConfig",
 
-    
+    "apps.offers",
     
     
     

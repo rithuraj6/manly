@@ -1,0 +1,438 @@
+{% extends "adminpanel/base.html" %}
+
+{% block content %}
+<style>
+/* Edit Offer Page Styles */
+.offer-form-page {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0;
+    animation: fadeIn 0.5s ease;
+}
+
+/* Page Header */
+.form-header {
+    margin-bottom: 30px;
+    animation: slideInDown 0.6s ease;
+}
+
+.form-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.form-subtitle {
+    font-size: 14px;
+    color: #999;
+}
+
+.offer-id-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    background: rgba(255, 140, 0, 0.15);
+    border: 1px solid rgba(255, 140, 0, 0.3);
+    border-radius: 12px;
+    font-size: 12px;
+    color: #ff8c00;
+    font-weight: 600;
+    margin-left: 12px;
+}
+
+/* Form Container with Liquid Effect */
+.form-container {
+    background: rgba(26, 26, 26, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid #2a2a2a;
+    border-radius: 20px;
+    padding: 40px;
+    animation: slideInUp 0.6s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.form-container::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 140, 0, 0.03), transparent);
+    animation: liquidFlow 6s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes liquidFlow {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    33% { transform: translate(10%, -10%) rotate(120deg); }
+    66% { transform: translate(-10%, 10%) rotate(240deg); }
+}
+
+/* Form Styling */
+.offer-form {
+    position: relative;
+    z-index: 1;
+}
+
+.form-group {
+    margin-bottom: 24px;
+    animation: fadeInUp 0.5s ease forwards;
+    opacity: 0;
+}
+
+.form-group:nth-child(1) { animation-delay: 0.1s; }
+.form-group:nth-child(2) { animation-delay: 0.15s; }
+.form-group:nth-child(3) { animation-delay: 0.2s; }
+.form-group:nth-child(4) { animation-delay: 0.25s; }
+.form-group:nth-child(5) { animation-delay: 0.3s; }
+.form-group:nth-child(6) { animation-delay: 0.35s; }
+.form-group:nth-child(7) { animation-delay: 0.4s; }
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 0.3px;
+}
+
+.form-label::after {
+    content: '*';
+    color: #ef4444;
+    margin-left: 4px;
+    font-weight: 700;
+}
+
+.form-label.optional::after {
+    content: '(optional)';
+    color: #666;
+    font-size: 12px;
+    font-weight: 400;
+    margin-left: 6px;
+}
+
+.form-input,
+.form-select {
+    width: 100%;
+    padding: 14px 18px;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    color: #e0e0e0;
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.3s ease;
+}
+
+.form-input:focus,
+.form-select:focus {
+    outline: none;
+    border-color: #ff8c00;
+    background: #151515;
+    box-shadow: 0 0 20px rgba(255, 140, 0, 0.15);
+}
+
+.form-input::placeholder {
+    color: #666;
+}
+
+.form-select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23999' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 45px;
+}
+
+.form-select option {
+    background: #1a1a1a;
+    color: #e0e0e0;
+    padding: 10px;
+}
+
+/* Date inputs */
+.form-input[type="date"] {
+    position: relative;
+}
+
+.form-input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.6);
+    cursor: pointer;
+}
+
+/* Number input */
+.form-input[type="number"] {
+    appearance: textfield;
+}
+
+.form-input[type="number"]::-webkit-inner-spin-button,
+.form-input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Two-column layout for dates */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+/* Checkbox styling */
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    background: rgba(255, 140, 0, 0.05);
+    border: 1px solid rgba(255, 140, 0, 0.2);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.checkbox-group:hover {
+    background: rgba(255, 140, 0, 0.08);
+    border-color: rgba(255, 140, 0, 0.3);
+}
+
+.form-checkbox {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #ff8c00;
+}
+
+.checkbox-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Submit Button */
+.btn-submit {
+    width: 100%;
+    padding: 16px 32px;
+    background: linear-gradient(135deg, #db9107ff, #f09d21ff);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 32px;
+    box-shadow: 0 4px 20px rgba(202, 139, 2, 0.75);
+}
+
+.btn-submit:hover {
+    background: linear-gradient(135deg, #f39303ff, #b96c07ff);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(224, 157, 11, 0.81);
+}
+
+.btn-submit:active {
+    transform: translateY(0);
+}
+
+/* Info Box */
+.info-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px 20px;
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 12px;
+    margin-bottom: 24px;
+}
+
+.info-icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    color: #3b82f6;
+}
+
+.info-text {
+    font-size: 13px;
+    color: #aaa;
+    line-height: 1.6;
+}
+
+/* Current Values Display */
+.current-value {
+    display: inline-block;
+    padding: 4px 10px;
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 6px;
+    font-size: 12px;
+    color: #10b981;
+    font-weight: 600;
+    margin-left: 8px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .form-container {
+        padding: 30px 20px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .form-title {
+        font-size: 26px;
+    }
+
+    .offer-id-badge {
+        display: block;
+        margin-left: 0;
+        margin-top: 8px;
+        width: fit-content;
+    }
+}
+</style>
+
+<div class="offer-form-page">
+    <div class="form-header">
+        <h2 class="form-title">
+            Edit Offer
+            <span class="offer-id-badge">
+                <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M9 2a1 1 0 0 0 0 2h2a1 1 0 1 0 0-2H9z"/>
+                    <path fill-rule="evenodd" d="M4 5a2 2 0 0 1 2-2 3 3 0 0 0 3 3h2a3 3 0 0 0 3-3 2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5zm3 4a1 1 0 0 0 0 2h.01a1 1 0 1 0 0-2H7zm3 0a1 1 0 0 0 0 2h3a1 1 0 1 0 0-2h-3zm-3 4a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H7zm3 0a1 1 0 1 0 0 2h3a1 1 0 1 0 0-2h-3z" clip-rule="evenodd"/>
+                </svg>
+                ID: {{ offer.id }}
+            </span>
+        </h2>
+        <p class="form-subtitle">Update offer details and settings</p>
+    </div>
+
+    <div class="form-container">
+        <div class="info-box">
+            <svg class="info-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+            </svg>
+            <p class="info-text">Editing existing offer. Changes will be applied immediately after saving.</p>
+        </div>
+
+        <form method="post" class="offer-form">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label class="form-label">Offer Name</label>
+                <input type="text" name="name" value="{{ offer.name }}" class="form-input" placeholder="e.g., Summer Sale 2024" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">
+                    Discount Percentage
+                    <span class="current-value">Current: {{ offer.discount_percentage }}%</span>
+                </label>
+                <input type="number" name="discount" value="{{ offer.discount_percentage }}" min="1" max="90" class="form-input" placeholder="Enter discount (1-90%)" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label optional">Product</label>
+                <select name="product" class="form-select">
+                    <option value="">Select a product (optional)</option>
+                    {% for product in products %}
+                        <option value="{{ product.id }}"
+                            {% if offer.product_id == product.id %}selected{% endif %}>
+                            {{ product.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label optional">Category</label>
+                <select name="category" class="form-select">
+                    <option value="">Select a category (optional)</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}"
+                            {% if offer.category_id == category.id %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Start Date</label>
+                    <input type="date" name="start_date" value="{{ offer.start_date|date:'Y-m-d' }}" class="form-input">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">End Date</label>
+                    <input type="date" name="end_date" value="{{ offer.end_date|date:'Y-m-d' }}" class="form-input">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="checkbox-group">
+                    <input type="checkbox" name="is_active" class="form-checkbox" {% if offer.is_active %}checked{% endif %}>
+                    <span class="checkbox-label">Mark this offer as Active</span>
+                </label>
+            </div>
+
+            <button type="submit" class="btn-submit">Update Offer</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

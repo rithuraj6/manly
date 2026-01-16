@@ -66,7 +66,15 @@
 
             <!-- Price -->
             <div class="price-section">
-                <span class="current-price">₹{{ product.base_price }}</span>
+                {% if offer_percentage %}
+                    <span class="current-price">₹{{ discounted_price }}</span>
+                    <span class="old-price">
+                        <strike>₹{{ product.base_price }}</strike>
+                    </span>
+                    <span class="offer-pill">{{ offer_percentage }}% OFF</span>
+                {% else %}
+                    <span class="current-price">₹{{ product.base_price }}</span>
+                {% endif %}
             </div>
 
             <div class="divider"></div>
@@ -227,7 +235,15 @@
                         </div>
                         <div class="similar-info">
                             <h4 class="similar-name">{{ item.name }}</h4>
-                            <p class="similar-price">₹{{ item.base_price }}</p>
+                           <p class="similar-price">
+                                {% if item.offer_percentage %}
+                                    <strike>₹{{ item.base_price }}</strike>
+                                    ₹{{ item.discounted_price }}
+                                {% else %}
+                                    ₹{{ item.base_price }}
+                                {% endif %}
+                            </p>
+
                         </div>
                     </a>
                 {% endfor %}
@@ -504,6 +520,19 @@ nextBtn?.addEventListener('click', () => {
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+.old-price {
+    font-size: 18px;
+    color: #888;
+}
+
+.offer-pill {
+    background: #2e7d32;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+}
 
 .image-nav {
     position: absolute;

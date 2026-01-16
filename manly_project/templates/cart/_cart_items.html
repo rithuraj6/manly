@@ -53,8 +53,22 @@
                             
                             <div class="item-price">
                                 <span class="price-label">Price:</span>
-                                <span class="price-value">₹{{ entry.product.base_price }}</span>
+
+                                {% if entry.base_price != entry.discounted_price %}
+                                    <span class="price-value">
+                                        <del style="color:#999;font-weight:500;">
+                                            ₹{{ entry.base_price }}
+                                        </del>
+                                        <span style="margin-left:8px;color:#1a1a1a;">
+                                            ₹{{ entry.discounted_price }}
+                                        </span>
+                                    </span>
+                                {% else %}
+                                    <span class="price-value">₹{{ entry.base_price }}</span>
+                                {% endif %}
                             </div>
+                            
+
                         </div>
 
                         <div class="item-actions">
@@ -94,13 +108,16 @@
                 <div class="summary-details">
                     <div class="summary-row">
                         <span class="summary-label">Subtotal</span>
-                        <span class="summary-value">₹{{ subtotal }}</span>
+                        <span class="summary-value" id="cart-subtotal">
+                            ₹{{ subtotal }}
+                        </span>
                     </div>
-                   
-                    <div class="summary-divider"></div>
+
                     <div class="summary-row total-row">
                         <span class="summary-label">Total</span>
-                        <span class="summary-value total-value">₹{{ subtotal }}</span>
+                        <span class="summary-value total-value" id="cart-total">
+                            ₹{{ subtotal }}
+                        </span>
                     </div>
                 </div>
 
