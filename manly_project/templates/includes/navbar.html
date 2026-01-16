@@ -16,6 +16,7 @@
     </div>
 
     <div class="navbar-icons">
+
         {% if breadcrumbs %}
             <div class="breadcrumbs-wrapper">
                 <nav class="breadcrumbs">
@@ -66,29 +67,37 @@
     position: relative;
 }
 
-/* Cart count badge */
+/* Cart count badge with pulse animation */
 .cart-count {
     position: absolute;
     top: -6px;
     right: -8px;
-
     min-width: 18px;
     height: 18px;
-
-    background: #eb1e1bff;      /* red */
+    background: linear-gradient(135deg, #ff6b6b, #eb1e1bff);
     color: #fff;
-
     font-size: 11px;
     font-weight: 600;
-
     border-radius: 50%;
     padding: 0 5px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     line-height: 1;
+    animation: pulse 2s infinite;
+    box-shadow: 0 0 0 0 rgba(235, 30, 27, 0.7);
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(235, 30, 27, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 8px rgba(235, 30, 27, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(235, 30, 27, 0);
+    }
 }
 
 .cart-count:empty,
@@ -96,18 +105,35 @@
     display: none;
 }
 
-    .breadcrumbs {
+.breadcrumbs {
     color: #777;
+    font-size: 13px;
 }
 
 .breadcrumbs a {
     color: #777;
     text-decoration: none;
-    transition: color 0.3s ease;
+    transition: all 0.3s ease;
+    position: relative;
 }
 
 .breadcrumbs a:hover {
     color: #ff6b6b;
+}
+
+.breadcrumbs a::before {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: linear-gradient(90deg, #ff6b6b, #eb1e1bff);
+    transition: width 0.3s ease;
+}
+
+.breadcrumbs a:hover::before {
+    width: 100%;
 }
 
 .breadcrumbs span {
@@ -118,44 +144,98 @@
     color: #ff6b6b;
     font-weight: 500;
     text-shadow: 0 0 8px rgba(255,107,107,0.35);
+    animation: glow 2s ease-in-out infinite;
 }
 
+@keyframes glow {
+    0%, 100% {
+        text-shadow: 0 0 8px rgba(255,107,107,0.35);
+    }
+    50% {
+        text-shadow: 0 0 12px rgba(255,107,107,0.6);
+    }
+}
 
-/* Navbar Container */
+/* Navbar Container with glassmorphism */
 .navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 35px 60px;
-    background: #fff;
-    border-bottom: 1px solid #08070734;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(8, 7, 7, 0.1);
     position: sticky;
     top: 0;
     z-index: 1000;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0);
+}
+
+.navbar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #ff6b6b, transparent);
+    opacity: 0;
+    transition: opacity 0.4s ease;
 }
 
 .navbar.scrolled {
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+    padding: 25px 60px;
 }
 
-/* Logo Section */
+.navbar.scrolled::before {
+    opacity: 1;
+}
+
+/* Logo Section with advanced effects */
 .navbar-logo {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     text-decoration: none;
     gap: 2px;
+    position: relative;
+    overflow: hidden;
+}
+
+.navbar-logo::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,107,107,0.1), transparent);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+}
+
+.navbar-logo:hover::after {
+    width: 120%;
+    height: 120%;
 }
 
 .navbar-logo img {
     height: 50px;
     width: auto;
-    transition: transform 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(0 0 0 transparent);
+    position: relative;
+    z-index: 1;
 }
 
 .navbar-logo:hover img {
-    transform: scale(1.05);
+    transform: scale(1.08) rotate(2deg);
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
 }
 
 .logo-subtitle {
@@ -164,9 +244,17 @@
     color: #666;
     font-weight: 500;
     margin-top: -5px;
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s ease;
 }
 
-/* Navigation Menu */
+.navbar-logo:hover .logo-subtitle {
+    letter-spacing: 2px;
+    color: #ff6b6b;
+}
+
+/* Navigation Menu with smooth animations */
 .navbar-menu {
     display: flex;
     gap: 40px;
@@ -179,37 +267,57 @@
     color: #1a1a1a;
     text-decoration: none;
     position: relative;
-    transition: color 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 8px 0;
+    overflow: hidden;
+}
+
+.nav-link::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #ff6b6b, #eb1e1bff);
+    transform: translateX(-50%);
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .nav-link::after {
     content: '';
     position: absolute;
-    bottom: -5px;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background: #1a1a1a;
-    transition: width 0.3s ease;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,107,107,0.1), transparent);
+    transition: left 0.5s ease;
 }
 
 .nav-link:hover {
-    color: #333;
+    color: #ff6b6b;
+    transform: translateY(-2px);
+}
+
+.nav-link:hover::before {
+    width: 100%;
 }
 
 .nav-link:hover::after {
-    width: 100%;
+    left: 100%;
 }
 
 .nav-link.active {
     font-weight: 600;
+    color: #ff6b6b;
 }
 
-.nav-link.active::after {
+.nav-link.active::before {
     width: 100%;
 }
 
-/* Icon Section */
+/* Icon Section with bounce and scale effects */
 .navbar-icons {
     display: flex;
     gap: 24px;
@@ -221,21 +329,85 @@
     align-items: center;
     justify-content: center;
     color: #1a1a1a;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
+    position: relative;
+    padding: 8px;
+    border-radius: 50%;
+}
+
+.nav-icon::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,107,107,0.15), transparent);
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.4s ease;
+}
+
+.nav-icon:hover::before {
+    transform: translate(-50%, -50%) scale(1.5);
 }
 
 .nav-icon:hover {
-    transform: translateY(-2px);
-    color: #333;
+    transform: translateY(-3px) scale(1.1);
+    color: #ff6b6b;
+}
+
+.nav-icon:active {
+    transform: translateY(-1px) scale(0.95);
 }
 
 .nav-icon svg {
     transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
 }
 
 .nav-icon:hover svg {
     stroke-width: 2.5;
+    filter: drop-shadow(0 2px 4px rgba(255,107,107,0.3));
+}
+
+/* Wishlist heart animation */
+.nav-icon[title="Wishlist"]:hover svg path {
+    animation: heartbeat 0.6s ease;
+}
+
+@keyframes heartbeat {
+    0%, 100% {
+        transform: scale(1);
+    }
+    25% {
+        transform: scale(1.2);
+    }
+    50% {
+        transform: scale(1);
+    }
+    75% {
+        transform: scale(1.15);
+    }
+}
+
+/* Cart shake animation on hover */
+.nav-icon[title="Cart"]:hover svg {
+    animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-3px);
+    }
+    75% {
+        transform: translateX(3px);
+    }
 }
 
 /* Responsive */
@@ -279,6 +451,18 @@
 
     .navbar-menu.active {
         display: flex;
+        animation: slideDown 0.4s ease;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .navbar-icons {
@@ -291,13 +475,15 @@
     }
 }
 
-/* Mobile Menu Toggle (optional) */
+/* Mobile Menu Toggle */
 .navbar-toggle {
     display: none;
     flex-direction: column;
     gap: 5px;
     cursor: pointer;
     padding: 8px;
+    position: relative;
+    z-index: 10;
 }
 
 .navbar-toggle span {
@@ -305,6 +491,23 @@
     height: 2px;
     background: #1a1a1a;
     transition: all 0.3s ease;
+    transform-origin: center;
+}
+
+.navbar-toggle:hover span {
+    background: #ff6b6b;
+}
+
+.navbar-toggle.active span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+
+.navbar-toggle.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.navbar-toggle.active span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
 }
 
 @media (max-width: 768px) {
@@ -320,11 +523,11 @@
     }
 }
 
-/* Scroll Effect */
+/* Entry Animation */
 @keyframes fadeInDown {
     from {
         opacity: 0;
-        transform: translateY(-10px);
+        transform: translateY(-20px);
     }
     to {
         opacity: 1;
@@ -333,7 +536,23 @@
 }
 
 .navbar {
-    animation: fadeInDown 0.5s ease;
+    animation: fadeInDown 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Shimmer effect for logo */
+@keyframes shimmer {
+    0% {
+        background-position: -100% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.navbar-logo:hover img {
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out;
 }
 </style>
 
@@ -356,6 +575,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (toggle) {
         toggle.addEventListener('click', function() {
             menu.classList.toggle('active');
+            toggle.classList.toggle('active');
         });
     }
 
@@ -368,6 +588,17 @@ document.addEventListener('DOMContentLoaded', function() {
             link.classList.add('active');
         }
     });
+
+    // Add stagger animation to nav links
+    navLinks.forEach((link, index) => {
+        link.style.animation = `fadeInDown 0.5s ease ${index * 0.1}s backwards`;
+    });
+
+    // Icon entrance animation
+    const icons = document.querySelectorAll('.nav-icon');
+    icons.forEach((icon, index) => {
+        icon.style.animation = `fadeInDown 0.5s ease ${0.3 + index * 0.1}s backwards`;
+    });
 });
 
 // ✅ FIX: Function in same script block
@@ -377,5 +608,30 @@ window.updateNavbarCartCount = function (count) {
 
     badge.innerText = count;
     badge.style.display = count > 0 ? "flex" : "none";
+    
+    // Add pop animation when count updates
+    if (count > 0) {
+        badge.style.animation = 'none';
+        setTimeout(() => {
+            badge.style.animation = 'pulse 2s infinite, pop 0.3s ease';
+        }, 10);
+    }
 };
+
+// Pop animation for cart badge
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes pop {
+        0% {
+            transform: scale(0.8);
+        }
+        50% {
+            transform: scale(1.2);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+`;
+document.head.appendChild(style);
 </script>

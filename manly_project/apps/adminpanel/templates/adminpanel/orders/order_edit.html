@@ -538,8 +538,11 @@
                         </strong>
 
                         {% if item.variant %}
-                            <small>({{ item.variant.name }})</small>
+                       
+                            <small>({{ item.variant.name }}  {{ item.variant.size }})</small>
+                            
                         {% endif %}
+                      
 
                         {% if item.status == 'cancelled' %}
                             <span class="cancelled-badge">

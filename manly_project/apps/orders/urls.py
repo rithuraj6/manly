@@ -1,14 +1,21 @@
 from django.urls import path
-from apps.reviews.views import rate_product
+
 from .views.checkout_views import checkout_page
-from .views.payment_views import payment_page
-from .views.order_views import place_order 
+from .views.payment_views import (
+    payment_page,
+    order_failure,
+    retry_payment,
+    create_razorpay_order,
+    verify_razorpay_payment,
+    wallet_payment,
+)
+from .views.order_views import place_order
 from .views.success_views import order_success
-from apps.orders.views.order_list_views import user_orders
-from apps.orders.views.order_detail_views import order_detail
-from apps.orders.views.invoice_views import print_invoice,order_invoice
-from apps.orders.views.return_views import request_return ,view_return_reason
 from .views.order_action_views import cancel_order_item
+from .views.return_views import request_return, view_return_reason
+from .views.invoice_views import print_invoice, order_invoice
+from .views.order_list_views import user_orders
+from .views.order_detail_views import order_detail
 
 
 urlpatterns = [
@@ -27,7 +34,14 @@ urlpatterns = [
     path("item/<int:item_id>/cancel/", cancel_order_item, name="cancel_order_item"),
     path("item/<int:item_id>/return/reason/",view_return_reason,name="view_return_reason"),
     
+    path("failure/<int:payment_id>/", order_failure, name="order_failure"),
+    path("retry-payment/<int:payment_id>/", retry_payment, name="retry_payment"),
+
     
+    path("razorpay/create/", create_razorpay_order, name="create_razorpay_order"),
+    path("razorpay/verify/", verify_razorpay_payment, name="verify_razorpay_payment"),
+
+    path("payment/wallet/", wallet_payment, name="wallet_payment")
     
     
     

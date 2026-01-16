@@ -141,6 +141,12 @@
                                 <span class="product-price">₹ {{ item.price }}</span>
                             </div>
                         </div>
+                        <p class="product-variant">
+                            {% if item.variant.size %}
+                                <span>Size: {{ item.variant.size }}</span>
+                            
+                            {% endif %}
+                        </p>
 
                         <div class="product-status-section">
                             {% if item.status == "delivered" %}

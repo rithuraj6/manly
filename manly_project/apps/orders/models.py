@@ -19,8 +19,9 @@ class Order(models.Model):
     ]
     
     PAYMENT_METHOD_CHOICES = [
-        ("cod", "Cash on Delivery"),
-       
+    ("cod", "Cash on Delivery"),
+    ("razorpay", "Razorpay"),
+    ("wallet", "Wallet"),
     ]
 
     user = models.ForeignKey(
@@ -207,3 +208,47 @@ class ReturnRequest(models.Model):
         return f"ReturnRequest #{self.id} - OrderItem {self.order_item.id}"
 
 
+class Payment(models.Model):
+    PAYMENT_METHODS = (
+        ('razorpay','Razorpay'),
+        ('wallet','Wallet'),
+        ('cod','Cash On Delivery'),
+    )
+    
+    
+    PAYMENT_STATUS =(
+        ('initiated', 'Initiated'),
+        ('success','Success'),
+        ('failed','Failed'),
+    )
+    
+    
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,
+                             related_name='payment',
+                             null=True,
+                             blank=True
+                            )
+    
+    payment_method = models.CharField(max_length=20,choices=PAYMENT_METHODS)
+    order = models.OneToOneField(
+        "orders.Order",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="payment"
+    )
+    razorpay_order_id = models.CharField(max_length=100,blank=True,null=True)
+    
+    razorpay_payment_id = models.CharField(max_length=100,blank=True,null=True)
+    
+    razorpay_signature = models.CharField(max_length=225 ,blank=True,null =True)
+    amount = models.DecimalField(max_digits=10,decimal_places=2)
+    
+    status = models.CharField(max_length=20,choices=PAYMENT_STATUS,default='initiated')   
+    
+    address_snapshot = models.JSONField(null=True, blank=True)
+
+    created_at =models.DateField(auto_now_add=True)
+    updated_at = models.DateField(auto_now=True)
+    
+    

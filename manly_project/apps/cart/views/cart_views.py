@@ -42,12 +42,13 @@ def cart_page(request):
             })
             
     breadcrumbs = [
-    {"name": "Home", "url": "/"},
-    {"name": "Cart", "url": None},
+    {"label": "Home", "url": "/"},
+    {"label": "Cart", "url": None},
 ]          
     context = {
         "cart_items": cart_items,
         "subtotal": subtotal,
+        "breadcrumbs":breadcrumbs,
         "has_invalid_items": has_invalid_items,
 }
        
