@@ -83,13 +83,13 @@ def admin_approve_return(request, return_id):
         messages.error(request, 'Return already processed')
         return redirect('admin_return_request_list')
 
-    # Restore stock only once
+    
     if order_item.status != OrderItem.STATUS_RETURNED:
         restore_stock(order_item)
         order_item.status = OrderItem.STATUS_RETURNED
         order_item.save(update_fields=['status'])
 
-        # ✅ REFUND TO WALLET (THIS WAS MISSING)
+        
         refund_to_wallet(
             user=order.user,
             amount=order_item.final_price_paid,

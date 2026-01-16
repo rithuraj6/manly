@@ -108,7 +108,7 @@ def admin_order_update(request, order_id):
         messages.error(request, "Invalid status transition.")
         return redirect("admin_order_edit", order_id=order.order_id)
 
-    # ✅ CREDIT ADMIN WALLET ONLY FOR COD ON DELIVERY
+    
     if (
         new_status == "delivered"
         and order.payment_method == "cod"

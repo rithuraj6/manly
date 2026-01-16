@@ -166,7 +166,7 @@ def verify_razorpay_payment(request):
         "razorpay_signature"
     ])
 
-    # ✅ CREATE ORDER (ONCE)
+    
     if payment.order:
         order = payment.order
     else:
@@ -180,7 +180,7 @@ def verify_razorpay_payment(request):
     payment.order = order
     payment.save(update_fields=["order"])
 
-    # ✅ CREDIT ADMIN WALLET (ONCE — DB ENFORCED)
+   
     total_amount = (
         order.items.aggregate(
             total=Sum("final_price_paid")
