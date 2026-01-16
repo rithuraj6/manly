@@ -219,7 +219,4 @@ def remove_from_cart(request, item_id):
    
     cart_count = sum(i.quantity for i in cart.items.all())
     
-    return JsonResponse({
-        "success": True,
-        "cart_count": cart_count
-    })
+    return JsonResponse({"success": True,"cart_count": cart_count})

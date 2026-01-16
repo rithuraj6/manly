@@ -27,7 +27,7 @@ def admin_wallet_dashboard(request):
         transaction_type="debit"
     ).order_by("-created_at")
     
-    income_paginator = Paginator(income_qs, 10)   # 10 per page
+    income_paginator = Paginator(income_qs, 10)   
     refund_paginator = Paginator(refund_qs, 10)
 
     income_page_number = request.GET.get("income_page")
@@ -46,11 +46,9 @@ def admin_wallet_dashboard(request):
             "total_earned": total_earned,
             "total_refunded": total_refunded,
 
-            # IMPORTANT: send PAGE objects
             "income_list": income_page,
             "refund_list": refund_page,
 
-            # used by pagination UI
             "income_page": income_page,
             "refund_page": refund_page,
         },
