@@ -1,0 +1,473 @@
+{% extends "adminpanel/base.html" %}
+
+{% block content %}
+<style>
+/* Offers List Page Styles */
+.offers-page {
+    padding: 0;
+    animation: fadeIn 0.5s ease;
+}
+
+/* Page Header */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    animation: slideInDown 0.6s ease;
+}
+
+.page-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.5px;
+}
+
+.btn-add-offer {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
+    color: #0a0a0a;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+}
+
+.btn-add-offer:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
+}
+
+.btn-add-offer::before {
+    content: '+';
+    font-size: 20px;
+    font-weight: 700;
+}
+
+/* Table Container with Liquid Effect */
+.table-container {
+    background: rgba(26, 26, 26, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid #2a2a2a;
+    border-radius: 16px;
+    overflow: hidden;
+    animation: slideInUp 0.6s ease;
+    position: relative;
+}
+
+.table-container::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 140, 0, 0.03), transparent);
+    animation: liquidFlow 6s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes liquidFlow {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    33% { transform: translate(10%, -10%) rotate(120deg); }
+    66% { transform: translate(-10%, 10%) rotate(240deg); }
+}
+
+/* Table Styling */
+.offers-table {
+    width: 100%;
+    border-collapse: collapse;
+    position: relative;
+    z-index: 1;
+}
+
+.offers-table thead {
+    background: #0f0f0f;
+}
+
+.offers-table th {
+    padding: 20px 24px;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    text-transform: capitalize;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.offers-table tbody tr {
+    border-bottom: 1px solid #2a2a2a;
+    transition: all 0.3s ease;
+}
+
+.offers-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.offers-table tbody tr:hover {
+    background: rgba(255, 140, 0, 0.05);
+    transform: translateX(5px);
+}
+
+.offers-table td {
+    padding: 20px 24px;
+    font-size: 14px;
+    color: #e0e0e0;
+}
+
+/* Discount Badge */
+.discount-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 14px;
+    background: linear-gradient(135deg, rgba(255, 140, 0, 0.2), rgba(255, 107, 0, 0.2));
+    border: 1px solid rgba(255, 140, 0, 0.4);
+    border-radius: 20px;
+    color: #ff8c00;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+/* Status Badge */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.status-badge.active {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.status-badge.inactive {
+    background: rgba(156, 163, 175, 0.15);
+    color: #9ca3af;
+    border: 1px solid rgba(156, 163, 175, 0.3);
+}
+
+.status-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Actions Column */
+.actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.btn-edit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-edit:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+.btn-block {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-block:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+.btn-unblock {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-unblock:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.empty-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.empty-content svg {
+    opacity: 0.3;
+    animation: float 3s ease-in-out infinite;
+}
+
+.empty-content p {
+    color: #666;
+    font-size: 16px;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.table-row {
+    animation: fadeInRow 0.5s ease forwards;
+    opacity: 0;
+}
+
+.table-row:nth-child(1) { animation-delay: 0.1s; }
+.table-row:nth-child(2) { animation-delay: 0.15s; }
+.table-row:nth-child(3) { animation-delay: 0.2s; }
+.table-row:nth-child(4) { animation-delay: 0.25s; }
+.table-row:nth-child(5) { animation-delay: 0.3s; }
+
+@keyframes fadeInRow {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    .offers-table {
+        min-width: 700px;
+    }
+
+    .actions {
+        flex-direction: column;
+        gap: 6px;
+    }
+}
+</style>
+
+<div class="offers-page">
+    <div class="page-header">
+        <h2 class="page-title">Offers Management</h2>
+        <a href="{% url 'admin_offer_add' %}" class="btn-add-offer">Add New Offer</a>
+    </div>
+
+    <div class="table-container">
+        <table class="offers-table">
+            <thead>
+                <tr>
+                    <th>Offer Name</th>
+                    <th>Discount</th>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+            {% for offer in offers %}
+                <tr class="table-row">
+                    <td><strong>{{ offer.name }}</strong></td>
+                    <td>
+                        <span class="discount-badge">{{ offer.discount_percentage }}% OFF</span>
+                    </td>
+                    <td>{{ offer.product|default:"—" }}</td>
+                    <td>{{ offer.category|default:"—" }}</td>
+                    <td>
+                        {% if offer.status == "active" %}
+                            <span class="status-badge active">Active</span>
+                        {% elif offer.status == "inactive" %}
+                            <span class="status-badge inactive">Inactive</span>
+                        {% else %}
+                            <span class="status-badge inactive" style="color:#f59e0b;border-color:#f59e0b;">
+                                Expired
+                            </span>
+                        {% endif %}
+                    </td>
+
+
+                    <td class="actions">
+                        <a href="{% url 'admin_offer_edit' offer.id %}" class="btn-edit">
+                            Edit
+                        </a>
+
+                        {% if offer.status != "expired" %}
+                        <button
+                            data-offer-toggle="{{ offer.id }}"
+                            class="{% if offer.is_active %}btn-block{% else %}btn-unblock{% endif %}">
+                            {% if offer.is_active %}Block{% else %}Unblock{% endif %}
+                        </button>
+                        {% else %}
+                        <span style="color:#f59e0b;font-weight:600;">Expired</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="6" class="empty-state">
+                        <div class="empty-content">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M16 16s-1.5-2-4-2-4 2-4 2"/>
+                                <line x1="9" y1="9" x2="9.01" y2="9"/>
+                                <line x1="15" y1="9" x2="15.01" y2="9"/>
+                            </svg>
+                            <p>No offers found. Create your first offer to get started!</p>
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+{% comment %} document.addEventListener("click", function (e) {
+    const btn = e.target.closest("[data-offer-toggle]");
+    if (!btn) return;
+
+    const offerId = btn.dataset.offerToggle;
+
+    fetch(`/admin-panel/offers/${offerId}/toggle/`, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    });
+}); {% endcomment %}
+
+document.addEventListener("click", function (e) {
+    const btn = e.target.closest("[data-offer-toggle]");
+    if (!btn) return;
+
+    const offerId = btn.dataset.offerToggle;
+
+    fetch(`/admin-panel/offers/${offerId}/toggle/`, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": "{{ csrf_token }}"
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.message || "Unable to update offer");
+        }
+    });
+});
+</script>
+
+{% endblock %}

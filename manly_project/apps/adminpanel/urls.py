@@ -56,11 +56,12 @@ from apps.adminpanel.views.wallet_views import admin_wallet_dashboard
 
 from apps.adminpanel.views.return_views import approve_return
 
-
-
-
-
-
+from apps.adminpanel.views.offers_views import (
+    offer_list,
+    offer_add,
+    offer_edit,
+    toggle_offer_status,
+)
 
 
 urlpatterns = [
@@ -115,7 +116,12 @@ urlpatterns = [
     path("returns/reject/<int:return_id>/", admin_reject_return, name="admin_reject_return"),
     
     
-    
+    path("offers/", offer_list, name="admin_offer_list"),
+    path("offers/add/", offer_add, name="admin_offer_add"),
+    path("offers/<int:offer_id>/toggle/",toggle_offer_status,name="admin_offer_toggle"),
+    path("offers/<int:offer_id>/edit/",offer_edit,name="admin_offer_edit"),
+
+
     
     
     path("inventory/", inventory_category_list, name="inventory_categories"),

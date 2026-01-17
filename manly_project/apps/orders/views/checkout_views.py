@@ -4,6 +4,9 @@ from decimal import Decimal
 from django.contrib import messages
 from apps.accounts.models import UserAddress
 from apps.cart.models import Cart
+from apps.orders.utils.pricing import apply_offer
+
+
 
 
 @login_required
@@ -29,7 +32,6 @@ def checkout_page(request):
     subtotal = Decimal("0.00")
     has_invalid_items = False
 
-
     for cart_item in cart.items.select_related("product", "variant", "product__category"):
         product = cart_item.product
         variant = cart_item.variant
@@ -52,16 +54,24 @@ def checkout_page(request):
 
         if is_invalid:
             has_invalid_items = True
+            discounted_price = product.base_price
+            line_total = Decimal("0.00")
         else:
-            subtotal += product.base_price * cart_item.quantity
+            discounted_price = apply_offer(product, product.base_price)
+            line_total = discounted_price * cart_item.quantity
+            subtotal += line_total
 
         cart_items.append({
             "item": cart_item,
             "product": product,
             "variant": variant,
-            "line_total": product.base_price * cart_item.quantity,
+            "base_price": product.base_price,
+            "discounted_price": discounted_price,
+            "line_total": line_total,
             "is_invalid": is_invalid,
         })
+        
+    
     delivery_fee = Decimal("0.00") if subtotal >= 3000 else Decimal("150.00")
     tax = ((subtotal + delivery_fee) * Decimal("0.18")).quantize(Decimal("0.01"))
     total_amount = subtotal + delivery_fee + tax
@@ -73,7 +83,7 @@ def checkout_page(request):
     {"label": "Home", "url": "/"},
     {"label": "Cart", "url":"cart/"},
     {"label": "Checkoutpage", "url":None},
-] 
+    ] 
 
     context = {
         "cart_items": cart_items,

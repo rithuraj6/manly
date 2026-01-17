@@ -604,8 +604,8 @@
                 <span class="text">Coupons</span>
             </a>
 
-            <a href="{% url 'admin_dashboard' %}" 
-                class="sidebar-link {% if request.resolver_match.url_name == 'admin_users' %}active{% endif %}">
+            <a href="{% url 'admin_offer_list' %}" 
+                class="sidebar-link {% if request.resolver_match.url_name == 'admin_offer_list' %}active{% endif %}">
                 <span class="icon">🔥</span>
                 <span class="text">Offers</span>
             </a>

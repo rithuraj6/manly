@@ -1,8 +1,13 @@
-from decimal import Decimal
+
 from apps.cart.models import Cart
 
 from decimal import Decimal, ROUND_HALF_UP
+from apps.offers.models import Offer
 
+from django.utils import timezone
+
+from decimal import Decimal
+from apps.offers.models import Offer
 
 
 def distribute_amount(total_amount, items):
@@ -49,3 +54,83 @@ def calculate_grand_total(user):
 
     total_amount = subtotal + delivery_fee + tax
     return total_amount
+
+
+
+def get_best_offer(product):
+  
+    now = timezone.now()
+
+    product_offer = Offer.objects.filter(
+        product=product,
+        is_active=True,
+        start_date__lte=now,
+        end_date__gte=now
+    ).first()
+
+    category_offer = Offer.objects.filter(
+        category=product.category,
+        is_active=True,
+        start_date__lte=now,
+        end_date__gte=now
+    ).first()
+
+    if not product_offer and not category_offer:
+        return None
+
+    if product_offer and category_offer:
+        return (
+            product_offer
+            if product_offer.discount_percentage >= category_offer.discount_percentage
+            else category_offer
+        )
+
+    return product_offer or category_offer
+
+
+
+
+
+
+
+def get_product_offer(product):
+    return (
+        Offer.objects.filter(
+            product=product,
+            is_active=True,
+            start_date__lte=timezone.now(),
+            end_date__gte=timezone.now(),
+        )
+        .order_by("-discount_percentage")
+        .values_list("discount_percentage", flat=True)
+        .first()
+    )
+
+
+def get_category_offer(category):
+    return (
+        Offer.objects.filter(
+            category=category,
+            is_active=True,
+            start_date__lte=timezone.now(),
+            end_date__gte=timezone.now(),
+        )
+        .order_by("-discount_percentage")
+        .values_list("discount_percentage", flat=True)
+        .first()
+    )
+
+
+def apply_offer(product, base_price):
+    product_offer = get_product_offer(product)
+    category_offer = get_category_offer(product.category)
+
+    offers = [o for o in (product_offer, category_offer) if o]
+
+    if not offers:
+        return base_price
+
+    best_offer = max(offers)  
+
+    discount_amount = (Decimal(best_offer) / Decimal("100")) * base_price
+    return (base_price - discount_amount).quantize(Decimal("0.01"))

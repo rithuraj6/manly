@@ -737,6 +737,11 @@ body {
             {% with product=category.products.all.0 %}
             {% if product and product.images.first %}
                 <img src="{{ product.images.first.image.url }}" alt="{{ category.name }}">
+                {% if product.offer_percentage %}
+                        <div class="offer-badge">
+                            {{ product.offer_percentage }}% OFF
+                        </div>
+                    {% endif %}
             {% else %}
                 <img src="{% static 'images/placeholder.jpg' %}" alt="{{ category.name }}">
             {% endif %}
@@ -805,6 +810,7 @@ body {
                 <div class="image-wrapper">
                     {% if product.images.first %}
                         <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
+                        
                     {% else %}
                         <img src="{% static 'images/placeholder.jpg' %}" alt="{{ product.name }}">
                     {% endif %}

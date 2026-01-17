@@ -10,9 +10,16 @@ from apps.products.models import Product, ProductVariant, ProductImage
 from django.db.models import Avg, Count
 from apps.reviews.models import ProductReview
 
+from apps.orders.utils.pricing import apply_offer, get_best_offer
+
+from apps.products.utils import attach_offer_data
+
+
+
 
 def shop_page(request):
     banner = SiteBanner.objects.filter(is_active=True).order_by("-created_at").first()
+    
 
     featured_products = Product.objects.filter(
         is_active=True,
@@ -32,6 +39,14 @@ def shop_page(request):
     is_active=True,
     is_featured=False
     ).prefetch_related("images").order_by("-created_at")[:12]
+    
+    
+    attach_offer_data(featured_products)
+    attach_offer_data(new_launches)
+
+    for category in categories:
+        attach_offer_data(category.products.all())
+
 
     breadcrumbs = [
         {"label": "Home", "url": "/"},
@@ -72,12 +87,14 @@ def product_detail(request, product_id):
         .exclude(id=product.id)
         .prefetch_related("images")[:8]
     )
+    attach_offer_data(similar_products)
+
     reviews = (
     ProductReview.objects
     .filter(product=product)
     .select_related("user")
-    .order_by("-created_at")
-)
+    .order_by("-created_at")    
+    )
 
 
     reviews_agg = ProductReview.objects.filter(
@@ -91,6 +108,15 @@ def product_detail(request, product_id):
     average_rating = round(reviews_agg["avg_rating"] or 0, 1)
     total_reviews = reviews_agg["total_reviews"] or 0
     
+    offer = get_best_offer(product)
+
+    discounted_price = (
+        apply_offer(product, product.base_price)
+        if offer else product.base_price
+    )
+
+    offer_percentage = offer.discount_percentage if offer else None
+        
 
    
     breadcrumbs = [
@@ -106,6 +132,8 @@ def product_detail(request, product_id):
         "in_stock": in_stock,
         "similar_products": similar_products,
         "average_rating": average_rating,
+           "discounted_price": discounted_price,
+            "offer_percentage": offer_percentage,
         'reviews' : reviews,
         "total_reviews": total_reviews,
         "breadcrumbs": breadcrumbs,
@@ -117,7 +145,8 @@ def product_detail(request, product_id):
 
 def product_list_by_category(request, category_id):
     base_category = get_object_or_404(Category, id=category_id, is_active=True)
-
+    
+    
 
     selected_category_ids = request.GET.getlist("category")
     selected_sizes = request.GET.getlist("size")
@@ -178,6 +207,9 @@ def product_list_by_category(request, category_id):
         products = products.order_by("-created_at")
 
     products = products.prefetch_related("images", "variants").distinct()
+    
+    attach_offer_data(products)
+
 
   
     paginator = Paginator(products, 9)

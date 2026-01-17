@@ -5,6 +5,8 @@ from django.shortcuts import get_object_or_404 ,render
 
 from apps.cart.models import Cart, CartItem
 from apps.products.models import Product, ProductVariant
+from apps.orders.utils.pricing import apply_offer
+from decimal import Decimal
 
 
 MAX_QTY_PER_ITEM = 10
@@ -33,38 +35,30 @@ def add_to_cart(request):
     )
 
     if variant.stock <= 0:
-        return JsonResponse({
-            "success": False,
-            "message": "Product is currently out of stock"
-        }, status=400)
+        return JsonResponse({"success": False, "message": "Out of stock"}, status=400)
 
-    cart, _ = Cart.objects.get_or_create(
-        user=request.user,
-        defaults={"is_active": True}
-    )
+    cart, _ = Cart.objects.get_or_create(user=request.user)
 
-   
+    # ✅ FREEZE PRICE HERE
+    final_price = apply_offer(product, product.base_price)
 
     cart_item, created = CartItem.objects.get_or_create(
         cart=cart,
         product=product,
         variant=variant,
-        defaults={"quantity": 0}
+        defaults={
+            "quantity": 0,
+            "price_at_add": final_price
+        }
     )
 
     new_quantity = cart_item.quantity + qty
 
     if new_quantity > MAX_QTY_PER_ITEM:
-        return JsonResponse({
-            "success": False,
-            "message": "Maximum 10 units allowed per product"
-        }, status=400)
+        return JsonResponse({"success": False, "message": "Max 10 units allowed"}, status=400)
 
     if new_quantity > variant.stock:
-        return JsonResponse({
-            "success": False,
-            "message": "Requested quantity exceeds available stock"
-        }, status=400)
+        return JsonResponse({"success": False, "message": "Stock exceeded"}, status=400)
 
     cart_item.quantity = new_quantity
     cart_item.save()
@@ -73,12 +67,13 @@ def add_to_cart(request):
 
     return JsonResponse({
         "success": True,
-        "message": "Item added to cart",
         "cart_count": cart_count,
         "item_quantity": cart_item.quantity
     })
     
-
+    
+    
+    
 @require_POST
 @login_required(login_url="login")
 def update_cart_qty(request):
@@ -89,9 +84,9 @@ def update_cart_qty(request):
     if not cart:
         return JsonResponse({"success": False})
 
-    item = CartItem.objects.select_related("variant", "product").filter(
-        id=item_id, cart=cart
-    ).first()
+    item = CartItem.objects.select_related(
+        "variant", "product", "product__category"
+    ).filter(id=item_id, cart=cart).first()
 
     if not item:
         return JsonResponse({"success": False})
@@ -111,15 +106,26 @@ def update_cart_qty(request):
 
     item.save()
 
-    cart_count = sum(i.quantity for i in cart.items.all())
+
+    discounted_price = apply_offer(item.product, item.product.base_price)
+    line_total = discounted_price * item.quantity
+
+    subtotal = Decimal("0.00")
+    cart_count = 0
+
+    for i in cart.items.select_related("product"):
+        price = apply_offer(i.product, i.product.base_price)
+        subtotal += price * i.quantity
+        cart_count += i.quantity
 
     return JsonResponse({
         "success": True,
         "quantity": item.quantity,
-        "line_total": item.quantity * item.product.base_price,
-        "cart_count": cart_count
+        "line_total": float(line_total),
+        "subtotal": float(subtotal),
+        "cart_count": cart_count,
     })
-    
+
 
 @require_POST
 @login_required(login_url="login")
@@ -166,7 +172,7 @@ def change_cart_variant(request):
 @login_required(login_url="login")
 def cart_fragment(request):
     cart_items = []
-    subtotal = 0
+    subtotal = Decimal("0.00")
     has_invalid_items = False
 
     cart = getattr(request.user, "cart", None)
@@ -186,14 +192,21 @@ def cart_fragment(request):
             )
 
             if not is_invalid:
-                subtotal += product.base_price * item.quantity
+                discounted_price = apply_offer(
+                    product,
+                    product.base_price
+                )
+                line_total = discounted_price * item.quantity
+                subtotal += line_total
+            else:
+                line_total = Decimal("0.00")
 
             cart_items.append({
                 "item": item,
                 "product": product,
                 "variant": variant,
                 "is_invalid": is_invalid,
-                "line_total": product.base_price * item.quantity if not is_invalid else 0
+                "line_total": line_total
             })
 
     return render(request, "cart/_cart_items.html", {
@@ -201,6 +214,8 @@ def cart_fragment(request):
         "subtotal": subtotal,
         "has_invalid_items": has_invalid_items,
     })
+
+
 
 
 @require_POST
@@ -216,7 +231,15 @@ def remove_from_cart(request, item_id):
 
     item.delete()
 
-   
+    subtotal = Decimal("0.00")
+    for i in cart.items.select_related("product"):
+        price = apply_offer(i.product, i.product.base_price)
+        subtotal += price * i.quantity
+
     cart_count = sum(i.quantity for i in cart.items.all())
-    
-    return JsonResponse({"success": True,"cart_count": cart_count})
+
+    return JsonResponse({
+        "success": True,
+        "cart_count": cart_count,
+        "subtotal": subtotal,
+    })
