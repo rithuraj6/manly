@@ -93,7 +93,17 @@ def offer_add(request):
 
 @require_POST
 def toggle_offer_status(request, offer_id):
+    
     offer = get_object_or_404(Offer, id=offer_id)
+    now = timezone.now()
+    
+    
+    
+    if offer.end_date and offer.end_date < now:
+        return JsonResponse({
+            "success": False,
+            "message": "Expired offers cannot be activated"
+        }, status=400)
 
     offer.is_active = not offer.is_active
     offer.save(update_fields=["is_active"])
@@ -148,4 +158,28 @@ def offer_edit(request, offer_id):
             "products": products,
             "categories": categories,
         }
+    )
+
+
+
+
+def offer_list(request):
+    now = timezone.now()
+
+    offers = Offer.objects.select_related(
+        "product", "category"
+    ).order_by("-created_at")
+
+    for offer in offers:
+        if offer.end_date and offer.end_date < now:
+            offer.status = "expired"
+        elif offer.is_active:
+            offer.status = "active"
+        else:
+            offer.status = "inactive"
+
+    return render(
+        request,
+        "adminpanel/offers/offer_list.html",
+        {"offers": offers}
     )
