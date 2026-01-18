@@ -10,6 +10,8 @@ from apps.accounts.models import EmailOTP
 from apps.accounts.models import UserProfile, UserAddress
 from apps.sizeguide.models import SizeGuide
 from .utils import send_otp
+from .validators import only_letters_validator, only_numbers_validator
+from django.core.exceptions import ValidationError
 
 import cloudinary.uploader
 import base64
@@ -211,6 +213,7 @@ def get_client_ip(request):
     return request.META.get("REMOTE_ADDR")
 
 
+
 @login_required
 def profile_edit(request):
     profile = request.user.profile
@@ -248,8 +251,21 @@ def profile_edit(request):
             messages.info(request, "OTP sent to new email")
             return redirect("verify_email_change")
 
-        profile.first_name = request.POST.get("first_name", "").strip()
-        profile.last_name = request.POST.get("last_name", "").strip()
+        first_name = request.POST.get("first_name", "").strip()
+        last_name = request.POST.get("last_name", "").strip()
+
+        try:
+            only_letters_validator(first_name)
+            only_letters_validator(last_name)
+        except ValidationError:
+            messages.error(
+                request,
+                "First name and Last name should contain only alphabets."
+            )
+            return redirect("account_profile_edit")
+
+        profile.first_name = first_name
+        profile.last_name = last_name
         profile.phone = request.POST.get("phone", "").strip()
 
         image_data = request.POST.get("cropped_image")
@@ -379,11 +395,42 @@ def address(request):
 
     return render(request,"account/address_list.html",context)
 
+
+
+def validate_only_letters(fields_dict):
+    for field_name, value in fields_dict.items():
+
+        
+        if not value:
+            continue
+
+        try:
+            only_letters_validator(value)
+        except ValidationError:
+            raise ValidationError(
+                f"{field_name.replace('_', ' ').title()} should contain only alphabets."
+            )
+
+
+def validate_only_numbers(fields_dict):
+    for field_name, value in fields_dict.items():
+
+        if not value:
+            continue  
+
+        try:
+            only_numbers_validator(value)
+        except ValidationError:
+            raise ValidationError(
+                f"{field_name.replace('_', ' ').title()} should contain only numbers."
+            )      
+
 @login_required
 def address_add(request):
+    
     if request.user.is_superuser:
         return redirect('login')
-
+    
     breadcrumbs = [
         {"label": "Home", "url": "/"},
         {"label": "Account", "url": "/account/profile/"},
@@ -391,6 +438,8 @@ def address_add(request):
         {"label": "Add Address", "url": None},
     ]
 
+
+  
     if request.method == 'POST':
         full_name = request.POST.get('full_name', '').strip()
         phone = request.POST.get('phone', '').strip()
@@ -402,15 +451,45 @@ def address_add(request):
         country = request.POST.get('country', '').strip()
         pincode = request.POST.get('pincode', '').strip()
         is_default = request.POST.get('is_default') == 'on'
+        
+        
+        
+        
 
-      
+        
         if not all([full_name, phone, house_name, street, city, state, country, pincode]):
             messages.error(request, 'Please fill all required fields')
-            return render(
-                request,
-                'account/address_add.html',
-                {"breadcrumbs": breadcrumbs}
-            )
+            return render(request, 'account/address_add.html', {"breadcrumbs": breadcrumbs})
+
+      
+        try:
+            validate_only_letters({
+                "full_name": full_name,
+                "street": street,
+                "landmark": landmark,
+                "city": city,
+                "state": state,
+                "country": country,
+            })
+        except ValidationError as e:
+            messages.error(request, str(e))
+            return render(request, 'account/address_add.html', {"breadcrumbs": breadcrumbs})
+        
+        try:
+            validate_only_numbers({
+                "phone": phone,
+                "pincode": pincode,
+            })
+        except ValidationError as e:
+            messages.error(request, str(e))
+            return render(request, 'account/address_add.html', {"breadcrumbs": breadcrumbs})
+        if len(phone) != 10:
+            messages.error(request, "Phone number must be exactly 10 digits.")
+            return render(request, 'account/address_add.html', {"breadcrumbs": breadcrumbs})
+
+        if len(pincode) != 6:
+            messages.error(request, "Pincode must be exactly 6 digits.")
+            return render(request, 'account/address_add.html', {"breadcrumbs": breadcrumbs})
 
        
         if is_default:
@@ -419,7 +498,6 @@ def address_add(request):
                 is_default=True
             ).update(is_default=False)
 
-     
         UserAddress.objects.create(
             user=request.user,
             full_name=full_name,
@@ -436,10 +514,15 @@ def address_add(request):
 
         messages.success(request, 'Address added successfully')
         return redirect('account_addresses')
+            
+        
 
     return render(request,'account/address_add.html',{'breadcrumbs': breadcrumbs})
 
 
+
+
+            
 @login_required
 def address_edit(request,address_id):
     if request.user.is_superuser:
@@ -452,28 +535,72 @@ def address_edit(request,address_id):
 
      
     if request.method == "POST":
-        address.house_name = request.POST.get("house_name")
-        address.street = request.POST.get("street")
-        address.city = request.POST.get("city")
-        address.state = request.POST.get("state")
-        address.pincode = request.POST.get("pincode")
-    
-    is_default = request.POST.get('is_default') == 'on'
-    
-    
-    if is_default :
-        UserAddress.objects.filter(
-            user = request.user,is_default=True
-        ).exclude(id=address.id).update(is_default=False) 
+        full_name = request.POST.get("full_name", "").strip()
+        street = request.POST.get("street", "").strip()
+        landmark = request.POST.get("landmark", "").strip()
+        city = request.POST.get("city", "").strip()
+        state = request.POST.get("state", "").strip()
+        country = request.POST.get("country", "").strip()
+        phone = request.POST.get("phone", "").strip()
+        pincode = request.POST.get("pincode", "").strip()
+
+   
+        try:
+            validate_only_letters({
+                "full_name": full_name,
+                "street": street,
+                "landmark": landmark,
+                "city": city,
+                "state": state,
+                "country": country,
+            })
+        except ValidationError as e:
+            messages.error(request, str(e))
+            return redirect("account_address_edit", address_id=address.id)
         
         
+        try:
+            validate_only_numbers({
+                 "phone": phone,
+                    "pincode": pincode,
+            })
+        except ValidationError as e:
+            messages.error(request, str(e))
+            return redirect("account_address_edit", address_id=address.id)
+        
+        
+        if len(phone) != 10:
+            messages.error(request, "Phone number must be exactly 10 digits.")
+            return redirect("account_address_edit", address_id=address.id)
+
+        if len(pincode) != 6:
+            messages.error(request, "Pincode must be exactly 6 digits.")
+            return redirect("account_address_edit", address_id=address.id)
+
+        address.full_name = full_name
+        address.street = street
+        address.land_mark = landmark
+        address.city = city
+        address.state = state
+        address.country = country
+        address.pincode = pincode
+    
+        is_default = request.POST.get('is_default') == 'on'
+        
+        
+        if is_default :
+            UserAddress.objects.filter(
+                user = request.user,is_default=True
+            ).exclude(id=address.id).update(is_default=False) 
+            
+            
         address.is_default = is_default 
         address.save()
         
         
         messages.success(request,'Address updated successfully')
         return redirect('account_addresses')
-    
+
     
     breadcrumbs = [
         {"label": "Home", "url": "/"},
