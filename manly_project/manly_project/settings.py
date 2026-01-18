@@ -57,7 +57,7 @@ INSTALLED_APPS = [
     'apps.reviews',
 
     
-    'apps.wishlist',
+    
     'apps.sizeguide',
     "apps.cart.apps.CartConfig",
     "apps.wallet.apps.WalletConfig",
