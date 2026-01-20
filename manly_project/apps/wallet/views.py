@@ -18,6 +18,9 @@ client = razorpay.Client(
 
 @login_required
 def wallet_page(request):
+    if request.user.is_superuser  or not request.user.is_authenticated:
+        return redirect("login")
+    
     wallet, _ = Wallet.objects.get_or_create(user=request.user)
 
     transactions_qs = (
@@ -52,6 +55,9 @@ def wallet_page(request):
 @require_POST
 @login_required
 def create_wallet_topup_order(request):
+    if request.user.is_superuser  or not request.user.is_authenticated:
+        return redirect("login")
+    
     amount = Decimal(request.POST.get("amount", "0"))
 
     if amount < 10:
@@ -86,6 +92,7 @@ def create_wallet_topup_order(request):
 @require_POST
 @login_required
 def verify_wallet_payment(request):
+    
     razorpay_order_id = request.POST.get("razorpay_order_id")
     razorpay_payment_id = request.POST.get("razorpay_payment_id")
     razorpay_signature = request.POST.get("razorpay_signature")

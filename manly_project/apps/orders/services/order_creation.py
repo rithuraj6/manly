@@ -14,6 +14,8 @@ from apps.orders.models import Order, OrderItem
 from apps.orders.utils.pricing import distribute_amount
 from apps.orders.utils.pricing import apply_offer
 
+
+
 @transaction.atomic
 def create_order(
     *,
@@ -29,10 +31,14 @@ def create_order(
 
     items_data = []
     subtotal = Decimal("0.00")
-
+    
+    discounted_prices = []
    
     for item in cart_items:
-        base = item.product.base_price * item.quantity
+        discounted_price = apply_offer(item.product, item.product.base_price)
+        discounted_prices.append(discounted_price)
+
+        base = discounted_price * item.quantity
         subtotal += base
         items_data.append({"base": base})
 
@@ -66,22 +72,21 @@ def create_order(
     delivery_shares = distribute_amount(delivery_fee, items_data)
 
     for index, item in enumerate(cart_items):
-        base = item.product.base_price * item.quantity
+        discounted_price = discounted_prices[index]
+
+        base = discounted_price * item.quantity
         item_tax = tax_shares[index]
         item_shipping = delivery_shares[index]
 
         final_price_paid = base + item_tax + item_shipping
-
-        if final_price_paid is None:
-            raise ValueError("final_price_paid is None – pricing bug")
 
         OrderItem.objects.create(
             order=order,
             product=item.product,
             variant=item.variant,
             quantity=item.quantity,
-            price=item.product.base_price,
-            line_total=base,
+            price=discounted_price,          
+            line_total=base,                 
             final_price_paid=final_price_paid,
             status=OrderItem.STATUS_PENDING,
         )
@@ -89,7 +94,5 @@ def create_order(
         item.variant.stock -= item.quantity
         item.variant.save(update_fields=["stock"])
 
-   
     cart.items.all().delete()
-
     return order

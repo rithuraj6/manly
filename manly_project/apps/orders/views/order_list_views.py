@@ -1,5 +1,5 @@
 from datetime import timedelta
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.core.paginator import Paginator
@@ -10,8 +10,10 @@ from apps.orders.models import Order
 
 
 
-@login_required
+@login_required(login_url='login')
 def user_orders(request):
+    if request.user.is_superuser or not request.user.is_authenticated:
+        return redirect("login")
     user = request.user
     orders = Order.objects.filter(user=user).order_by("-created_at")
 

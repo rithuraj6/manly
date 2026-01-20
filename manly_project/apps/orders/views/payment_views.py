@@ -9,6 +9,7 @@ from apps.accounts.models import UserAddress
 from decimal import Decimal
 from apps.orders.models import Payment
 from apps.wallet.models import AdminWalletTransaction
+from apps.orders.utils.pricing import apply_offer
 
 from apps.orders.services.order_creation import create_order
 from apps.orders.utils.pricing import calculate_grand_total
@@ -48,9 +49,10 @@ def payment_page(request):
     
     address = UserAddress.objects.get(id=address_id,user=request.user)
     
-    subtotal = Decimal('0.00')
-    for item in cart.items.select_related('product'):
-        subtotal += item.product.base_price * item.quantity
+    subtotal = Decimal("0.00")
+    for item in cart.items.select_related("product", "variant", "product__category"):
+        discounted_price = apply_offer(item.product, item.product.base_price)
+        subtotal += discounted_price * item.quantity
         
         
     shipping = Decimal('0.00')if subtotal>=3000 else Decimal('150.00')
