@@ -2,12 +2,13 @@
 from apps.cart.models import Cart
 
 from decimal import Decimal, ROUND_HALF_UP
-from apps.offers.models import Offer
 
 from django.utils import timezone
 
 from decimal import Decimal
 from apps.offers.models import Offer
+
+
 
 
 def distribute_amount(total_amount, items):
@@ -46,8 +47,9 @@ def calculate_grand_total(user):
 
     subtotal = Decimal("0.00")
 
-    for item in cart.items.select_related("product"):
-        subtotal += item.product.base_price * item.quantity
+    for item in cart.items.select_related("product", "product__category"):
+        discounted_price = apply_offer(item.product, item.product.base_price)
+        subtotal += discounted_price * item.quantity
 
     delivery_fee = Decimal("0.00") if subtotal >= 3000 else Decimal("150.00")
     tax = ((subtotal + delivery_fee) * Decimal("0.18")).quantize(Decimal("0.01"))

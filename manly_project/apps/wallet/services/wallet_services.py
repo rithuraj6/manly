@@ -68,7 +68,7 @@ def pay_order_using_wallet(*, user, order):
     if wallet.balance < total_amount:
         raise ValueError("Insufficient wallet balance")
 
-    # ✅ 1. CREATE PAYMENT
+   
     payment = Payment.objects.create(
         user=user,
         payment_method="wallet",
@@ -77,7 +77,7 @@ def pay_order_using_wallet(*, user, order):
         address_snapshot=order.address_snapshot,
     )
 
-    # ✅ 2. DEBIT USER WALLET
+ 
     debit_wallet(
         wallet=wallet,
         amount=total_amount,
@@ -86,16 +86,16 @@ def pay_order_using_wallet(*, user, order):
         payment=payment,
     )
 
-    # ✅ 3. MARK ORDER PAID
+    
     order.is_paid = True
     order.payment_method = "wallet"
     order.save(update_fields=["is_paid", "payment_method"])
 
-    # ✅ 4. LINK PAYMENT → ORDER (FIXED)
+   
     payment.order = order
     payment.save(update_fields=["order"])
 
-    # ✅ 5. CREDIT ADMIN WALLET (FIXED)
+    
     if not AdminWalletTransaction.objects.filter(
         order=order,
         transaction_type="credit"
@@ -120,7 +120,6 @@ def pay_order_using_wallet(*, user, order):
 def refund_to_wallet(*, user, order_item, amount, reason):
     wallet, _ = Wallet.objects.get_or_create(user=user)
 
-    # 1️⃣ Credit user wallet
     credit_wallet(
         wallet=wallet,
         amount=Decimal(amount),
@@ -128,7 +127,7 @@ def refund_to_wallet(*, user, order_item, amount, reason):
         order=order_item.order,
     )
 
-    # 2️⃣ Debit admin wallet
+  
     debit_admin_wallet(
         order_item=order_item,
         amount=Decimal(amount),
@@ -143,7 +142,7 @@ def credit_admin_wallet(order, amount):
         order=order,
         transaction_type="credit"
     ).exists():
-        return  # already credited, do nothing
+        return  
 
     AdminWalletTransaction.objects.create(
         wallet=wallet,

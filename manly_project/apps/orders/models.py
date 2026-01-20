@@ -51,7 +51,7 @@ class Order(models.Model):
     is_paid = models.BooleanField(default=False)
 
     subtotal = models.DecimalField(max_digits=10, decimal_places=2)
-    discount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+   
     tax = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     shipping_charge = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)

@@ -581,6 +581,7 @@ def address_edit(request,address_id):
         address.street = street
         address.land_mark = landmark
         address.city = city
+        address.phone=phone
         address.state = state
         address.country = country
         address.pincode = pincode
