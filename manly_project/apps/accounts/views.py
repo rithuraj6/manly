@@ -193,7 +193,7 @@ def user_logout(request):
 
 @login_required
 def profile_view(request):
-    if request.user.is_superuser:
+    if request.user.is_superuser  or not request.user.is_authenticated:
         return redirect("login")
 
     breadcrumbs = [
@@ -216,6 +216,8 @@ def get_client_ip(request):
 
 @login_required
 def profile_edit(request):
+    if request.user.is_superuser  or not request.user.is_authenticated:
+        return redirect("login")
     profile = request.user.profile
 
     if request.user.socialaccount_set.filter(provider="google").exists():
@@ -373,8 +375,8 @@ def verify_email_change(request):
     
 @login_required
 def address(request):
-    if request.user.is_superuser:
-        return redirect('login')
+    if request.user.is_superuser  or not request.user.is_authenticated:
+        return redirect("login")
     
     addresses = UserAddress.objects.filter(
         user=request.user
@@ -428,8 +430,8 @@ def validate_only_numbers(fields_dict):
 @login_required
 def address_add(request):
     
-    if request.user.is_superuser:
-        return redirect('login')
+    if request.user.is_superuser  or not request.user.is_authenticated:
+        return redirect("login")
     
     breadcrumbs = [
         {"label": "Home", "url": "/"},
@@ -525,8 +527,8 @@ def address_add(request):
             
 @login_required
 def address_edit(request,address_id):
-    if request.user.is_superuser:
-        return redirect('login')
+    if request.user.is_superuser  or not request.user.is_authenticated:
+        return redirect("login")
     
     address = get_object_or_404(
         UserAddress,id=address_id,user=request.user
@@ -621,7 +623,7 @@ def address_edit(request,address_id):
 @login_required
 def address_delete(request, address_id):
 
-    if request.user.is_superuser:
+    if request.user.is_superuser  or not request.user.is_authenticated:
         return redirect("login")
 
     address = get_object_or_404(
@@ -654,8 +656,10 @@ def orders(request):
 
 @login_required
 def change_password(request):
-    if request.user.is_superuser:
+    if request.user.is_superuser  or not request.user.is_authenticated:
         return redirect("login")
+    
+    
     if request.method == "POST":
         old_password = request.POST.get("old_password")
         new_password = request.POST.get("new_password")

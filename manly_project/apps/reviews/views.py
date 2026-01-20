@@ -8,6 +8,9 @@ from apps.reviews.models import ProductReview
 
 @login_required
 def rate_product(request, item_id):
+    if request.user.is_superuser  or not request.user.is_authenticated:
+        return redirect("login")
+    
     order_item = get_object_or_404(
         OrderItem,
         id=item_id,
