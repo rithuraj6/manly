@@ -12,6 +12,7 @@ from apps.sizeguide.models import SizeGuide
 from .utils import send_otp
 from .validators import only_letters_validator, only_numbers_validator
 from django.core.exceptions import ValidationError
+from apps.accounts.services.size_mapping import calculate_user_size
 
 import cloudinary.uploader
 import base64
@@ -289,16 +290,11 @@ def profile_edit(request):
 
         profile.chest = float(chest) if chest else None
         profile.shoulder = float(shoulder) if shoulder else None
-        profile.size = ""
 
-        if profile.chest:
-            size_match = SizeGuide.objects.filter(
-                is_active=True,
-                chest_min__lte=profile.chest,
-                chest_max__gte=profile.chest,
-            ).first()
-            if size_match:
-                profile.size = size_match.size_name
+        profile.size = calculate_user_size(
+            chest=profile.chest,
+            shoulder=profile.shoulder,
+        )
 
         profile.save()
         messages.success(request, "Profile updated successfully")
@@ -700,3 +696,19 @@ def change_password(request):
     ]
 
     return render(request,"account/password_change.html",{"breadcrumbs": breadcrumbs})
+
+
+@login_required
+def toggle_user_size_filter(request):
+    """
+    Toggle user-size-based product prioritization.
+    Stored in session only.
+    """
+
+    current = request.session.get("ignore_user_size", False)
+
+  
+    request.session["ignore_user_size"] = not current
+    request.session.modified = True
+
+    return redirect(request.META.get("HTTP_REFERER", "/"))

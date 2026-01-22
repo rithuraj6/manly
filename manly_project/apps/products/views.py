@@ -1,6 +1,6 @@
 from django.core.paginator import Paginator
 from django.db.models import Prefetch, Q
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404,redirect
 
 from apps.banners.models import SiteBanner
 
@@ -15,6 +15,19 @@ from apps.orders.utils.pricing import apply_offer, get_best_offer
 from apps.products.utils import attach_offer_data
 
 
+from apps.sizeguide.models import SizeGuide
+
+def toggle_user_size(request):
+    """
+    Toggle user-size auto filtering (session based)
+    Works via GET to avoid nested form issues
+    """
+    current = request.session.get("disable_user_size", False)
+    request.session["disable_user_size"] = not current
+    request.session.modified = True
+
+    
+    return redirect(request.META.get("HTTP_REFERER", "/"))
 
 
 def shop_page(request):
@@ -156,15 +169,15 @@ def product_list_by_category(request, category_id):
 
     search_query = request.GET.get("q", "").strip()
     sort = request.GET.get("sort", "").strip()
-
-    products = Product.objects.filter(is_active=True)
-
-
+    
     category_ids = [base_category.id]
+
+   
+    
     if selected_category_ids:
         category_ids.extend([int(cid) for cid in selected_category_ids])
 
-    products = products.filter(category_id__in=category_ids)
+    products = Product.objects.filter(is_active=True,category_id__in=category_ids)
 
     if search_query:
         products = products.filter(
@@ -173,21 +186,29 @@ def product_list_by_category(request, category_id):
         )
 
  
-    default_size = None
-    if request.user.is_authenticated and hasattr(request.user, "measurement"):
-        default_size = request.user.measurement.mapped_size
-
-    if not selected_sizes and default_size:
-        selected_sizes = [default_size]
-
+   
+    
+    user_size = None
+    if request.user.is_authenticated and hasattr(request.user, "profile"):
+        user_size = request.user.profile.size
+    
+    disable_user_size = request.session.get("disable_user_size", False)
 
     if selected_sizes:
+       
         products = products.filter(
             variants__size__in=selected_sizes,
             variants__is_active=True,
             variants__stock__gt=0
         )
 
+    elif user_size and not disable_user_size:
+  
+        products = products.filter(
+            variants__size=user_size,
+            variants__is_active=True,
+            variants__stock__gt=0
+        )
 
     if min_price:
         products = products.filter(base_price__gte=min_price)
@@ -205,8 +226,9 @@ def product_list_by_category(request, category_id):
         products = products.order_by("-name")
     else:
         products = products.order_by("-created_at")
-
-    products = products.prefetch_related("images", "variants").distinct()
+    
+   
+    products = products.distinct().prefetch_related("images", "variants")
     
     attach_offer_data(products)
 
@@ -263,13 +285,20 @@ def product_list_by_category(request, category_id):
         {"label": "Shop", "url": "/shop/"},
         {"label": base_category.name, "url": None},
     ]
+    default_size = (
+        request.user.profile.size
+        if request.user.is_authenticated and hasattr(request.user, "profile")
+        else None
+    )
+
 
  
     context = {
         "category": base_category,
         "categories": Category.objects.filter(is_active=True),
         "page_obj": page_obj,
-        "sizes": ["S", "M", "L", "XL", "XXL"],
+        "sizes": SizeGuide.objects.filter(is_active=True)
+        .values_list("size_name", flat=True),
         "selected_sizes": selected_sizes,
         "selected_categories": selected_category_ids or [str(base_category.id)],
         "default_size": default_size,
@@ -290,6 +319,16 @@ def product_list_by_category(request, category_id):
      "clear_search_url": clear_search_url,
     "clear_sort_url": clear_sort_url,
     "clear_filter_url": clear_filter_url,
-    }
+    "user_size": (
+        request.user.profile.size
+        if request.user.is_authenticated and hasattr(request.user, "profile")
+        else None
+    ),
+
+
+        }
 
     return render(request, "products/products_list.html", context)
+
+
+
