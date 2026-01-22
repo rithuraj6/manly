@@ -11,6 +11,7 @@ def order_success(request, order_id):
         order_id=order_id,
         user=request.user
     )
+    request.session.pop("checkout_address_snapshot", None)
 
     return render(request, "orders/order_success.html", {
         "order": order

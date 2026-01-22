@@ -11,7 +11,7 @@
             <!-- Shipping Address Section -->
             <div class="checkout-section">
                 <div class="section-header">
-                    <h3 class="section-title">Shipping</h3>
+                    <h3 class="section-title">Shipping Address</h3>
                 </div>
 
                 <div class="address-selection">
@@ -35,77 +35,121 @@
                             </div>
                         </label>
                     {% empty %}
-                        <div class="no-address">
-                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                                <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                            </svg>
-                            <p>No address found.</p>
-                            <a href="{% url 'account_address_add' %}" class="add-address-link">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <line x1="12" y1="5" x2="12" y2="19"></line>
-                                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                                </svg>
-                                Add Address
-                            </a>
-                        </div>
+                        {% comment %} Empty state handled by "Use a new address" option {% endcomment %}
                     {% endfor %}
+
+                    <!-- Use New Address Option -->
+                    <label class="address-card new-address-card">
+                        <input type="radio"
+                            name="address_id"
+                            value="temporary"
+                            class="address-radio">
+                        <div class="address-content">
+                            <div class="address-header">
+                                <div class="radio-indicator"></div>
+                                <div class="new-address-label">
+                                    <strong class="address-name">Use a new address</strong>
+                                    <span class="new-address-subtitle">Enter shipping details below</span>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Temporary Address Form -->
+                <div id="temp-address-form" class="temp-address-form">
+                    <div class="form-header">
+                        <h4 class="form-title">Shipping Details</h4>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <input type="text" name="full_name" placeholder="Full Name" required>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <input type="tel" name="phone" placeholder="Phone Number" required>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <input type="text" name="house_name" placeholder="House / Flat No." required>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <input type="text" name="street" placeholder="Street Address" required>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <input type="text" name="land_mark" placeholder="Landmark (Optional)">
+                        </div>
+                        
+                        <div class="form-group">
+                            <input type="text" name="city" placeholder="City" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <input type="text" name="state" placeholder="State" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <input type="text" name="country" placeholder="Country" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <input type="text" name="pincode" placeholder="Pincode" required>
+                        </div>
+                    </div>
                 </div>
 
                 {% if addresses %}
                     <a href="{% url 'account_address_add' %}?next=checkout"
-                    class="add-new-address-btn">
+                       class="add-new-address-btn">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                             stroke="currentColor" stroke-width="2">
                             <line x1="12" y1="5" x2="12" y2="19"></line>
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                         </svg>
-                        Add New Address
+                        Add Saved Address
                     </a>
                 {% endif %}
-
             </div>
 
             <!-- Order Summary Sidebar -->
             <div class="order-summary-sidebar">
                 <div class="summary-card">
                     <h3 class="summary-title">Order Summary</h3>
-                        <div class="order-summary">
-
-                           <div class="summary-row">
-                                <span>Items Subtotal</span>
-                                <span>₹ {{ subtotal }}</span>
-                            </div>
-
-                            <div class="summary-row">
-                                <span>Delivery Fee</span>
-                                <span>
-                                    {% if delivery_fee == 0 %}
-                                        Free
-                                    {% else %}
-                                        ₹ {{ delivery_fee }}
-                                    {% endif %}
-                                </span>
-                            </div>
-
-                            <div class="summary-row">
-                                <span>Tax (18% GST)</span>
-                                <span>₹ {{ tax }}</span>
-                            </div>
-
-                            <hr>
-
-                            <div class="summary-row total">
-                                <strong>Total Payable</strong>
-                                <strong>₹ {{ total_amount }}</strong>
-                            </div>
-
-
+                    <div class="order-summary">
+                        <div class="summary-row">
+                            <span>Items Subtotal</span>
+                            <span>₹ {{ subtotal }}</span>
                         </div>
 
+                        <div class="summary-row">
+                            <span>Delivery Fee</span>
+                            <span>
+                                {% if delivery_fee == 0 %}
+                                    Free
+                                {% else %}
+                                    ₹ {{ delivery_fee }}
+                                {% endif %}
+                            </span>
+                        </div>
+
+                        <div class="summary-row">
+                            <span>Tax (18% GST)</span>
+                            <span>₹ {{ tax }}</span>
+                        </div>
+
+                        <hr>
+
+                        <div class="summary-row total">
+                            <strong>Total Payable</strong>
+                            <strong>₹ {{ total_amount }}</strong>
+                        </div>
+                    </div>
 
                     <button type="submit" class="checkout-submit-btn">
-                        <span>Continue</span>
+                        <span>Continue to Payment</span>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                             <polyline points="12 5 19 12 12 19"></polyline>
@@ -119,416 +163,454 @@
 
 <style>
     .summary-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 12px;
-    font-size: 14px;
-}
-
-.summary-row.total {
-    font-size: 16px;
-    font-weight: 700;
-}
-
-/* Checkout Wrapper */
-.checkout-wrapper {
-    min-height: calc(100vh - 200px);
-    padding: 40px 20px;
-    background: #fafafa;
-}
-
-.checkout-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    animation: fadeIn 0.5s ease;
-}
-
-.checkout-title {
-    font-size: 32px;
-    font-weight: 700;
-    color: #1a1a1a;
-    margin: 0 0 40px 0;
-    animation: slideInDown 0.5s ease;
-}
-
-/* Checkout Form Layout */
-.checkout-form {
-    display: grid;
-    grid-template-columns: 1fr 400px;
-    gap: 30px;
-    align-items: start;
-}
-
-/* Checkout Section */
-.checkout-section {
-    background: #fff;
-    border-radius: 16px;
-    padding: 35px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    animation: slideInLeft 0.5s ease;
-}
-
-.section-header {
-    margin-bottom: 25px;
-    padding-bottom: 20px;
-    border-bottom: 2px solid #f0f0f0;
-}
-
-.section-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: #1a1a1a;
-    margin: 0;
-}
-
-/* Address Selection */
-.address-selection {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.address-card {
-    position: relative;
-    display: block;
-    padding: 20px;
-    background: #f8f8f8;
-    border: 2px solid #e5e5e5;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    animation: slideInUp 0.5s ease forwards;
-    opacity: 0;
-}
-
-.address-card:nth-child(1) { animation-delay: 0.1s; }
-.address-card:nth-child(2) { animation-delay: 0.2s; }
-.address-card:nth-child(3) { animation-delay: 0.3s; }
-
-.address-card:hover {
-    border-color: #1a1a1a;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-}
-
-.address-card.selected {
-    border-color: #1a1a1a;
-    background: #fff;
-}
-
-.address-radio {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-}
-
-.address-content {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.address-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.radio-indicator {
-    width: 20px;
-    height: 20px;
-    border: 2px solid #999;
-    border-radius: 50%;
-    position: relative;
-    transition: all 0.3s ease;
-}
-
-.address-card.selected .radio-indicator,
-.address-radio:checked ~ .address-content .radio-indicator {
-    border-color: #1a1a1a;
-}
-
-.address-radio:checked ~ .address-content .radio-indicator::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 10px;
-    height: 10px;
-    background: #1a1a1a;
-    border-radius: 50%;
-}
-
-.address-name {
-    font-size: 16px;
-    font-weight: 700;
-    color: #1a1a1a;
-}
-
-.address-details {
-    margin-left: 32px;
-}
-
-.address-line,
-.address-phone {
-    font-size: 14px;
-    color: #666;
-    margin: 4px 0;
-    line-height: 1.5;
-}
-
-/* No Address State */
-.no-address {
-    text-align: center;
-    padding: 60px 20px;
-    color: #999;
-}
-
-.no-address svg {
-    margin-bottom: 20px;
-    color: #ccc;
-}
-
-.no-address p {
-    font-size: 16px;
-    margin: 0 0 20px 0;
-    color: #666;
-}
-
-.add-address-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 24px;
-    background: #1a1a1a;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 30px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.add-address-link:hover {
-    background: #333;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-}
-
-/* Add New Address Button */
-.add-new-address-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 24px;
-    background: #fff;
-    color: #1a1a1a;
-    border: 2px solid #1a1a1a;
-    border-radius: 30px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.add-new-address-btn:hover {
-    background: #1a1a1a;
-    color: #fff;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-}
-
-/* Order Summary Sidebar */
-.order-summary-sidebar {
-    position: sticky;
-    top: 20px;
-}
-
-.summary-card {
-    background: #f8f8f8;
-    border-radius: 16px;
-    padding: 30px;
-    animation: slideInRight 0.5s ease;
-}
-
-.summary-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: #1a1a1a;
-    margin: 0 0 25px 0;
-}
-
-.summary-details {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    margin-bottom: 25px;
-}
-
-.summary-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.summary-label {
-    font-size: 15px;
-    color: #666;
-    font-weight: 500;
-}
-
-.summary-value {
-    font-size: 16px;
-    font-weight: 600;
-    color: #1a1a1a;
-}
-
-.shipping-free {
-    color: #4caf50;
-    font-weight: 700;
-}
-
-.summary-divider {
-    height: 1px;
-    background: #ddd;
-    margin: 10px 0;
-}
-
-.total-row {
-    padding-top: 10px;
-}
-
-.total-row .summary-label,
-.total-row .summary-value {
-    font-size: 18px;
-    font-weight: 700;
-    color: #1a1a1a;
-}
-
-/* Checkout Submit Button */
-.checkout-submit-btn {
-    width: 100%;
-    padding: 16px 24px;
-    background: #1a1a1a;
-    color: #fff;
-    font-size: 16px;
-    font-weight: 600;
-    border: none;
-    border-radius: 30px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: all 0.3s ease;
-}
-
-.checkout-submit-btn:hover {
-    background: #333;
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-}
-
-.checkout-submit-btn svg {
-    transition: transform 0.3s ease;
-}
-
-.checkout-submit-btn:hover svg {
-    transform: translateX(4px);
-}
-
-/* Animations */
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes slideInDown {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes slideInLeft {
-    from {
-        opacity: 0;
-        transform: translateX(-30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-@keyframes slideInRight {
-    from {
-        opacity: 0;
-        transform: translateX(30px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-@keyframes slideInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Responsive */
-@media (max-width: 1024px) {
-    .checkout-form {
-        grid-template-columns: 1fr;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        font-size: 14px;
     }
 
-    .order-summary-sidebar {
-        position: static;
+    .summary-row.total {
+        font-size: 16px;
+        font-weight: 700;
     }
-}
 
-@media (max-width: 768px) {
+    /* Checkout Wrapper */
+    .checkout-wrapper {
+        min-height: calc(100vh - 200px);
+        padding: 40px 20px;
+        background: #fafafa;
+    }
+
+    .checkout-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        animation: fadeIn 0.5s ease;
+    }
+
     .checkout-title {
-        font-size: 24px;
+        font-size: 32px;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin: 0 0 40px 0;
+        animation: slideInDown 0.5s ease;
     }
 
+    /* Checkout Form Layout */
+    .checkout-form {
+        display: grid;
+        grid-template-columns: 1fr 400px;
+        gap: 30px;
+        align-items: start;
+    }
+
+    /* Checkout Section */
     .checkout-section {
-        padding: 25px 20px;
+        background: #fff;
+        border-radius: 16px;
+        padding: 35px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        animation: slideInLeft 0.5s ease;
     }
 
-    .summary-card {
-        padding: 25px 20px;
+    .section-header {
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .section-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin: 0;
+    }
+
+    /* Address Selection */
+    .address-selection {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .address-card {
+        position: relative;
+        display: block;
+        padding: 20px;
+        background: #f8f8f8;
+        border: 2px solid #e5e5e5;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        animation: slideInUp 0.5s ease forwards;
+        opacity: 0;
+    }
+
+    .address-card:nth-child(1) { animation-delay: 0.1s; }
+    .address-card:nth-child(2) { animation-delay: 0.2s; }
+    .address-card:nth-child(3) { animation-delay: 0.3s; }
+    .address-card:nth-child(4) { animation-delay: 0.4s; }
+    .address-card:nth-child(5) { animation-delay: 0.5s; }
+
+    .address-card:hover {
+        border-color: #1a1a1a;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .address-card.selected {
+        border-color: #1a1a1a;
+        background: #fff;
+    }
+
+    /* New Address Card Styling */
+    .new-address-card {
+        background: linear-gradient(135deg, #f8f8f8 0%, #ffffff 100%);
+        border: 2px dashed #d0d0d0;
+    }
+
+    .new-address-card:hover {
+        border-color: #1a1a1a;
+        border-style: dashed;
+    }
+
+    .new-address-card.selected {
+        border-style: solid;
+        border-color: #1a1a1a;
+        background: #fff;
+    }
+
+    .new-address-label {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .new-address-subtitle {
+        font-size: 13px;
+        color: #666;
+        font-weight: 400;
+    }
+
+    .address-radio {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .address-content {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .address-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .radio-indicator {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #999;
+        border-radius: 50%;
+        position: relative;
+        flex-shrink: 0;
+        transition: all 0.3s ease;
+    }
+
+    .address-card.selected .radio-indicator,
+    .address-radio:checked ~ .address-content .radio-indicator {
+        border-color: #1a1a1a;
+    }
+
+    .address-radio:checked ~ .address-content .radio-indicator::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 10px;
+        height: 10px;
+        background: #1a1a1a;
+        border-radius: 50%;
+    }
+
+    .address-name {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1a1a1a;
     }
 
     .address-details {
-        margin-left: 0;
+        margin-left: 32px;
     }
-}
+
+    .address-line,
+    .address-phone {
+        font-size: 14px;
+        color: #666;
+        margin: 4px 0;
+        line-height: 1.5;
+    }
+
+    /* Temporary Address Form */
+    .temp-address-form {
+        display: none;
+        margin-top: 20px;
+        padding: 25px;
+        background: #f8f9fa;
+        border-radius: 12px;
+        border: 2px solid #e5e5e5;
+        animation: slideInUp 0.4s ease;
+    }
+
+    .form-header {
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #e0e0e0;
+    }
+
+    .form-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin: 0;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .form-group input {
+        padding: 14px 16px;
+        font-size: 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        background: #fff;
+        transition: all 0.3s ease;
+        font-family: inherit;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: #1a1a1a;
+        box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.1);
+    }
+
+    .form-group input::placeholder {
+        color: #999;
+    }
+
+    /* Add New Address Button */
+    .add-new-address-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        background: #fff;
+        color: #1a1a1a;
+        border: 2px solid #1a1a1a;
+        border-radius: 30px;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 10px;
+    }
+
+    .add-new-address-btn:hover {
+        background: #1a1a1a;
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+
+    /* Order Summary Sidebar */
+    .order-summary-sidebar {
+        position: sticky;
+        top: 20px;
+    }
+
+    .summary-card {
+        background: #f8f8f8;
+        border-radius: 16px;
+        padding: 30px;
+        animation: slideInRight 0.5s ease;
+    }
+
+    .summary-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin: 0 0 25px 0;
+    }
+
+    .order-summary hr {
+        border: none;
+        border-top: 1px solid #ddd;
+        margin: 15px 0;
+    }
+
+    /* Checkout Submit Button */
+    .checkout-submit-btn {
+        width: 100%;
+        padding: 16px 24px;
+        background: #1a1a1a;
+        color: #fff;
+        font-size: 16px;
+        font-weight: 600;
+        border: none;
+        border-radius: 30px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: all 0.3s ease;
+        margin-top: 20px;
+    }
+
+    .checkout-submit-btn:hover {
+        background: #333;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+
+    .checkout-submit-btn svg {
+        transition: transform 0.3s ease;
+    }
+
+    .checkout-submit-btn:hover svg {
+        transform: translateX(4px);
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .checkout-form {
+            grid-template-columns: 1fr;
+        }
+
+        .order-summary-sidebar {
+            position: static;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .checkout-title {
+            font-size: 24px;
+        }
+
+        .checkout-section {
+            padding: 25px 20px;
+        }
+
+        .summary-card {
+            padding: 25px 20px;
+        }
+
+        .address-details {
+            margin-left: 0;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .temp-address-form {
+            padding: 20px;
+        }
+    }
 </style>
 
 <script>
-// Handle address selection visual feedback
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const addressCards = document.querySelectorAll('.address-card');
-    
+    const radios = document.querySelectorAll('input[name="address_id"]');
+    const tempForm = document.getElementById('temp-address-form');
+
     addressCards.forEach(card => {
         const radio = card.querySelector('.address-radio');
-        
-        card.addEventListener('click', function() {
+
+        card.addEventListener('click', function () {
             addressCards.forEach(c => c.classList.remove('selected'));
             this.classList.add('selected');
             radio.checked = true;
+
+            // Trigger change event
+            radio.dispatchEvent(new Event('change'));
+        });
+    });
+
+    radios.forEach(radio => {
+        radio.addEventListener('change', () => {
+            if (radio.value === 'temporary') {
+                tempForm.style.display = 'block';
+            } else {
+                tempForm.style.display = 'none';
+            }
         });
     });
 });

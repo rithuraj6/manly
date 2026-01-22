@@ -29,25 +29,64 @@ def payment_page(request):
     if not cart or not cart.items.exists():
         return redirect('cart_page')
     
+    address_snapshot = request.session.get("checkout_address_snapshot")
+
     
-    if request.method == 'POST'and 'address_id' in request.POST:
-        address_id = request.POST.get('address_id')
+    if request.method == "POST":
+        address_id = request.POST.get("address_id")
+
+        if address_id == "temporary":
+            required_fields = [
+                "full_name", "phone", "house_name",
+                "street", "city", "state", "country", "pincode"
+            ]
+
+            if not all(request.POST.get(f) for f in required_fields):
+                messages.error(request, "Please fill all address fields")
+                return redirect("checkout_page")
+
+            address_snapshot = {
+                "full_name": request.POST.get("full_name"),
+                "phone": request.POST.get("phone"),
+                "house_name": request.POST.get("house_name"),
+                "street": request.POST.get("street"),
+                "land_mark": request.POST.get("land_mark"),
+                "city": request.POST.get("city"),
+                "state": request.POST.get("state"),
+                "country": request.POST.get("country"),
+                "pincode": request.POST.get("pincode"),
+            }
+
+        elif address_id:
+            address = get_object_or_404(UserAddress, id=address_id, user=request.user)
+            address_snapshot = {
+                "full_name": address.full_name,
+                "phone": address.phone,
+                "house_name": address.house_name,
+                "street": address.street,
+                "land_mark": address.land_mark,
+                "city": address.city,
+                "state": address.state,
+                "country": address.country,
+                "pincode": address.pincode,
+            }
+
+        else:
+            messages.error(request, "Please select an address")
+            return redirect("checkout_page")
+
+       
+        request.session["checkout_address_snapshot"] = address_snapshot
+        request.session.modified = True
+
+   
+    if not address_snapshot:
+            return redirect("checkout_page")
         
-        if not address_id:
-            messages.error(request,'Please select an address')
-            return redirect ('checkout_page')
-        
-        
-        request.session['checkout_address_id']=address_id
-        return redirect('payment_page')
-    
-    
-    
-    address_id = request.session.get('checkout_address_id')
-    if not address_id:
-        return redirect('checkout_page')
-    
-    address = UserAddress.objects.get(id=address_id,user=request.user)
+    request.session["checkout_address_snapshot"] = address_snapshot
+    request.session.modified = True
+
+
     
     subtotal = Decimal("0.00")
     for item in cart.items.select_related("product", "variant", "product__category"):
@@ -71,7 +110,7 @@ def payment_page(request):
     
     context={
         "breadcrumbs":breadcrumbs,
-        "address": address,
+        "address": address_snapshot,
             "subtotal": subtotal,
             "shipping": shipping,
             "tax": tax,
@@ -99,8 +138,11 @@ def create_razorpay_order(request):
         "payment_capture": 1
     })
 
-    address_id = request.session.get("checkout_address_id")
-    address = UserAddress.objects.get(id=address_id, user=user)
+    address_snapshot = request.session.get("checkout_address_snapshot")
+    if not address_snapshot:
+        return JsonResponse({"error": "Address missing"}, status=400)
+
+    
 
     payment = Payment.objects.create(
         user=user,
@@ -108,17 +150,7 @@ def create_razorpay_order(request):
         razorpay_order_id=razorpay_order["id"],
         amount=amount,
         status="initiated",
-        address_snapshot={
-            "full_name": address.full_name,
-            "phone": address.phone,
-            "house_name": address.house_name,
-            "street": address.street,
-            "land_mark": address.land_mark,
-            "city": address.city,
-            "state": address.state,
-            "country": address.country,
-            "pincode": address.pincode,
-        }
+        address_snapshot=address_snapshot
     )
 
     return JsonResponse({
@@ -250,26 +282,18 @@ def wallet_payment(request):
     if not cart or not cart.items.exists():
         return redirect("cart_page")
 
-    address_id = request.session.get("checkout_address_id")
-    if not address_id:
+   
+    address_snapshot = request.session.get("checkout_address_snapshot")
+    if not address_snapshot:
         return redirect("checkout_page")
 
-    address = UserAddress.objects.get(id=address_id, user=user)
+
+    
 
     order = create_order(
         user=user,
         cart=cart,
-        address_snapshot={
-            "full_name": address.full_name,
-            "phone": address.phone,
-            "house_name": address.house_name,
-            "street": address.street,
-            "land_mark": address.land_mark,
-            "city": address.city,
-            "state": address.state,
-            "country": address.country,
-            "pincode": address.pincode,
-        },
+        address_snapshot=address_snapshot,
         payment_method="wallet",
         is_paid=False 
     )
