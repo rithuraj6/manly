@@ -1,7 +1,7 @@
 from django.db import models
 from apps.categories.models import Category
 from apps.products.models import Product
-
+from django.utils import timezone
 from django.core.exceptions import ValidationError
 
 
@@ -31,8 +31,23 @@ class Offer(models.Model):
 
         if not self.product and not self.category:
             raise ValidationError("You must select a product or a category.")
-
-        if self.discount_percentage > 90:
-            raise ValidationError("Discount percentage cannot exceed 90%.")
-
         
+        if self.discount_percentage > 90:
+            raise ValidationError('Discount percentage  cannnot exceed 90')
+   
+            
+        if self.start_date and self.end_date:
+            start = self.start_date
+            end = self.end_date
+
+            if timezone.is_naive(start):
+                start = timezone.make_aware(start)
+
+            if timezone.is_naive(end):
+                end = timezone.make_aware(end)
+
+            if end < start:
+                raise ValidationError("End date cannot be earlier than start date.")
+
+            if end < timezone.now():
+                raise ValidationError("End date cannot be in the past.")
