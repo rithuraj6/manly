@@ -175,6 +175,8 @@ def verify_razorpay_payment(request):
         razorpay_order_id=razorpay_order_id,
         status="initiated"
     )
+    from apps.cart.models import Cart
+    cart = Cart.objects.select_for_update().get(user=payment.user)
 
     client = razorpay.Client(
         auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
@@ -206,7 +208,7 @@ def verify_razorpay_payment(request):
     else:
         order = create_order(
             user=payment.user,
-            cart=payment.user.cart,
+            cart=cart,
             address_snapshot=payment.address_snapshot,
             payment_method="razorpay",
             is_paid=True,

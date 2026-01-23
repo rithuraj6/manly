@@ -43,6 +43,8 @@ def approve_return(request, return_id):
     )
 
     order_item = return_request.order_item
+    order = order_item.order
+
 
    
     return_request.status = "approved"
@@ -58,10 +60,10 @@ def approve_return(request, return_id):
 
     
     refund_to_wallet(
-        user=order_item.order.user,
-        order_item=order_item,
-        amount=order_item.final_price_paid,
-        reason=f"Return refund ({order_item.order.order_id})",
+    user=order.user,
+    order_item=order_item,
+    amount=order_item.final_price_paid,
+    reason=f"Refund for returned item {order_item.product.name}",
     )
 
     messages.success(request, "Return approved and refund credited to user wallet.")

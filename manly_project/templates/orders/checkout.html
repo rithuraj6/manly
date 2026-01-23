@@ -61,43 +61,118 @@
                     <div class="form-header">
                         <h4 class="form-title">Shipping Details</h4>
                     </div>
-                    
+
                     <div class="form-grid">
+
+                        <!-- Full Name -->
                         <div class="form-group full-width">
-                            <input type="text" name="full_name" placeholder="Full Name" required>
+                            <input
+                                type="text"
+                                name="full_name"
+                                placeholder="Full Name"
+                                required
+                                pattern="[A-Za-z\s]+"
+                                title="Only alphabets and spaces allowed"
+                            >
                         </div>
-                        
+
+                        <!-- Phone -->
                         <div class="form-group full-width">
-                            <input type="tel" name="phone" placeholder="Phone Number" required>
+                            <input
+                                type="tel"
+                                name="phone"
+                                placeholder="Phone Number"
+                                required
+                                pattern="[0-9]{10}"
+                                maxlength="10"
+                                title="Enter a valid 10-digit phone number"
+                            >
                         </div>
-                        
+
+                        <!-- House / Flat -->
                         <div class="form-group full-width">
-                            <input type="text" name="house_name" placeholder="House / Flat No." required>
+                            <input
+                                type="text"
+                                name="house_name"
+                                placeholder="House / Flat No."
+                                required
+                                pattern="[A-Za-z0-9\s\/\-]+"
+                                title="Only letters and numbers allowed"
+                            >
                         </div>
-                        
+
+                        <!-- Street -->
                         <div class="form-group full-width">
-                            <input type="text" name="street" placeholder="Street Address" required>
+                            <input
+                                type="text"
+                                name="street"
+                                placeholder="Street Address"
+                                required
+                                pattern="[A-Za-z0-9\s,.-]+"
+                                title="Invalid street name"
+                            >
                         </div>
-                        
+
+                        <!-- Landmark -->
                         <div class="form-group full-width">
-                            <input type="text" name="land_mark" placeholder="Landmark (Optional)">
+                            <input
+                                type="text"
+                                name="land_mark"
+                                placeholder="Landmark (Optional)"
+                                pattern="[A-Za-z0-9\s,.-]*"
+                                title="Invalid landmark"
+                            >
                         </div>
-                        
+
+                        <!-- City -->
                         <div class="form-group">
-                            <input type="text" name="city" placeholder="City" required>
+                            <input
+                                type="text"
+                                name="city"
+                                placeholder="City"
+                                required
+                                pattern="[A-Za-z\s]+"
+                                title="Only alphabets allowed"
+                            >
                         </div>
-                        
+
+                        <!-- State -->
                         <div class="form-group">
-                            <input type="text" name="state" placeholder="State" required>
+                            <input
+                                type="text"
+                                name="state"
+                                placeholder="State"
+                                required
+                                pattern="[A-Za-z\s]+"
+                                title="Only alphabets allowed"
+                            >
                         </div>
-                        
+
+                        <!-- Country -->
                         <div class="form-group">
-                            <input type="text" name="country" placeholder="Country" required>
+                            <input
+                                type="text"
+                                name="country"
+                                placeholder="Country"
+                                required
+                                pattern="[A-Za-z\s]+"
+                                title="Only alphabets allowed"
+                            >
                         </div>
-                        
+
+                        <!-- Pincode -->
                         <div class="form-group">
-                            <input type="text" name="pincode" placeholder="Pincode" required>
+                            <input
+                                type="text"
+                                name="pincode"
+                                placeholder="Pincode"
+                                required
+                                pattern="[0-9]{6}"
+                                maxlength="6"
+                                title="Enter a valid 6-digit pincode"
+                            >
                         </div>
+
                     </div>
                 </div>
 

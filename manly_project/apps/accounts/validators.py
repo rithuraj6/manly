@@ -15,13 +15,24 @@ only_numbers_validator = RegexValidator(
 
 
 
-name_with_spaces_validator = RegexValidator(
-    regex=r'^[A-Za-z]+( [A-Za-z]+)*$',
-    message="Name can contain only letters and single spaces."
-)
+import re
+from django.core.exceptions import ValidationError
 
+def name_with_spaces_validator(value: str, field_name="Name"):
+    """
+    Allows only alphabets and single spaces between words.
+    ✔ valid: 'Rithu Raj'
+    ✖ invalid: 'Rithu-Raj', 'Rithu_Raj', 'Rithu  Raj', 'Rithu.'
+    """
+    if not value:
+        return
 
+    pattern = r'^[A-Za-z]+(?: [A-Za-z]+)*$'
 
+    if not re.match(pattern, value):
+        raise ValidationError(
+            f"{field_name} must contain only alphabets and single spaces"
+        )
 
 
 

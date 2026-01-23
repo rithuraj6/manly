@@ -12,7 +12,8 @@ from apps.accounts.models import EmailOTP
 from apps.accounts.models import UserProfile, UserAddress
 from apps.sizeguide.models import SizeGuide
 from .utils import send_otp
-from .validators import only_letters_validator, only_numbers_validator ,name_with_spaces_validator
+from .validators import only_letters_validator, only_numbers_validator 
+from apps.accounts.validators import name_with_spaces_validator
 
 from apps.accounts.validators import validate_measurement
 from apps.accounts.services.size_mapping import calculate_user_size
@@ -475,7 +476,7 @@ def address_add(request):
             return render(request, 'account/address_add.html', {"breadcrumbs": breadcrumbs})
         
         try:
-            name_With_spaces_validator(full_name)
+            name_with_spaces_validator(full_name, "Full name")
             
         except ValidationError as e:
             message.error(request,str(e))
@@ -562,7 +563,7 @@ def address_edit(request,address_id):
         pincode = request.POST.get("pincode", "").strip()
         
         try:
-            name_with_spaces_validator(full_name)
+            name_with_spaces_validator(full_name ,"Full name")
         except ValidationError as e:
             message.error(request,str(e))
             return redirect('account_addres_edit',address_id=address.id)

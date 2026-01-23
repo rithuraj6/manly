@@ -13,6 +13,8 @@ from django.utils import timezone
 from apps.orders.models import Order, OrderItem
 from apps.orders.utils.pricing import distribute_amount
 from apps.orders.utils.pricing import apply_offer
+from apps.orders.constants import MAX_QTY_PER_ITEM
+
 
 
 
@@ -36,6 +38,9 @@ def create_order(
    
     for item in cart_items:
         
+        if item.quantity <= 0:
+            raise ValueError("Invalid item quantity")
+
         if item.quantity > MAX_QTY_PER_ITEM:
             raise ValueError("Quantity exceeds allowed limit")
 

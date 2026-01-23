@@ -1,3 +1,7 @@
+from decimal import Decimal
+
+MAX_QTY_PER_ITEM = 10   
+
 ORDER_STATUS_FLOW = {
     "pending": ["shipped", "cancelled"],
     "shipped": ["out_for_delivery", "cancelled"],

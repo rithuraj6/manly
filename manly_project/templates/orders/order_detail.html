@@ -14,6 +14,7 @@
                 <div class="order-info-card">
                     <div class="info-section">
                         <h3 class="info-title">Order: #{{ order.order_id }}</h3>
+
                         <div class="info-item">
                             <span class="info-label">Date:</span>
                             <span class="info-value">{{ order.created_at|date:"F d, Y" }}</span>
@@ -22,6 +23,23 @@
                             <span class="info-label">Status:</span>
                             <span class="status-badge {{ order.status }}">{{ order.status|title }}</span>
                         </div>
+                        <div class="info-item">
+                            <span class="info-label">Payment:</span>
+
+                            {% if order.payment_method == "cod" %}
+                                <span class="payment-badge cod">Cash on Delivery</span>
+
+                            {% elif order.payment_method == "razorpay" %}
+                                <span class="payment-badge razorpay">Razorpay</span>
+
+                            {% elif order.payment_method == "wallet" %}
+                                <span class="payment-badge wallet">Wallet</span>
+                            {% else %}
+                                <span class="payment-badge">—</span>
+                            {% endif %}
+                        </div>
+
+
                     </div>
 
                     <div class="divider"></div>
@@ -254,6 +272,34 @@
 </div>
 
 <style>
+
+    .payment-badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* COD */
+.payment-badge.cod {
+    background: #fff3e0;
+    color: #ef6c00;
+}
+
+/* Razorpay */
+.payment-badge.razorpay {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+/* Wallet */
+.payment-badge.wallet {
+    background: #e8f5e9;
+    color: #2e7d32;
+}
+
 .summary-row.cancelled {
     color: #c62828;
     font-size: 13px;
