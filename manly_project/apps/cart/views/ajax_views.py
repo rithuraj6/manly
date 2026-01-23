@@ -2,14 +2,13 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404 ,render
-
+from django.db import transaction
 from apps.cart.models import Cart, CartItem
 from apps.products.models import Product, ProductVariant
 from apps.orders.utils.pricing import apply_offer
 from decimal import Decimal
 
 
-MAX_QTY_PER_ITEM = 10
 
 
 
@@ -39,7 +38,7 @@ def add_to_cart(request):
 
     cart, _ = Cart.objects.get_or_create(user=request.user)
 
-    # ✅ FREEZE PRICE HERE
+    
     final_price = apply_offer(product, product.base_price)
 
     cart_item, created = CartItem.objects.get_or_create(
@@ -72,39 +71,76 @@ def add_to_cart(request):
     })
     
     
-    
+MAX_QTY_PER_ITEM = 10
     
 @require_POST
 @login_required(login_url="login")
+@transaction.atomic
 def update_cart_qty(request):
     item_id = request.POST.get("item_id")
     action = request.POST.get("action")
 
     cart = getattr(request.user, "cart", None)
     if not cart:
-        return JsonResponse({"success": False})
-
-    item = CartItem.objects.select_related(
-        "variant", "product", "product__category"
-    ).filter(id=item_id, cart=cart).first()
-
-    if not item:
-        return JsonResponse({"success": False})
-
+        return JsonResponse({"success": False,"message": "Cart not found"})
+    
+    item= (
+        CartItem.objects
+        .select_for_update().select_related('variant','product')
+        .filter(id=item_id,cart=cart).first()
+    )
+    
+    if not item :
+        return JsonResponse({"success":False,"message":"Item not found"})
+    current_qty = item.quantity
+    stock = item.variant.stock
+    max_allowed = min(stock,MAX_QTY_PER_ITEM)
+    
     if action == "plus":
-        if item.quantity >= item.variant.stock:
+        if current_qty >=max_allowed:
             return JsonResponse({
-                "success": False,
-                "message": f"Only {item.variant.stock} left in stock"
+                "success":False,
+                "message":("maximum 10 units allowed"
+                           if max_allowed == MAX_QTY_PER_ITEM
+                           else f"only{stock} left in in stock")
             })
-        item.quantity += 1
-
+        
+        item.quantity = current_qty + 1
+        
     elif action == "minus":
-        if item.quantity <= 1:
-            return JsonResponse({"success": False})
-        item.quantity -= 1
+        if current_qty <=1:
+            return JsonResponse({"success":False,"message":"Minimum Qty is 1"})
+        item.quantity = current_qty - 1
+        
+    else:
+        return JsonResponse({"success":False,"message":"Invalid aciton"})
+    
+    item.save(update_fields=['quantity'])
+    
+    
+    
+    
+    # item = CartItem.objects.select_related(
+    #     "variant", "product", "product__category"
+    # ).filter(id=item_id, cart=cart).first()
 
-    item.save()
+    # if not item:
+    #     return JsonResponse({"success": False})
+
+    # if action == "plus":
+    #     if item.quantity >= item.variant.stock:
+    #         return JsonResponse({
+    #             "success": False,
+    #             "message": f"Only {item.variant.stock} left in stock"
+    #         })
+    #     item.quantity += 1
+
+    # elif action == "minus":
+    #     if item.quantity <= 1:
+    #         return JsonResponse({"success": False})
+    #     item.quantity -= 1
+
+    # item.save()
 
 
     discounted_price = apply_offer(item.product, item.product.base_price)
@@ -157,12 +193,21 @@ def change_cart_variant(request):
         variant=new_variant
     ).exclude(id=item.id).first()
 
-    if existing_item:
+    # if existing_item:
         
+    #     total_qty = existing_item.quantity + item.quantity
+    #     existing_item.quantity = min(total_qty, 10)
+    #     existing_item.save()
+    #     item.delete()
+    
+    if existing_item:
+        max_allowed = min(new_variant.stock, MAX_QTY_PER_ITEM)
         total_qty = existing_item.quantity + item.quantity
-        existing_item.quantity = min(total_qty, 10)
-        existing_item.save()
+
+        existing_item.quantity = min(total_qty, max_allowed)
+        existing_item.save(update_fields=["quantity"])
         item.delete()
+        
     else:
         item.variant = new_variant
         item.save()

@@ -17,6 +17,13 @@ def checkout_page(request):
         return redirect("cart_page")
 
     for item in cart.items.select_related("variant", "product"):
+        if item.quantity > 10:
+            messages.error(
+                request,
+                f"{item.product.name} exceeds max allowed quantity (10). Please update cart."
+            )
+            return redirect("cart_page")
+
         if item.quantity > item.variant.stock:
             messages.error(
                 request,

@@ -35,6 +35,13 @@ def create_order(
     discounted_prices = []
    
     for item in cart_items:
+        
+        if item.quantity > MAX_QTY_PER_ITEM:
+            raise ValueError("Quantity exceeds allowed limit")
+
+        if item.quantity > item.variant.stock:
+            raise ValueError("Insufficient stock during order creation")
+        
         discounted_price = apply_offer(item.product, item.product.base_price)
         discounted_prices.append(discounted_price)
 
