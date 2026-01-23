@@ -93,7 +93,7 @@
             <div class="measurement-grid">
                 <div class="measurement-input-group">
                     <label for="chest">chest :</label>
-                    <input type="text" id="chest" name="chest" placeholder="in cm" value="{{ profile.chest }}">
+                   <input type="text"id="chest"name="chest"placeholder="in cm"value="{{ profile.chest|default_if_none:'' }}">
                 </div>
 
                 <div class="size-display">
@@ -103,7 +103,7 @@
 
                 <div class="measurement-input-group">
                     <label for="shoulder">shoulder :</label>
-                    <input type="text" id="shoulder" name="shoulder" placeholder="in cm" value="{{ profile.shoulder }}">
+                    <input type="text"id="shoulder"name="shoulder"placeholder="in cm"value="{{ profile.shoulder|default_if_none:'' }}">
                 </div>
             </div>
         </div>

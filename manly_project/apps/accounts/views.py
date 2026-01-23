@@ -1,3 +1,5 @@
+from django.core.exceptions import ValidationError
+
 from django.contrib.auth import update_session_auth_hash
 
 from django.shortcuts import render, redirect, get_object_or_404
@@ -11,7 +13,7 @@ from apps.accounts.models import UserProfile, UserAddress
 from apps.sizeguide.models import SizeGuide
 from .utils import send_otp
 from .validators import only_letters_validator, only_numbers_validator
-from django.core.exceptions import ValidationError
+from apps.accounts.validators import validate_measurement
 from apps.accounts.services.size_mapping import calculate_user_size
 
 import cloudinary.uploader
@@ -287,9 +289,21 @@ def profile_edit(request):
 
         chest = request.POST.get("chest")
         shoulder = request.POST.get("shoulder")
+        
+        try :
+            profile.chest =(
+                validate_measurement(chest,"chest") if chest else None
+            )
+            profile.shoulder = (
+                validate_measurement(shoulder,"shoulder") if shoulder else None
+            )
+            
+        except ValidationError as e:
+            messages.error(request,str(e))
+            return redirect('account_profile_edit')
 
-        profile.chest = float(chest) if chest else None
-        profile.shoulder = float(shoulder) if shoulder else None
+        # profile.chest = float(chest) if chest else ""
+        # profile.shoulder = float(shoulder) if shoulder else ""
 
         profile.size = calculate_user_size(
             chest=profile.chest,
