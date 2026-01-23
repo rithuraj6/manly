@@ -1,3 +1,5 @@
+from django.core.exceptions import ValidationError
+
 from django.contrib.auth import update_session_auth_hash
 
 from django.shortcuts import render, redirect, get_object_or_404
@@ -10,8 +12,11 @@ from apps.accounts.models import EmailOTP
 from apps.accounts.models import UserProfile, UserAddress
 from apps.sizeguide.models import SizeGuide
 from .utils import send_otp
-from .validators import only_letters_validator, only_numbers_validator
-from django.core.exceptions import ValidationError
+from .validators import only_letters_validator, only_numbers_validator 
+from apps.accounts.validators import name_with_spaces_validator
+
+from apps.accounts.validators import validate_measurement
+from apps.accounts.services.size_mapping import calculate_user_size
 
 import cloudinary.uploader
 import base64
@@ -286,19 +291,26 @@ def profile_edit(request):
 
         chest = request.POST.get("chest")
         shoulder = request.POST.get("shoulder")
+        
+        try :
+            profile.chest =(
+                validate_measurement(chest,"chest") if chest else None
+            )
+            profile.shoulder = (
+                validate_measurement(shoulder,"shoulder") if shoulder else None
+            )
+            
+        except ValidationError as e:
+            messages.error(request,str(e))
+            return redirect('account_profile_edit')
 
-        profile.chest = float(chest) if chest else None
-        profile.shoulder = float(shoulder) if shoulder else None
-        profile.size = ""
+        # profile.chest = float(chest) if chest else ""
+        # profile.shoulder = float(shoulder) if shoulder else ""
 
-        if profile.chest:
-            size_match = SizeGuide.objects.filter(
-                is_active=True,
-                chest_min__lte=profile.chest,
-                chest_max__gte=profile.chest,
-            ).first()
-            if size_match:
-                profile.size = size_match.size_name
+        profile.size = calculate_user_size(
+            chest=profile.chest,
+            shoulder=profile.shoulder,
+        )
 
         profile.save()
         messages.success(request, "Profile updated successfully")
@@ -462,13 +474,17 @@ def address_add(request):
         if not all([full_name, phone, house_name, street, city, state, country, pincode]):
             messages.error(request, 'Please fill all required fields')
             return render(request, 'account/address_add.html', {"breadcrumbs": breadcrumbs})
-
-      
+        
+        try:
+            name_with_spaces_validator(full_name, "Full name")
+            
+        except ValidationError as e:
+            message.error(request,str(e))
+            return render(request,'account/address_add.html',{'breadcrumbs':breadcrumbs})   
+           
         try:
             validate_only_letters({
-                "full_name": full_name,
                 "street": street,
-                "landmark": landmark,
                 "city": city,
                 "state": state,
                 "country": country,
@@ -545,13 +561,18 @@ def address_edit(request,address_id):
         country = request.POST.get("country", "").strip()
         phone = request.POST.get("phone", "").strip()
         pincode = request.POST.get("pincode", "").strip()
-
+        
+        try:
+            name_with_spaces_validator(full_name ,"Full name")
+        except ValidationError as e:
+            message.error(request,str(e))
+            return redirect('account_addres_edit',address_id=address.id)
    
         try:
             validate_only_letters({
-                "full_name": full_name,
+               
                 "street": street,
-                "landmark": landmark,
+               
                 "city": city,
                 "state": state,
                 "country": country,
@@ -700,3 +721,19 @@ def change_password(request):
     ]
 
     return render(request,"account/password_change.html",{"breadcrumbs": breadcrumbs})
+
+
+@login_required
+def toggle_user_size_filter(request):
+    """
+    Toggle user-size-based product prioritization.
+    Stored in session only.
+    """
+
+    current = request.session.get("ignore_user_size", False)
+
+  
+    request.session["ignore_user_size"] = not current
+    request.session.modified = True
+
+    return redirect(request.META.get("HTTP_REFERER", "/"))

@@ -5,6 +5,7 @@ from django.contrib import messages
 from apps.accounts.models import UserAddress
 from apps.cart.models import Cart
 from apps.orders.utils.pricing import apply_offer
+from django.urls import reverse
 
 
 
@@ -17,6 +18,13 @@ def checkout_page(request):
         return redirect("cart_page")
 
     for item in cart.items.select_related("variant", "product"):
+        if item.quantity > 10:
+            messages.error(
+                request,
+                f"{item.product.name} exceeds max allowed quantity (10). Please update cart."
+            )
+            return redirect("cart_page")
+
         if item.quantity > item.variant.stock:
             messages.error(
                 request,
@@ -79,9 +87,12 @@ def checkout_page(request):
     addresses = UserAddress.objects.filter(
         user=request.user
     ).order_by("-is_default", "-id")
+    
+    
+    
     breadcrumbs = [
     {"label": "Home", "url": "/"},
-    {"label": "Cart", "url":"cart/"},
+    {"label": "Cart", "url": reverse("cart_page")},
     {"label": "Checkoutpage", "url":None},
     ] 
 

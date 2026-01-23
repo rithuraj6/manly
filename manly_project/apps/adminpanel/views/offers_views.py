@@ -7,7 +7,15 @@ from apps.products.models import Product
 from apps.categories.models import Category
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
+from django.core.exceptions import ValidationError
 
+from django.utils import timezone
+from datetime import datetime
+
+def make_aware_date(date_str):
+    return timezone.make_aware(
+        datetime.strptime(date_str, "%Y-%m-%d")
+    )
 
 
 
@@ -62,12 +70,13 @@ def offer_add(request):
         if product_id and category_id:
             messages.error(request, "Select only one: product OR category")
             return redirect("admin_offer_add")
+        
 
         offer = Offer(
             name=name,
             discount_percentage=discount,
-            start_date=start_date,
-            end_date=end_date,
+            start_date=make_aware_date(start_date),
+             end_date=make_aware_date(end_date),
             is_active=is_active,
         )
 
@@ -76,8 +85,15 @@ def offer_add(request):
 
         if category_id:
             offer.category_id = category_id
+            
+        
+        try:
+            offer.full_clean()  
+            offer.save()
+        except ValidationError as e:
+            messages.error(request, e.message_dict or e.messages)
+            return redirect("admin_offer_add")
 
-        offer.save()
         messages.success(request, "Offer added successfully")
         return redirect("admin_offer_list")
 
@@ -142,6 +158,13 @@ def offer_edit(request, offer_id):
         offer.discount_percentage = discount
         offer.start_date = start_date
         offer.end_date = end_date
+        
+        try:
+            offer.full_clean()
+            offer.save()
+        except ValidationError as e:
+            messages.error(request, e.message_dict or e.messages)
+            return redirect("admin_offer_edit", offer_id=offer.id)
         offer.is_active = is_active
         offer.product_id = product_id or None
         offer.category_id = category_id or None

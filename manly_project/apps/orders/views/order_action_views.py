@@ -25,7 +25,8 @@ def cancel_order_item(request, item_id):
 
     refund_amount = order_item.final_price_paid
 
-   
+    
+    order = order_item.order
     order_item.status = OrderItem.STATUS_CANCELLED
     order_item.save(update_fields=["status"])
 
@@ -33,14 +34,19 @@ def cancel_order_item(request, item_id):
     variant = order_item.variant
     variant.stock += order_item.quantity
     variant.save(update_fields=["stock"])
+    
+    restore_stock(order_item)
 
     
-    refund_to_wallet(
-        user=request.user,
-        order_item=order_item,
-        amount=refund_amount,
-        reason=f"Refund for cancelled item ({order_item.order.order_id})"
-    )
+    if order.payment_method in ["razorpay", "wallet"]:
+        refund_to_wallet(
+            user=order.user,
+            order_item=order_item,
+            amount=order_item.final_price_paid,
+            reason=f"Refund for cancelled item ({order.order_id})",
+        )
+        
+    recalculate_order_status(order)
 
     messages.success(request, "Item cancelled and refund credited to wallet.")
     return redirect("order_detail", order_id=order_item.order.order_id)

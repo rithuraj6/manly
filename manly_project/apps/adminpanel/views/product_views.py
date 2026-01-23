@@ -6,7 +6,8 @@ from django.contrib.auth.decorators import login_required
 
 from apps.products.models import Product, ProductVariant, ProductImage
 from apps.categories.models import Category
-
+from apps.products.validators import validate_product_price
+from django.core.exceptions import ValidationError
 
 
 @login_required(login_url='admin_login')
@@ -47,14 +48,22 @@ def admin_add_product(request):
 
     if request.method == "POST":
         is_featured = request.POST.get("is_featured") == "on"
+        
+        try:
+            price = validate_product_price(request.POST.get('price'))
+            
+        except ValidationError as e:
+            
+            return render(request,'adminpanel/product/product_edit.html',{'categories':categories})
+        
 
         product = Product.objects.create(
-        name=request.POST.get("name"),
-        description=request.POST.get("description"),
-        base_price=request.POST.get("price"),
-        category_id=request.POST.get("category"),
-        is_active=True,
-        is_featured=is_featured,  
+            name=request.POST.get("name"),
+            description=request.POST.get("description"),
+            base_price=price,
+            category_id=request.POST.get("category"),
+            is_active=True,
+            is_featured=is_featured,  
     )
 
 
@@ -85,8 +94,19 @@ def admin_edit_product(request, product_id):
         product.is_featured = request.POST.get("is_featured") == "on"
         product.name = request.POST.get("name")
         product.description = request.POST.get("description")
-        product.base_price = request.POST.get("price")
+       
         product.category_id = request.POST.get("category")
+        
+        
+        try:
+            product.base_price = validate_product_price(
+                request.POST.get('price')
+                
+                
+            )
+        except ValidationError as e:
+            messages.error(request,str(e))
+            return render(request,'adminpanel/products/product_edit.html',{"product":product,"variants":variants,"categories":categories,"images":images,},)
         product.save()
 
         messages.success(request, "Product updated successfully")
