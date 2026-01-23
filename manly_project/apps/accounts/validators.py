@@ -15,6 +15,17 @@ only_numbers_validator = RegexValidator(
 
 
 
+name_with_spaces_validator = RegexValidator(
+    regex=r'^[A-Za-z]+( [A-Za-z]+)*$',
+    message="Name can contain only letters and single spaces."
+)
+
+
+
+
+
+
+
 
 def validate_measurement(value, field_name):
 

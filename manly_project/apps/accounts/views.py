@@ -12,7 +12,8 @@ from apps.accounts.models import EmailOTP
 from apps.accounts.models import UserProfile, UserAddress
 from apps.sizeguide.models import SizeGuide
 from .utils import send_otp
-from .validators import only_letters_validator, only_numbers_validator
+from .validators import only_letters_validator, only_numbers_validator ,name_with_spaces_validator
+
 from apps.accounts.validators import validate_measurement
 from apps.accounts.services.size_mapping import calculate_user_size
 
@@ -472,13 +473,17 @@ def address_add(request):
         if not all([full_name, phone, house_name, street, city, state, country, pincode]):
             messages.error(request, 'Please fill all required fields')
             return render(request, 'account/address_add.html', {"breadcrumbs": breadcrumbs})
-
-      
+        
+        try:
+            name_With_spaces_validator(full_name)
+            
+        except ValidationError as e:
+            message.error(request,str(e))
+            return render(request,'account/address_add.html',{'breadcrumbs':breadcrumbs})   
+           
         try:
             validate_only_letters({
-                "full_name": full_name,
                 "street": street,
-                "landmark": landmark,
                 "city": city,
                 "state": state,
                 "country": country,
@@ -555,13 +560,18 @@ def address_edit(request,address_id):
         country = request.POST.get("country", "").strip()
         phone = request.POST.get("phone", "").strip()
         pincode = request.POST.get("pincode", "").strip()
-
+        
+        try:
+            name_with_spaces_validator(full_name)
+        except ValidationError as e:
+            message.error(request,str(e))
+            return redirect('account_addres_edit',address_id=address.id)
    
         try:
             validate_only_letters({
-                "full_name": full_name,
+               
                 "street": street,
-                "landmark": landmark,
+               
                 "city": city,
                 "state": state,
                 "country": country,
