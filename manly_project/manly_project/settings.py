@@ -72,6 +72,7 @@ INSTALLED_APPS = [
     'cloudinary_storage',
     
     "apps.banners", 
+    "apps.coupons",
     
     
     
