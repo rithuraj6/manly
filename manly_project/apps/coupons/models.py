@@ -23,50 +23,53 @@ class Coupon(models.Model):
         decimal_places=2
     )
 
-    min_order_amount = models.DecimalField(
+    min_purchase_amount = models.DecimalField(
         max_digits=10,
         decimal_places=2,
-        default=0
+        default=0,
+        db_column="min_purchase_amount"
     )
 
     max_discount_amount = models.DecimalField(
         max_digits=10,
         decimal_places=2,
-        null=True,
-        blank=True,
-        help_text="Applicable only for percentage coupons"
+        db_column="max_discount_amount"
     )
 
     is_active = models.BooleanField(default=True)
 
-    start_date = models.DateTimeField()
-    end_date = models.DateTimeField()
+    valid_from = models.DateField(db_column="valid_from")
+    valid_to = models.DateField(db_column="valid_to")
 
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def clean(self):
+    def __str__(self):
+        return self.code
 
+
+    def clean(self):
+        
+        # Percentage validation
         if self.discount_type == "PERCENT":
             if self.discount_value > 90:
                 raise ValidationError("Percentage discount cannot exceed 90%")
 
             if not self.max_discount_amount:
-                raise ValidationError("Max discount amount is required for percentage coupons")
+                raise ValidationError(
+                    "Max discount amount is required for percentage coupons"
+                )
 
-        start = self.start_date
-        end = self.end_date
+        # Date validation (ONLY valid_from / valid_to)
+        if self.valid_from and self.valid_to:
+            if self.valid_to < self.valid_from:
+                raise ValidationError(
+                    "Valid To date cannot be earlier than Valid From date"
+                )
 
-        if timezone.is_naive(start):
-            start = timezone.make_aware(start)
-
-        if timezone.is_naive(end):
-            end = timezone.make_aware(end)
-
-        if end < start:
-            raise ValidationError("End date cannot be earlier than start date")
-
-        if end < timezone.now():
-            raise ValidationError("End date cannot be in the past")
+            if self.valid_to < timezone.now().date():
+                raise ValidationError(
+                    "Valid To date cannot be in the past"
+                )
 
     def __str__(self):
         return self.code
