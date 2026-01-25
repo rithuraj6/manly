@@ -5,7 +5,8 @@
     <div class="payment-confirm-container">
         <h2 class="page-title">Checkout</h2>
 
-        <form method="POST" action="{% url 'place_order' %}" class="confirm-form">
+        <form method="POST" action="{% url 'payment_page' %}" class="confirm-form">
+
             {% csrf_token %}
 
             <div class="main-content">
@@ -126,6 +127,12 @@
                             <span>Subtotal</span>
                             <span>₹{{ subtotal }}</span>
                         </div>
+                        {% if coupon_discount and coupon_discount > 0 %}
+                        <div class="summary-row">
+                            <span>Coupon Discount</span>
+                            <span>- ₹{{ coupon_discount }}</span>
+                        </div>
+                        {% endif %}
 
                         <div class="summary-row">
                             <span>Shipping</span>
@@ -550,13 +557,24 @@ document.getElementById("confirm-payment-btn").addEventListener("click", functio
         'input[name="payment_method"]:checked'
     ).value;
 
-    // COD FLOW
+    // COD
     if (selectedMethod === "cod") {
-        document.querySelector(".confirm-form").submit();
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = "{% url 'cod_payment' %}";
+
+        const csrf = document.createElement("input");
+        csrf.type = "hidden";
+        csrf.name = "csrfmiddlewaretoken";
+        csrf.value = "{{ csrf_token }}";
+
+        form.appendChild(csrf);
+        document.body.appendChild(form);
+        form.submit();
         return;
     }
 
-    // WALLET FLOW
+    // WALLET
     if (selectedMethod === "wallet") {
         const form = document.createElement("form");
         form.method = "POST";
@@ -573,50 +591,51 @@ document.getElementById("confirm-payment-btn").addEventListener("click", functio
         return;
     }
 
-    // RAZORPAY FLOW
+    // RAZORPAY
     if (selectedMethod === "razorpay") {
-        fetch("{% url 'create_razorpay_order' %}", {
-            method: "GET",
-            headers: { "X-Requested-With": "XMLHttpRequest" }
-        })
-        .then(res => res.json())
-        .then(data => {
-            const options = {
-                key: data.razorpay_key,
-                amount: data.amount * 100,
-                currency: "INR",
-                order_id: data.razorpay_order_id,
-                name: "MANLY",
-                description: "Order Payment",
+        const btn = document.getElementById("confirm-payment-btn");
+        btn.disabled = true;
 
-                handler: function (response) {
-                    const form = document.createElement("form");
-                    form.method = "POST";
-                    form.action = "{% url 'verify_razorpay_payment' %}";
+        fetch("{% url 'create_razorpay_order' %}")
+            .then(res => res.json())
+            .then(data => {
+                const options = {
+                    key: data.razorpay_key,
+                    amount: data.amount * 100,
+                    currency: "INR",
+                    order_id: data.razorpay_order_id,
+                    name: "MANLY",
+                    description: "Order Payment",
 
-                    const csrf = document.createElement("input");
-                    csrf.type = "hidden";
-                    csrf.name = "csrfmiddlewaretoken";
-                    csrf.value = "{{ csrf_token }}";
+                    handler: function (response) {
+                        const form = document.createElement("form");
+                        form.method = "POST";
+                        form.action = "{% url 'verify_razorpay_payment' %}";
 
-                    for (let key in response) {
-                        const input = document.createElement("input");
-                        input.type = "hidden";
-                        input.name = key;
-                        input.value = response[key];
-                        form.appendChild(input);
+                        const csrf = document.createElement("input");
+                        csrf.type = "hidden";
+                        csrf.name = "csrfmiddlewaretoken";
+                        csrf.value = "{{ csrf_token }}";
+
+                        for (let key in response) {
+                            const input = document.createElement("input");
+                            input.type = "hidden";
+                            input.name = key;
+                            input.value = response[key];
+                            form.appendChild(input);
+                        }
+
+                        form.appendChild(csrf);
+                        document.body.appendChild(form);
+                        form.submit();
                     }
+                };
 
-                    form.appendChild(csrf);
-                    document.body.appendChild(form);
-                    form.submit();
-                }
-            };
-
-            new Razorpay(options).open();
-        });
+                new Razorpay(options).open();
+            });
     }
 });
+
 </script>
 
 {% endblock %}

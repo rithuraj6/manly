@@ -84,7 +84,7 @@ class CouponUsage(models.Model):
     )
 
     coupon = models.ForeignKey(
-        Coupon,
+        "coupons.Coupon",
         on_delete=models.CASCADE,
         related_name="usages"
     )

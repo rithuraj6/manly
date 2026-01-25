@@ -81,8 +81,16 @@
 <hr>
 
 <p class="right">Subtotal: ₹ {{ order.subtotal }}</p>
-<p class="right">Delivery Fee: ₹ {{ order.delivery_fee }}</p>
+<p class="right">Delivery Fee: ₹ {{ order.shipping_charge }}</p>  
+
 <td>₹ {{ item.line_total }}</td>
+{% if order.coupon_discount > 0 %}
+<p class="right">
+    Coupon Discount: - ₹ {{ order.coupon_discount }}
+</p>
+{% endif %}
+<p class="right">GST (18%): ₹ {{ order.tax }}</p>
+
 
 
 

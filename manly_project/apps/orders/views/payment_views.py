@@ -21,152 +21,83 @@ from apps.wallet.services.wallet_services import credit_admin_wallet
 from django.db.models import Sum
 from django.db import transaction, IntegrityError
 from django.views.decorators.csrf import csrf_exempt
+from apps.orders.services.get_order_preview import get_order_preview
 
 
+
+
+        
 @login_required
 def payment_page(request):
-    cart = getattr(request.user,'cart',None)
+    preview = get_order_preview(request)
+    cart = getattr(request.user, "cart", None)
     if not cart or not cart.items.exists():
-        return redirect('cart_page')
+        return redirect("cart_page")
     
+
     address_snapshot = request.session.get("checkout_address_snapshot")
-
-    
-    if request.method == "POST":
-        address_id = request.POST.get("address_id")
-
-        if address_id == "temporary":
-            required_fields = [
-                "full_name", "phone", "house_name",
-                "street", "city", "state", "country", "pincode"
-            ]
-
-            if not all(request.POST.get(f) for f in required_fields):
-                messages.error(request, "Please fill all address fields")
-                return redirect("checkout_page")
-
-            address_snapshot = {
-                "full_name": request.POST.get("full_name"),
-                "phone": request.POST.get("phone"),
-                "house_name": request.POST.get("house_name"),
-                "street": request.POST.get("street"),
-                "land_mark": request.POST.get("land_mark"),
-                "city": request.POST.get("city"),
-                "state": request.POST.get("state"),
-                "country": request.POST.get("country"),
-                "pincode": request.POST.get("pincode"),
-            }
-
-        elif address_id:
-            address = get_object_or_404(UserAddress, id=address_id, user=request.user)
-            address_snapshot = {
-                "full_name": address.full_name,
-                "phone": address.phone,
-                "house_name": address.house_name,
-                "street": address.street,
-                "land_mark": address.land_mark,
-                "city": address.city,
-                "state": address.state,
-                "country": address.country,
-                "pincode": address.pincode,
-            }
-
-        else:
-            messages.error(request, "Please select an address")
-            return redirect("checkout_page")
-
-       
-        request.session["checkout_address_snapshot"] = address_snapshot
-        request.session.modified = True
-
-   
     if not address_snapshot:
-            return redirect("checkout_page")
-        
-    request.session["checkout_address_snapshot"] = address_snapshot
-    request.session.modified = True
+        return redirect("checkout_page")
+ 
 
-
-    
-    subtotal = Decimal("0.00")
-    for item in cart.items.select_related("product", "variant", "product__category"):
-        discounted_price = apply_offer(item.product, item.product.base_price)
-        subtotal += discounted_price * item.quantity
-        
-        
-    shipping = Decimal('0.00')if subtotal>=3000 else Decimal('150.00')
-    tax = ((subtotal+shipping)*Decimal('0.18')).quantize(Decimal('0.01'))
-    total = subtotal + shipping + tax
     wallet = getattr(request.user, "wallet", None)
     wallet_balance = wallet.balance if wallet else Decimal("0.00")
-
-    cod_allowed = total <= Decimal("5000.00")
+    
+    
     breadcrumbs = [
-    {"label": "Home", "url": "/"},
-    {"label": "Cart",  "url": reverse("cart_page")},
-    {"label": "Checkoutpage", "url":"checkout/"},
-    {"label": "Paymentpage", "url":None},
+        {"label": "Home", "url": reverse("home")},
+        {"label": "Cart", "url": reverse("cart_page")},
+        {"label": "Checkout", "url": reverse("checkout_page")},
+        {"label": "Payment", "url": None},
     ]
-    
-    context={
-        "breadcrumbs":breadcrumbs,
+
+    context = {
+         "breadcrumbs": breadcrumbs, 
         "address": address_snapshot,
-            "subtotal": subtotal,
-            "shipping": shipping,
-            "tax": tax,
-            "total": total,
+        "subtotal": preview["subtotal"],
+        "coupon_discount": preview["coupon_discount"],
+        "shipping": preview["delivery_fee"],
+        "tax": preview["tax"],
+        "total": preview["total_amount"],
+        "wallet_balance": wallet_balance,
+        "cod_allowed": preview["total_amount"] <= Decimal("5000"),
+    }
 
-            "wallet_balance": wallet_balance,
-            "cod_allowed": cod_allowed,
-    } 
+    return render(request, "orders/payment.html", context)
 
-    return render(  request,"orders/payment.html",context)
-        
-    
+
 @login_required
 def create_razorpay_order(request):
-    user = request.user
-    amount = calculate_grand_total(user)
+    preview = get_order_preview(request)
 
     client = razorpay.Client(
         auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
     )
 
     razorpay_order = client.order.create({
-        "amount": int(amount * 100),
+        "amount": int(preview["total_amount"] * 100),
         "currency": "INR",
-        "payment_capture": 1
+        "payment_capture": 1,
     })
 
-    address_snapshot = request.session.get("checkout_address_snapshot")
-    if not address_snapshot:
-        return JsonResponse({"error": "Address missing"}, status=400)
-
-    
-
     payment = Payment.objects.create(
-        user=user,
+        user=request.user,
         payment_method="razorpay",
         razorpay_order_id=razorpay_order["id"],
-        amount=amount,
+        amount=preview["total_amount"],
         status="initiated",
-        address_snapshot=address_snapshot
+        address_snapshot=request.session["checkout_address_snapshot"],
     )
 
     return JsonResponse({
         "razorpay_order_id": razorpay_order["id"],
         "razorpay_key": settings.RAZORPAY_KEY_ID,
-        "amount": amount
+        "amount": preview["total_amount"],
     })
-
-    
 
 @csrf_exempt
 @transaction.atomic
 def verify_razorpay_payment(request):
-    if request.method != "POST":
-        return redirect("cart_page")
-
     razorpay_order_id = request.POST.get("razorpay_order_id")
     razorpay_payment_id = request.POST.get("razorpay_payment_id")
     razorpay_signature = request.POST.get("razorpay_signature")
@@ -175,6 +106,7 @@ def verify_razorpay_payment(request):
         razorpay_order_id=razorpay_order_id,
         status="initiated"
     )
+
     from apps.cart.models import Cart
     cart = Cart.objects.select_for_update().get(user=payment.user)
 
@@ -193,40 +125,40 @@ def verify_razorpay_payment(request):
         payment.save(update_fields=["status"])
         return redirect("order_failure", payment_id=payment.id)
 
+   
     payment.status = "success"
     payment.razorpay_payment_id = razorpay_payment_id
     payment.razorpay_signature = razorpay_signature
-    payment.save(update_fields=[
-        "status",
-        "razorpay_payment_id",
-        "razorpay_signature"
-    ])
+    payment.save()
 
-    
-    if payment.order:
-        order = payment.order
-    else:
+    coupon_id = request.session.get("applied_coupon_id")
+
+    try:
         order = create_order(
             user=payment.user,
             cart=cart,
             address_snapshot=payment.address_snapshot,
             payment_method="razorpay",
             is_paid=True,
+            coupon_id=coupon_id,
         )
+    except ValueError as e:
+        payment.status = "failed"
+        payment.save(update_fields=["status"])
+        messages.error(request, str(e))
+        return redirect("payment_page")
+
     payment.order = order
     payment.save(update_fields=["order"])
 
-   
-    total_amount = (
-        order.items.aggregate(
-            total=Sum("final_price_paid")
-        )["total"] or Decimal("0.00")
-    )
+    credit_admin_wallet(order=order, amount=order.total_amount)
 
-    credit_admin_wallet(order=order, amount=total_amount)
+    
+    request.session.pop("applied_coupon_id", None)
+    request.session.pop("coupon_discount", None)
+    request.session.modified = True
 
     return redirect("order_success", order_id=order.order_id)
-
 
 
 
@@ -284,27 +216,61 @@ def wallet_payment(request):
     if not cart or not cart.items.exists():
         return redirect("cart_page")
 
-   
     address_snapshot = request.session.get("checkout_address_snapshot")
     if not address_snapshot:
         return redirect("checkout_page")
 
-
-    
+    coupon_id = request.session.get("applied_coupon_id")
 
     order = create_order(
         user=user,
         cart=cart,
         address_snapshot=address_snapshot,
         payment_method="wallet",
-        is_paid=False 
+        is_paid=False,
+        coupon_id=coupon_id,
     )
 
     try:
         pay_order_using_wallet(user=user, order=order)
     except ValueError as e:
-        order.delete()  
+        order.delete()
         messages.error(request, str(e))
         return redirect("payment_page")
+
+    request.session.pop("applied_coupon_id", None)
+    request.session.pop("coupon_discount", None)
+    request.session.modified = True
+
+    return redirect("order_success", order_id=order.order_id)
+
+
+@login_required
+def cod_payment(request):
+    user = request.user
+    cart = getattr(user, "cart", None)
+
+    if not cart or not cart.items.exists():
+        return redirect("cart_page")
+
+    address_snapshot = request.session.get("checkout_address_snapshot")
+    if not address_snapshot:
+        return redirect("checkout_page")
+
+    coupon_id = request.session.get("applied_coupon_id")
+
+    order = create_order(
+        user=user,
+        cart=cart,
+        address_snapshot=address_snapshot,
+        payment_method="cod",
+        is_paid=False,
+        coupon_id=coupon_id,
+    )
+
+   
+    request.session.pop("applied_coupon_id", None)
+    request.session.pop("coupon_discount", None)
+    request.session.modified = True
 
     return redirect("order_success", order_id=order.order_id)

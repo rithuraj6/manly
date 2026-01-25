@@ -4,8 +4,6 @@ from django.utils import timezone
 
 from apps.products.models import Product, ProductVariant
 
-
-
 class Order(models.Model):
 
     ORDER_STATUS_CHOICES = [
@@ -46,6 +44,17 @@ class Order(models.Model):
         max_length=20,
         choices=PAYMENT_METHOD_CHOICES,
         default="cod"
+    )
+    coupon = models.ForeignKey(
+        "coupons.Coupon",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+    coupon_discount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
     )
 
     is_paid = models.BooleanField(default=False)

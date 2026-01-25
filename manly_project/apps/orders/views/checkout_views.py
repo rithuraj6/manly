@@ -1,19 +1,25 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from decimal import Decimal
 from django.contrib import messages
 from apps.accounts.models import UserAddress
 from apps.cart.models import Cart
 from apps.orders.utils.pricing import apply_offer
 from django.urls import reverse
+from apps.orders.services.get_order_preview import get_order_preview
+from django.utils.timezone import now
 
+from apps.coupons.models import Coupon ,CouponUsage
+from apps.coupons.utils.pricing import calculate_coupon_discount
 
 
 
 @login_required
 def checkout_page(request):
-    request.session.pop("checkout_address_id", None)
+    user = request.user 
     cart = getattr(request.user, "cart", None)
+  
+
     if not cart or not cart.items.exists():
         return redirect("cart_page")
 
@@ -21,91 +27,107 @@ def checkout_page(request):
         if item.quantity > 10:
             messages.error(
                 request,
-                f"{item.product.name} exceeds max allowed quantity (10). Please update cart."
+                f"{item.product.name} exceeds max allowed quantity (10)."
             )
             return redirect("cart_page")
 
         if item.quantity > item.variant.stock:
             messages.error(
                 request,
-                f"{item.product.name} ({item.variant.size}) stock reduced. Please update cart."
+                f"{item.product.name} stock reduced. Please update cart."
             )
             return redirect("cart_page")
 
-    cart = getattr(request.user, "cart", None)
-    if not cart or not cart.items.exists():
-        return redirect("cart_page")
+    if request.method == "POST":
+        address_id = request.POST.get("address_id")
 
-    cart_items = []
-    subtotal = Decimal("0.00")
-    has_invalid_items = False
+        if not address_id:
+            messages.error(request, "Please select an address")
+            return redirect("checkout_page")
 
-    for cart_item in cart.items.select_related("product", "variant", "product__category"):
-        product = cart_item.product
-        variant = cart_item.variant
+    
+        if address_id == "temporary":
+            required_fields = [
+                "full_name", "phone", "house_name",
+                "street", "city", "state", "country", "pincode"
+            ]
 
-        is_invalid = (
-            not product.is_active or
-            not product.category.is_active or
-            not variant.is_active or
-            variant.stock <= 0
-        )
+            if not all(request.POST.get(f) for f in required_fields):
+                messages.error(request, "Please fill all address fields")
+                return redirect("checkout_page")
 
-        if cart_item.quantity > variant.stock:
-            messages.error(
-                request,
-                f"{product.name} only has {variant.stock} left. Cart updated."
-            )
-            cart_item.quantity = variant.stock
-            cart_item.save()
-            return redirect("cart_page")
+            address_snapshot = {
+                "full_name": request.POST["full_name"],
+                "phone": request.POST["phone"],
+                "house_name": request.POST["house_name"],
+                "street": request.POST["street"],
+                "land_mark": request.POST.get("land_mark", ""),
+                "city": request.POST["city"],
+                "state": request.POST["state"],
+                "country": request.POST["country"],
+                "pincode": request.POST["pincode"],
+            }
 
-        if is_invalid:
-            has_invalid_items = True
-            discounted_price = product.base_price
-            line_total = Decimal("0.00")
+      
         else:
-            discounted_price = apply_offer(product, product.base_price)
-            line_total = discounted_price * cart_item.quantity
-            subtotal += line_total
+            address = get_object_or_404(
+                UserAddress, id=address_id, user=request.user
+            )
 
-        cart_items.append({
-            "item": cart_item,
-            "product": product,
-            "variant": variant,
-            "base_price": product.base_price,
-            "discounted_price": discounted_price,
-            "line_total": line_total,
-            "is_invalid": is_invalid,
-        })
-        
-    
-    delivery_fee = Decimal("0.00") if subtotal >= 3000 else Decimal("150.00")
-    tax = ((subtotal + delivery_fee) * Decimal("0.18")).quantize(Decimal("0.01"))
-    total_amount = subtotal + delivery_fee + tax
-    
+            address_snapshot = {
+                "full_name": address.full_name,
+                "phone": address.phone,
+                "house_name": address.house_name,
+                "street": address.street,
+                "land_mark": address.land_mark,
+                "city": address.city,
+                "state": address.state,
+                "country": address.country,
+                "pincode": address.pincode,
+            }
+
+        request.session["checkout_address_snapshot"] = address_snapshot
+        request.session.modified = True
+        return redirect("payment_page")
+
     addresses = UserAddress.objects.filter(
         user=request.user
     ).order_by("-is_default", "-id")
-    
-    
-    
+
+   
+    preview = get_order_preview(request)
+
+    used_coupon_ids = CouponUsage.objects.filter(
+        user=user
+    ).values_list("coupon_id", flat=True)
+
+    eligible_coupons = Coupon.objects.filter(
+        is_active=True,
+        valid_from__lte=now().date(),
+        valid_to__gte=now().date()
+    ).exclude(
+        id__in=used_coupon_ids
+    )
+
+    applied_coupon_id = request.session.get("applied_coupon_id")
+    if applied_coupon_id:
+        eligible_coupons = eligible_coupons.exclude(id=applied_coupon_id)
     breadcrumbs = [
-    {"label": "Home", "url": "/"},
+    {"label": "Home", "url": reverse("home")},
     {"label": "Cart", "url": reverse("cart_page")},
-    {"label": "Checkoutpage", "url":None},
-    ] 
+    {"label": "Checkout", "url": None},
+    ]
 
     context = {
-        "cart_items": cart_items,
+         "breadcrumbs": breadcrumbs,
         "addresses": addresses,
-        "subtotal": subtotal,
-        "delivery_fee":delivery_fee,
-       "delivery_fee": delivery_fee,
-       "breadcrumbs":breadcrumbs,
-        "tax": tax,
-        "total_amount": total_amount,
-        "has_invalid_items": has_invalid_items,
+        "subtotal": preview["subtotal"],
+        "coupon_discount": preview["coupon_discount"],
+        "delivery_fee": preview["delivery_fee"],
+        "tax": preview["tax"],
+        "total_amount": preview["total_amount"],
+         "coupon": preview.get("coupon"),
+        "eligible_coupons": eligible_coupons,
     }
 
     return render(request, "orders/checkout.html", context)

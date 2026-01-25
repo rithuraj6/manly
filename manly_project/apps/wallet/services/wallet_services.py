@@ -34,7 +34,7 @@ def credit_wallet(*, wallet: Wallet, amount: Decimal, reason: str, order=None, p
 
     return wallet.balance
 
-
+@transaction.atomic
 def debit_admin_wallet(order_item, amount):
     wallet = get_admin_wallet()
 
@@ -50,17 +50,19 @@ def debit_admin_wallet(order_item, amount):
 
     wallet.balance -= amount
     wallet.save(update_fields=["balance"])
-    
+
+
+
+
 
 @transaction.atomic
 def pay_order_using_wallet(*, user, order):
-    if order is None:
+    if not order:
         raise ValueError("Order must exist before wallet payment")
 
     total_amount = (
-        order.items.aggregate(
-            total=Sum("final_price_paid")
-        )["total"] or Decimal("0.00")
+        order.items.aggregate(total=Sum("final_price_paid"))["total"]
+        or Decimal("0.00")
     )
 
     wallet = Wallet.objects.select_for_update().get(user=user)
@@ -68,16 +70,15 @@ def pay_order_using_wallet(*, user, order):
     if wallet.balance < total_amount:
         raise ValueError("Insufficient wallet balance")
 
-   
     payment = Payment.objects.create(
         user=user,
         payment_method="wallet",
         amount=total_amount,
         status="success",
         address_snapshot=order.address_snapshot,
+        order=order,
     )
 
- 
     debit_wallet(
         wallet=wallet,
         amount=total_amount,
@@ -86,24 +87,11 @@ def pay_order_using_wallet(*, user, order):
         payment=payment,
     )
 
-    
     order.is_paid = True
     order.payment_method = "wallet"
     order.save(update_fields=["is_paid", "payment_method"])
 
-   
-    payment.order = order
-    payment.save(update_fields=["order"])
-
-    
-    if not AdminWalletTransaction.objects.filter(
-        order=order,
-        transaction_type="credit"
-    ).exists():
-        credit_admin_wallet(
-            order=order,
-            amount=total_amount
-        )
+    credit_admin_wallet(order=order, amount=total_amount)
 
     return payment
 
@@ -112,43 +100,41 @@ def pay_order_using_wallet(*, user, order):
 
 
 
-
-
-
-
 @transaction.atomic
 def refund_to_wallet(*, user, order_item, amount, reason):
-    
-    order=order_item.order
-    
-    
-    
+    order = order_item.order
+
+    if not should_refund_wallet(order):
+        return
+
     wallet, _ = Wallet.objects.get_or_create(user=user)
 
+    # 1️⃣ Credit user wallet
     credit_wallet(
         wallet=wallet,
         amount=Decimal(amount),
         reason=reason,
-        order=order_item.order,
+        order=order,
     )
-    if order.payment_method == "cod":
+
+    # 2️⃣ Debit admin wallet IF admin was credited
+    if admin_wallet_was_credited(order):
         debit_admin_wallet(
             order_item=order_item,
             amount=Decimal(amount),
         )
 
-  
-   
+
 
 @transaction.atomic
-def credit_admin_wallet(order, amount):
+def credit_admin_wallet(*, order, amount: Decimal):
     wallet = AdminWallet.objects.select_for_update().get(id=1)
 
     if AdminWalletTransaction.objects.filter(
         order=order,
         transaction_type="credit"
     ).exists():
-        return  
+        return  # already credited once
 
     AdminWalletTransaction.objects.create(
         wallet=wallet,
@@ -161,6 +147,7 @@ def credit_admin_wallet(order, amount):
 
     wallet.balance += amount
     wallet.save(update_fields=["balance"])
+
     
 
 @transaction.atomic
@@ -184,3 +171,8 @@ def debit_wallet(*, wallet: Wallet, amount: Decimal, reason: str, order=None, pa
     )
 
     return wallet.balance
+def admin_wallet_was_credited(order):
+    return AdminWalletTransaction.objects.filter(
+        order=order,
+        transaction_type="credit"
+    ).exists()
