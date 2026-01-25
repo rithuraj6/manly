@@ -41,6 +41,8 @@ urlpatterns = [
     path("reviews/", include("apps.reviews.urls")),
     
     path("wallet/", include("apps.wallet.urls")),
+    path("coupons/", include("apps.coupons.urls")),
+
 
 
 

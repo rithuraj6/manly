@@ -80,7 +80,8 @@
             <td class="{% if item.status in 'cancelled returned' %}cancelled{% endif %}">
                 {{ item.status|title }}
             </td>
-           <td class="right">₹ {{ item.line_total }}</td>
+           <td class="right">₹ {{ item.final_price_paid }}</td>
+
 
         </tr>
         {% endfor %}
@@ -91,6 +92,12 @@
 
 <p class="right">Subtotal: ₹ {{ order.subtotal }}</p>
 <p class="right">Delivery Fee: ₹ {{ order.shipping_charge }}</p>
+{% if order.coupon_discount > 0 %}
+<p class="right">
+    Coupon Discount: - ₹ {{ order.coupon_discount }}
+</p>
+{% endif %}
+
 <p class="right">GST (18%): ₹ {{ order.tax }}</p>
 
 <hr>

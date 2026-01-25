@@ -62,6 +62,8 @@ from apps.adminpanel.views.offers_views import (
     offer_edit,
     toggle_offer_status,
 )
+from .views.coupon_views import coupon_list, toggle_coupon_status ,add_coupon,edit_coupon
+
 
 
 urlpatterns = [
@@ -120,6 +122,16 @@ urlpatterns = [
     path("offers/add/", offer_add, name="admin_offer_add"),
     path("offers/<int:offer_id>/toggle/",toggle_offer_status,name="admin_offer_toggle"),
     path("offers/<int:offer_id>/edit/",offer_edit,name="admin_offer_edit"),
+    
+    
+    
+    
+    path("coupons/", coupon_list, name="admin_coupon_list"),
+    path("coupons/<int:coupon_id>/toggle/", toggle_coupon_status, name="admin_coupon_toggle"),
+    path("coupons/add/", add_coupon, name="admin_coupon_add"),
+    path("coupons/<int:coupon_id>/edit/",edit_coupon,name="admin_coupon_edit"),
+
+
 
 
     

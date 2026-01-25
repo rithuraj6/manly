@@ -1,0 +1,480 @@
+{% extends "account/account_base.html" %}
+{% load static %}
+
+{% block account_content %}
+
+<div class="profile-wrapper">
+    <h2 class="page-title">My Coupons</h2>
+
+    {% if coupons %}
+        <div class="coupon-list">
+
+             {% for c in page_obj %}
+            <div class="coupon-card {% if c.is_used %}coupon-used{% endif %}">
+                <div class="liquid-bg"></div>
+                <div class="coupon-content">
+                    <div class="coupon-left">
+                        <div class="coupon-code">{{ c.code }}</div>
+                        <div class="coupon-desc">
+                            {% if c.discount_type == "PERCENT" %}
+                                {{ c.discount_value }}% OFF on orders above ₹{{ c.min_purchase_amount }}
+                            {% else %}
+                                ₹{{ c.discount_value }} OFF on orders above ₹{{ c.min_purchase_amount }}
+                            {% endif %}
+                        </div>
+
+                        <div class="coupon-meta">
+                            <span class="coupon-min">
+                                Min purchase ₹{{ c.min_purchase_amount }}
+                            </span>
+                            <span class="coupon-expiry">
+                                Expires on {{ c.valid_to|date:"d M Y" }}
+                            </span>
+                        </div>
+                    </div>
+
+                    {% if c.is_used %}
+                        <div class="coupon-status used">Coupon Used</div>
+                    {% else %}
+                        <button class="copy-coupon-btn"
+                                onclick="copyCoupon('{{ c.code }}', this)">
+                            <span class="btn-text">Copy</span>
+                            <span class="btn-ripple"></span>
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+
+            {% if page_obj.has_other_pages %}
+            <div class="pagination">
+
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}" class="page-link">
+                        Prev
+                    </a>
+                {% endif %}
+
+                <span class="page-info">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </span>
+
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="page-link">
+                        Next
+                    </a>
+                {% endif %}
+
+            </div>
+            {% endif %}
+
+    </div>
+{% else %}
+    <p class="empty-text">No coupons available.</p>
+{% endif %}
+</div>
+
+<script>
+function copyCoupon(code, btn) {
+    navigator.clipboard.writeText(code);
+    
+    // Add success animation
+    const originalText = btn.querySelector('.btn-text').textContent;
+    btn.querySelector('.btn-text').textContent = 'Copied!';
+    btn.classList.add('copied');
+    
+    setTimeout(() => {
+        btn.querySelector('.btn-text').textContent = originalText;
+        btn.classList.remove('copied');
+    }, 2000);
+}
+</script>
+
+<style>
+/* ================================
+   MODERN LIQUID UI STYLES
+   ================================ */
+
+@keyframes liquidFloat {
+    0%, 100% { 
+        transform: translate(0, 0) scale(1);
+        border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    }
+    25% { 
+        transform: translate(5px, -5px) scale(1.05);
+        border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+    }
+    50% { 
+        transform: translate(-5px, 5px) scale(0.95);
+        border-radius: 50% 60% 30% 60% / 30% 60% 70% 40%;
+    }
+    75% { 
+        transform: translate(3px, 3px) scale(1.02);
+        border-radius: 60% 40% 60% 40% / 70% 30% 50% 60%;
+    }
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes ripple {
+    0% {
+        transform: scale(0);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+.page-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: fadeInUp 0.6s ease;
+}
+
+/* ================================
+   COUPON LIST
+   ================================ */
+
+.coupon-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.coupon-card {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(102, 126, 234, 0.1);
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: fadeInUp 0.6s ease backwards;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.coupon-card:nth-child(1) { animation-delay: 0.1s; }
+.coupon-card:nth-child(2) { animation-delay: 0.2s; }
+.coupon-card:nth-child(3) { animation-delay: 0.3s; }
+.coupon-card:nth-child(4) { animation-delay: 0.4s; }
+.coupon-card:nth-child(5) { animation-delay: 0.5s; }
+
+.coupon-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(102, 126, 234, 0.1),
+        transparent
+    );
+    transition: left 0.5s ease;
+}
+
+.coupon-card:hover::before {
+    left: 100%;
+}
+
+.coupon-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(102, 126, 234, 0.2);
+    border-color: rgba(102, 126, 234, 0.3);
+}
+
+/* Liquid Background Effect */
+.liquid-bg {
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 200px;
+    height: 200px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08));
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+    animation: liquidFloat 8s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.coupon-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+/* LEFT SIDE */
+.coupon-left {
+    flex: 1;
+}
+
+.coupon-code {
+    font-size: 1.1rem;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+    color: #667eea;
+    margin-bottom: 0.5rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
+}
+
+.coupon-card:hover .coupon-code {
+    letter-spacing: 2px;
+}
+
+.coupon-desc {
+    font-size: 0.9rem;
+    color: #4a5568;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.coupon-meta {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.coupon-min {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #f59e0b;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.05));
+    padding: 0.35rem 0.75rem;
+    border-radius: 12px;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    transition: all 0.3s ease;
+}
+
+.coupon-card:hover .coupon-min {
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
+}
+
+.coupon-expiry {
+    font-size: 0.75rem;
+    color: #ffffff;
+    padding: 0.35rem 0.75rem;
+    background: rgba(243, 72, 72, 0.47);
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+/* COPY BUTTON */
+.copy-coupon-btn {
+    position: relative;
+    padding: 0.65rem 1.5rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 50px;
+    border: 2px solid #667eea;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.copy-coupon-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.copy-coupon-btn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.copy-coupon-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 25px rgba(102, 126, 234, 0.4);
+}
+
+.copy-coupon-btn:active {
+    transform: scale(0.95);
+}
+
+.btn-text {
+    position: relative;
+    z-index: 1;
+}
+
+.copy-coupon-btn.copied {
+    background: linear-gradient(135deg, #10b981, #059669);
+    border-color: #10b981;
+    animation: pulse 0.5s ease;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* USED COUPON */
+.coupon-used {
+    opacity: 0.5;
+    filter: grayscale(0.6);
+    pointer-events: none;
+}
+
+.coupon-used::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(0, 0, 0, 0.02) 10px,
+        rgba(0, 0, 0, 0.02) 20px
+    );
+    pointer-events: none;
+}
+
+.coupon-status.used {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #ff0c0c;
+    background: rgba(239, 68, 68, 0.58);
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* ================================
+   PAGINATION
+   ================================ */
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
+    animation: fadeInUp 0.6s ease 0.6s backwards;
+}
+
+.page-link {
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.6rem 1.2rem;
+    border-radius: 50px;
+    border: 2px solid #020203;
+    color: #000000;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.page-link::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: #75757515;
+    transform: translate(-50%, -50%);
+    transition: width 0.4s, height 0.4s;
+}
+
+.page-link:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.page-link:hover {
+    color: white;
+    box-shadow: 0 4px 15px rgba(231, 231, 231, 0.3);
+    transform: translateY(-2px);
+}
+
+.page-link span {
+    position: relative;
+    z-index: 1;
+}
+
+.page-info {
+    font-size: 0.8rem;
+    color: #718096;
+    font-weight: 500;
+    padding: 0.6rem 1rem;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 12px;
+}
+
+/* EMPTY STATE */
+.empty-text {
+    text-align: center;
+    padding: 3rem;
+    font-size: 1rem;
+    color: #718096;
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 20px;
+    border: 2px dashed rgba(102, 126, 234, 0.2);
+    animation: fadeInUp 0.6s ease;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .coupon-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .copy-coupon-btn,
+    .coupon-status.used {
+        width: 100%;
+        text-align: center;
+    }
+}
+</style>
+
+{% endblock %}

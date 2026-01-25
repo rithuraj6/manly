@@ -5,231 +5,225 @@
     <div class="checkout-container">
         <h2 class="checkout-title">Checkout</h2>
 
-        <form method="POST" action="{% url 'payment_page' %}" class="checkout-form">
+        <form method="POST" action="{% url 'checkout_page' %}">
             {% csrf_token %}
 
-            <!-- Shipping Address Section -->
-            <div class="checkout-section">
-                <div class="section-header">
-                    <h3 class="section-title">Shipping Address</h3>
-                </div>
+            <div class="checkout-grid">
+                <!-- Left Column: Shipping Address -->
+                <div class="checkout-main">
+                    <div class="checkout-section">
+                        <div class="section-header">
+                            <h3 class="section-title">Shipping Address</h3>
+                        </div>
 
-                <div class="address-selection">
-                    {% for address in addresses %}
-                        <label class="address-card {% if address.is_default %}selected{% endif %}">
-                            <input type="radio"
-                                   name="address_id"
-                                   value="{{ address.id }}"
-                                   class="address-radio"
-                                   {% if address.is_default %}checked{% endif %}>
-                            <div class="address-content">
-                                <div class="address-header">
-                                    <div class="radio-indicator"></div>
-                                    <strong class="address-name">{{ address.full_name }}</strong>
+                        <div class="address-selection">
+                            {% for address in addresses %}
+                                <label class="address-card {% if address.is_default %}selected{% endif %}">
+                                    <input type="radio"
+                                           name="address_id"
+                                           value="{{ address.id }}"
+                                           class="address-radio"
+                                           {% if address.is_default %}checked{% endif %}>
+                                    <div class="address-content">
+                                        <div class="address-header">
+                                            <div class="radio-indicator"></div>
+                                            <strong class="address-name">{{ address.full_name }}</strong>
+                                        </div>
+                                        <div class="address-details">
+                                            <p class="address-line">{{ address.address_line_1 }}</p>
+                                            <p class="address-line">{{ address.city }}, {{ address.pincode }}</p>
+                                            <p class="address-phone">Phone: {{ address.phone }}</p>
+                                        </div>
+                                    </div>
+                                </label>
+                            {% empty %}
+                                {% comment %} Empty state handled by "Use a new address" option {% endcomment %}
+                            {% endfor %}
+
+                            <!-- Use New Address Option -->
+                            <label class="address-card new-address-card">
+                                <input type="radio"
+                                    name="address_id"
+                                    value="temporary"
+                                    class="address-radio">
+                                <div class="address-content">
+                                    <div class="address-header">
+                                        <div class="radio-indicator"></div>
+                                        <div class="new-address-label">
+                                            <strong class="address-name">Use a new address</strong>
+                                            <span class="new-address-subtitle">Enter shipping details below</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="address-details">
-                                    <p class="address-line">{{ address.address_line_1 }}</p>
-                                    <p class="address-line">{{ address.city }}, {{ address.pincode }}</p>
-                                    <p class="address-phone">Phone: {{ address.phone }}</p>
+                            </label>
+                        </div>
+
+                        <!-- Temporary Address Form -->
+                        <div id="temp-address-form" class="temp-address-form">
+                            <div class="form-header">
+                                <h4 class="form-title">Shipping Details</h4>
+                            </div>
+
+                            <div class="form-grid">
+                                <div class="form-group full-width">
+                                    <input type="text" name="full_name" placeholder="Full Name" required
+                                        pattern="[A-Za-z\s]+" title="Only alphabets and spaces allowed">
+                                </div>
+
+                                <div class="form-group full-width">
+                                    <input type="tel" name="phone" placeholder="Phone Number" required
+                                        pattern="[0-9]{10}" maxlength="10" title="Enter a valid 10-digit phone number">
+                                </div>
+
+                                <div class="form-group full-width">
+                                    <input type="text" name="house_name" placeholder="House / Flat No." required
+                                        pattern="[A-Za-z0-9\s\/\-]+" title="Only letters and numbers allowed">
+                                </div>
+
+                                <div class="form-group full-width">
+                                    <input type="text" name="street" placeholder="Street Address" required
+                                        pattern="[A-Za-z0-9\s,.-]+" title="Invalid street name">
+                                </div>
+
+                                <div class="form-group full-width">
+                                    <input type="text" name="land_mark" placeholder="Landmark (Optional)"
+                                        pattern="[A-Za-z0-9\s,.-]*" title="Invalid landmark">
+                                </div>
+
+                                <div class="form-group">
+                                    <input type="text" name="city" placeholder="City" required
+                                        pattern="[A-Za-z\s]+" title="Only alphabets allowed">
+                                </div>
+
+                                <div class="form-group">
+                                    <input type="text" name="state" placeholder="State" required
+                                        pattern="[A-Za-z\s]+" title="Only alphabets allowed">
+                                </div>
+
+                                <div class="form-group">
+                                    <input type="text" name="country" placeholder="Country" required
+                                        pattern="[A-Za-z\s]+" title="Only alphabets allowed">
+                                </div>
+
+                                <div class="form-group">
+                                    <input type="text" name="pincode" placeholder="Pincode" required
+                                        pattern="[0-9]{6}" maxlength="6" title="Enter a valid 6-digit pincode">
                                 </div>
                             </div>
-                        </label>
-                    {% empty %}
-                        {% comment %} Empty state handled by "Use a new address" option {% endcomment %}
-                    {% endfor %}
-
-                    <!-- Use New Address Option -->
-                    <label class="address-card new-address-card">
-                        <input type="radio"
-                            name="address_id"
-                            value="temporary"
-                            class="address-radio">
-                        <div class="address-content">
-                            <div class="address-header">
-                                <div class="radio-indicator"></div>
-                                <div class="new-address-label">
-                                    <strong class="address-name">Use a new address</strong>
-                                    <span class="new-address-subtitle">Enter shipping details below</span>
-                                </div>
-                            </div>
-                        </div>
-                    </label>
-                </div>
-
-                <!-- Temporary Address Form -->
-                <div id="temp-address-form" class="temp-address-form">
-                    <div class="form-header">
-                        <h4 class="form-title">Shipping Details</h4>
-                    </div>
-
-                    <div class="form-grid">
-
-                        <!-- Full Name -->
-                        <div class="form-group full-width">
-                            <input
-                                type="text"
-                                name="full_name"
-                                placeholder="Full Name"
-                                required
-                                pattern="[A-Za-z\s]+"
-                                title="Only alphabets and spaces allowed"
-                            >
                         </div>
 
-                        <!-- Phone -->
-                        <div class="form-group full-width">
-                            <input
-                                type="tel"
-                                name="phone"
-                                placeholder="Phone Number"
-                                required
-                                pattern="[0-9]{10}"
-                                maxlength="10"
-                                title="Enter a valid 10-digit phone number"
-                            >
-                        </div>
-
-                        <!-- House / Flat -->
-                        <div class="form-group full-width">
-                            <input
-                                type="text"
-                                name="house_name"
-                                placeholder="House / Flat No."
-                                required
-                                pattern="[A-Za-z0-9\s\/\-]+"
-                                title="Only letters and numbers allowed"
-                            >
-                        </div>
-
-                        <!-- Street -->
-                        <div class="form-group full-width">
-                            <input
-                                type="text"
-                                name="street"
-                                placeholder="Street Address"
-                                required
-                                pattern="[A-Za-z0-9\s,.-]+"
-                                title="Invalid street name"
-                            >
-                        </div>
-
-                        <!-- Landmark -->
-                        <div class="form-group full-width">
-                            <input
-                                type="text"
-                                name="land_mark"
-                                placeholder="Landmark (Optional)"
-                                pattern="[A-Za-z0-9\s,.-]*"
-                                title="Invalid landmark"
-                            >
-                        </div>
-
-                        <!-- City -->
-                        <div class="form-group">
-                            <input
-                                type="text"
-                                name="city"
-                                placeholder="City"
-                                required
-                                pattern="[A-Za-z\s]+"
-                                title="Only alphabets allowed"
-                            >
-                        </div>
-
-                        <!-- State -->
-                        <div class="form-group">
-                            <input
-                                type="text"
-                                name="state"
-                                placeholder="State"
-                                required
-                                pattern="[A-Za-z\s]+"
-                                title="Only alphabets allowed"
-                            >
-                        </div>
-
-                        <!-- Country -->
-                        <div class="form-group">
-                            <input
-                                type="text"
-                                name="country"
-                                placeholder="Country"
-                                required
-                                pattern="[A-Za-z\s]+"
-                                title="Only alphabets allowed"
-                            >
-                        </div>
-
-                        <!-- Pincode -->
-                        <div class="form-group">
-                            <input
-                                type="text"
-                                name="pincode"
-                                placeholder="Pincode"
-                                required
-                                pattern="[0-9]{6}"
-                                maxlength="6"
-                                title="Enter a valid 6-digit pincode"
-                            >
-                        </div>
-
+                        {% if addresses %}
+                            <a href="{% url 'account_address_add' %}?next=checkout" class="add-new-address-btn">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                                Add Saved Address
+                            </a>
+                        {% endif %}
                     </div>
                 </div>
 
-                {% if addresses %}
-                    <a href="{% url 'account_address_add' %}?next=checkout"
-                       class="add-new-address-btn">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2">
-                            <line x1="12" y1="5" x2="12" y2="19"></line>
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                        </svg>
-                        Add Saved Address
-                    </a>
-                {% endif %}
-            </div>
+                <!-- Right Column: Order Summary -->
+                <div class="checkout-sidebar">
+                    <div class="summary-card">
+                        <h3 class="summary-title">Order Summary</h3>
 
-            <!-- Order Summary Sidebar -->
-            <div class="order-summary-sidebar">
-                <div class="summary-card">
-                    <h3 class="summary-title">Order Summary</h3>
-                    <div class="order-summary">
-                        <div class="summary-row">
-                            <span>Items Subtotal</span>
-                            <span>₹ {{ subtotal }}</span>
-                        </div>
+                        <div class="order-summary">
+                            <div class="summary-row">
+                                <span>Items Subtotal</span>
+                                <span>₹{{ subtotal }}</span>
+                            </div>
 
-                        <div class="summary-row">
-                            <span>Delivery Fee</span>
-                            <span>
-                                {% if delivery_fee == 0 %}
-                                    Free
+                            {% if coupon %}
+                                <div class="summary-row discount">
+                                    <span>Coupon ({{ coupon.code }})</span>
+                                    <span>-₹{{ coupon_discount }}</span>
+                                </div>
+                            {% endif %}
+
+                            <div class="summary-row">
+                                <span>Delivery Fee</span>
+                                <span>
+                                    {% if delivery_fee == 0 %}
+                                        <span class="free-tag">Free</span>
+                                    {% else %}
+                                        ₹{{ delivery_fee }}
+                                    {% endif %}
+                                </span>
+                            </div>
+
+                            <div class="summary-row">
+                                <span>Tax (18% GST)</span>
+                                <span>₹{{ tax }}</span>
+                            </div>
+
+                            <div class="summary-divider"></div>
+
+                            <div class="summary-row total">
+                                <strong>Total Payable</strong>
+                                <strong>₹{{ total_amount }}</strong>
+                            </div>
+
+                            <!-- Coupon Section -->
+                            <div class="coupon-section">
+
+                                    {% if eligible_coupons %}
+                                        <div class="eligible-coupons">
+                                            <p class="coupon-heading">Available Coupons</p>
+
+                                            {% for c in eligible_coupons %}
+                                                <div class="coupon-card">
+                                                    <div class="coupon-left">
+                                                        <span class="coupon-badge">CODE</span>
+                                                        <span class="coupon-code">{{ c.code }}</span>
+                                                        <p class="coupon-desc">{{ c.description }}</p>
+
+                                                        {% if c.min_purchase_amount %}
+                                                            <p class="coupon-min">
+                                                                Min purchase: ₹{{ c.min_purchase_amount }}
+                                                            </p>
+                                                        {% endif %}
+                                                    </div>
+
+
+                                                    <button type="button"
+                                                            class="copy-coupon-btn"
+                                                            onclick="copyCoupon('{{ c.code }}')">
+                                                        Copy
+                                                    </button>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                {% if coupon %}
+                                    <button type="submit" formaction="{% url 'remove_coupon' %}"
+                                        formmethod="post" class="remove-coupon-btn">
+                                        Remove Coupon
+                                    </button>
                                 {% else %}
-                                    ₹ {{ delivery_fee }}
+                                    <div class="coupon-input-group">
+                                        <input type="text" name="coupon_code" class="coupon-input"
+                                            placeholder="Enter coupon code">
+                                        <button type="submit" formaction="{% url 'apply_coupon' %}"
+                                            formmethod="post" class="apply-coupon-btn">
+                                            Apply
+                                        </button>
+                                    </div>
                                 {% endif %}
-                            </span>
+                            </div>
                         </div>
 
-                        <div class="summary-row">
-                            <span>Tax (18% GST)</span>
-                            <span>₹ {{ tax }}</span>
-                        </div>
-
-                        <hr>
-
-                        <div class="summary-row total">
-                            <strong>Total Payable</strong>
-                            <strong>₹ {{ total_amount }}</strong>
-                        </div>
+                        <button type="submit" class="checkout-submit-btn">
+                            <span>Continue to Payment</span>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" 
+                                stroke="currentColor" stroke-width="2">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </button>
                     </div>
-
-                    <button type="submit" class="checkout-submit-btn">
-                        <span>Continue to Payment</span>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="5" y1="12" x2="19" y2="12"></line>
-                            <polyline points="12 5 19 12 12 19"></polyline>
-                        </svg>
-                    </button>
                 </div>
             </div>
         </form>
@@ -237,461 +231,632 @@
 </div>
 
 <style>
-    .summary-row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 12px;
-        font-size: 14px;
+/* ================================
+   COMPACT AVAILABLE COUPONS
+   ================================ */
+
+.eligible-coupons {
+    margin-bottom: 1rem;
+    padding: 0.9rem;
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+}
+
+.coupon-heading {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: 0.75rem;
+}
+
+/* Coupon Card */
+.coupon-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+   
+
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-border);
+    border-left: 3px solid var(--color-primary);
+    border-radius: var(--radius-md);
+    padding: 0.65rem 0.75rem;
+
+    margin-bottom: 0.5rem;
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.coupon-card:last-child {
+    margin-bottom: 0;
+}
+
+.coupon-card:hover {
+    background: rgba(206, 217, 240, 0.42);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Left Content */
+.coupon-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.coupon-badge {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    background: var(--color-primary-light);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    width: fit-content;
+    letter-spacing: 0.5px;
+}
+
+.coupon-code {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    font-family: monospace;
+}
+
+.coupon-desc {
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+    line-height: 1.3;
+}
+
+/* Minimum Purchase */
+.coupon-min {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #b45309;
+    background: rgba(245, 158, 11, 0.12);
+    padding: 0.15rem 0.45rem;
+    border-radius: 5px;
+    width: fit-content;
+    margin-top: 0.1rem;
+}
+
+/* Copy Button */
+.copy-coupon-btn {
+    padding: 0.35rem 0.85rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+
+    background: transparent;
+    color: var(--color-primary);
+    border: 1.5px solid var(--color-primary);
+    border-radius: var(--radius-full);
+
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.copy-coupon-btn:hover {
+    background: var(--color-primary);
+    color: #fff;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+    .coupon-card {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 0.65rem;
     }
 
-    .summary-row.total {
-        font-size: 16px;
-        font-weight: 700;
+    .copy-coupon-btn {
+        margin-top: 0.25rem;
+        align-self: flex-start;
+    }
+}
+
+
+/* ============================================
+   COLOR PALETTE & VARIABLES
+   ============================================ */
+:root {
+    --color-primary: #313131;
+    --color-primary-dark: #1a1a1a;
+    --color-primary-light: #7979793a;
+    --color-success: #10b981;
+    --color-danger: #ef4444;
+    --color-text-primary: #0f172a;
+    --color-text-secondary: #64748b;
+    --color-text-muted: #94a3b8;
+    --color-border: #e2e8f0;
+    --color-bg-primary: #ffffff;
+    --color-bg-secondary: #f8fafc;
+    --color-bg-tertiary: #d8d8d8;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-full: 9999px;
+}
+
+/* ============================================
+   LAYOUT
+   ============================================ */
+.checkout-wrapper {
+    min-height: calc(100vh - 200px);
+    padding: 2.5rem 1.25rem;
+    background: var(--color-bg-secondary);
+}
+
+.checkout-container {
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+.checkout-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin: 0 0 2rem 0;
+}
+
+.checkout-grid {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 2rem;
+    align-items: start;
+}
+
+/* ============================================
+   CHECKOUT SECTION
+   ============================================ */
+.checkout-section {
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-border);
+}
+
+.section-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--color-bg-tertiary);
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+/* ============================================
+   ADDRESS CARDS
+   ============================================ */
+.address-selection {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.address-card {
+    position: relative;
+    display: block;
+    padding: 1.25rem;
+    background: var(--color-bg-secondary);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.address-card:hover {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-md);
+}
+
+.address-card.selected {
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+}
+
+.new-address-card {
+    border-style: dashed;
+}
+
+.new-address-card.selected {
+    border-style: solid;
+}
+
+.address-radio {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.address-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.address-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.radio-indicator {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--color-text-muted);
+    border-radius: 50%;
+    position: relative;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.address-card.selected .radio-indicator,
+.address-radio:checked ~ .address-content .radio-indicator {
+    border-color: var(--color-primary);
+}
+
+.address-radio:checked ~ .address-content .radio-indicator::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    background: var(--color-primary);
+    border-radius: 50%;
+}
+
+.address-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.new-address-label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.new-address-subtitle {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    font-weight: 400;
+}
+
+.address-details {
+    margin-left: 2rem;
+}
+
+.address-line,
+.address-phone {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    margin: 0.25rem 0;
+    line-height: 1.5;
+}
+
+/* ============================================
+   TEMPORARY ADDRESS FORM
+   ============================================ */
+.temp-address-form {
+    display: none;
+    margin-top: 1.25rem;
+    padding: 1.5rem;
+    background: var(--color-bg-tertiary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+}
+
+.form-header {
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.form-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.form-group input {
+    padding: 0.875rem 1rem;
+    font-size: 0.9375rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-primary);
+    transition: all 0.2s ease;
+    font-family: inherit;
+    color: var(--color-text-primary);
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+.form-group input::placeholder {
+    color: var(--color-text-muted);
+}
+
+/* ============================================
+   ADD NEW ADDRESS BUTTON
+   ============================================ */
+.add-new-address-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--color-bg-primary);
+    color: var(--color-primary);
+    border: 2px solid var(--color-primary);
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 0.75rem;
+}
+
+.add-new-address-btn:hover {
+    background: var(--color-primary);
+    color: white;
+}
+
+/* ============================================
+   ORDER SUMMARY
+   ============================================ */
+.checkout-sidebar {
+    position: sticky;
+    top: 2rem;
+}
+
+.summary-card {
+    background: var(--color-bg-primary);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-border);
+}
+
+.summary-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 0 0 1.5rem 0;
+}
+
+.order-summary {
+    display: flex;
+    flex-direction: column;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.875rem;
+    font-size: 0.9375rem;
+    color: var(--color-text-secondary);
+}
+
+.summary-row.discount {
+    color: var(--color-success);
+}
+
+.summary-row.total {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: 0;
+}
+
+.summary-divider {
+    height: 1px;
+    background: var(--color-border);
+    margin: 1rem 0;
+}
+
+.free-tag {
+    display: inline-block;
+    padding: 0.25rem 0.625rem;
+    background: var(--color-success);
+    color: white;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* ============================================
+   COUPON SECTION
+   ============================================ */
+.coupon-section {
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--color-border);
+}
+
+.coupon-input-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.coupon-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-size: 0.9375rem;
+    font-family: inherit;
+    color: var(--color-text-primary);
+}
+
+.coupon-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+.apply-coupon-btn {
+    padding: 0.75rem 1.5rem;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.apply-coupon-btn:hover {
+    background: var(--color-primary-dark);
+}
+
+.remove-coupon-btn {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: var(--color-bg-secondary);
+    color: var(--color-danger);
+    border: 1px solid var(--color-danger);
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.remove-coupon-btn:hover {
+    background: var(--color-danger);
+    color: white;
+}
+
+/* ============================================
+   SUBMIT BUTTON
+   ============================================ */
+.checkout-submit-btn {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    background: var(--color-primary);
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+    margin-top: 1.5rem;
+}
+
+.checkout-submit-btn:hover {
+    background: var(--color-primary-dark);
+    box-shadow: var(--shadow-lg);
+}
+
+.checkout-submit-btn svg {
+    transition: transform 0.2s ease;
+}
+
+.checkout-submit-btn:hover svg {
+    transform: translateX(4px);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 1024px) {
+    .checkout-grid {
+        grid-template-columns: 1fr;
     }
 
-    /* Checkout Wrapper */
+    .checkout-sidebar {
+        position: static;
+    }
+}
+
+@media (max-width: 768px) {
     .checkout-wrapper {
-        min-height: calc(100vh - 200px);
-        padding: 40px 20px;
-        background: #fafafa;
-    }
-
-    .checkout-container {
-        max-width: 1400px;
-        margin: 0 auto;
-        animation: fadeIn 0.5s ease;
+        padding: 1.5rem 1rem;
     }
 
     .checkout-title {
-        font-size: 32px;
-        font-weight: 700;
-        color: #1a1a1a;
-        margin: 0 0 40px 0;
-        animation: slideInDown 0.5s ease;
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
     }
 
-    /* Checkout Form Layout */
-    .checkout-form {
-        display: grid;
-        grid-template-columns: 1fr 400px;
-        gap: 30px;
-        align-items: start;
-    }
-
-    /* Checkout Section */
-    .checkout-section {
-        background: #fff;
-        border-radius: 16px;
-        padding: 35px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-        animation: slideInLeft 0.5s ease;
-    }
-
-    .section-header {
-        margin-bottom: 25px;
-        padding-bottom: 20px;
-        border-bottom: 2px solid #f0f0f0;
-    }
-
-    .section-title {
-        font-size: 20px;
-        font-weight: 700;
-        color: #1a1a1a;
-        margin: 0;
-    }
-
-    /* Address Selection */
-    .address-selection {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        margin-bottom: 20px;
-    }
-
-    .address-card {
-        position: relative;
-        display: block;
-        padding: 20px;
-        background: #f8f8f8;
-        border: 2px solid #e5e5e5;
-        border-radius: 12px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        animation: slideInUp 0.5s ease forwards;
-        opacity: 0;
-    }
-
-    .address-card:nth-child(1) { animation-delay: 0.1s; }
-    .address-card:nth-child(2) { animation-delay: 0.2s; }
-    .address-card:nth-child(3) { animation-delay: 0.3s; }
-    .address-card:nth-child(4) { animation-delay: 0.4s; }
-    .address-card:nth-child(5) { animation-delay: 0.5s; }
-
-    .address-card:hover {
-        border-color: #1a1a1a;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
-
-    .address-card.selected {
-        border-color: #1a1a1a;
-        background: #fff;
-    }
-
-    /* New Address Card Styling */
-    .new-address-card {
-        background: linear-gradient(135deg, #f8f8f8 0%, #ffffff 100%);
-        border: 2px dashed #d0d0d0;
-    }
-
-    .new-address-card:hover {
-        border-color: #1a1a1a;
-        border-style: dashed;
-    }
-
-    .new-address-card.selected {
-        border-style: solid;
-        border-color: #1a1a1a;
-        background: #fff;
-    }
-
-    .new-address-label {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
-
-    .new-address-subtitle {
-        font-size: 13px;
-        color: #666;
-        font-weight: 400;
-    }
-
-    .address-radio {
-        position: absolute;
-        opacity: 0;
-        pointer-events: none;
-    }
-
-    .address-content {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    .address-header {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .radio-indicator {
-        width: 20px;
-        height: 20px;
-        border: 2px solid #999;
-        border-radius: 50%;
-        position: relative;
-        flex-shrink: 0;
-        transition: all 0.3s ease;
-    }
-
-    .address-card.selected .radio-indicator,
-    .address-radio:checked ~ .address-content .radio-indicator {
-        border-color: #1a1a1a;
-    }
-
-    .address-radio:checked ~ .address-content .radio-indicator::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 10px;
-        height: 10px;
-        background: #1a1a1a;
-        border-radius: 50%;
-    }
-
-    .address-name {
-        font-size: 16px;
-        font-weight: 700;
-        color: #1a1a1a;
+    .checkout-section,
+    .summary-card {
+        padding: 1.5rem;
     }
 
     .address-details {
-        margin-left: 32px;
-    }
-
-    .address-line,
-    .address-phone {
-        font-size: 14px;
-        color: #666;
-        margin: 4px 0;
-        line-height: 1.5;
-    }
-
-    /* Temporary Address Form */
-    .temp-address-form {
-        display: none;
-        margin-top: 20px;
-        padding: 25px;
-        background: #f8f9fa;
-        border-radius: 12px;
-        border: 2px solid #e5e5e5;
-        animation: slideInUp 0.4s ease;
-    }
-
-    .form-header {
-        margin-bottom: 20px;
-        padding-bottom: 15px;
-        border-bottom: 2px solid #e0e0e0;
-    }
-
-    .form-title {
-        font-size: 18px;
-        font-weight: 700;
-        color: #1a1a1a;
-        margin: 0;
+        margin-left: 0;
     }
 
     .form-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 15px;
+        grid-template-columns: 1fr;
     }
 
-    .form-group {
-        display: flex;
+    .temp-address-form {
+        padding: 1.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .checkout-wrapper {
+        padding: 1rem 0.75rem;
+    }
+
+    .checkout-section,
+    .summary-card {
+        padding: 1.25rem;
+    }
+
+    .coupon-input-group {
         flex-direction: column;
     }
 
-    .form-group.full-width {
-        grid-column: 1 / -1;
-    }
-
-    .form-group input {
-        padding: 14px 16px;
-        font-size: 15px;
-        border: 2px solid #e0e0e0;
-        border-radius: 8px;
-        background: #fff;
-        transition: all 0.3s ease;
-        font-family: inherit;
-    }
-
-    .form-group input:focus {
-        outline: none;
-        border-color: #1a1a1a;
-        box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.1);
-    }
-
-    .form-group input::placeholder {
-        color: #999;
-    }
-
-    /* Add New Address Button */
-    .add-new-address-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 12px 24px;
-        background: #fff;
-        color: #1a1a1a;
-        border: 2px solid #1a1a1a;
-        border-radius: 30px;
-        font-weight: 600;
-        text-decoration: none;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        margin-top: 10px;
-    }
-
-    .add-new-address-btn:hover {
-        background: #1a1a1a;
-        color: #fff;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-    }
-
-    /* Order Summary Sidebar */
-    .order-summary-sidebar {
-        position: sticky;
-        top: 20px;
-    }
-
-    .summary-card {
-        background: #f8f8f8;
-        border-radius: 16px;
-        padding: 30px;
-        animation: slideInRight 0.5s ease;
-    }
-
-    .summary-title {
-        font-size: 20px;
-        font-weight: 700;
-        color: #1a1a1a;
-        margin: 0 0 25px 0;
-    }
-
-    .order-summary hr {
-        border: none;
-        border-top: 1px solid #ddd;
-        margin: 15px 0;
-    }
-
-    /* Checkout Submit Button */
-    .checkout-submit-btn {
+    .apply-coupon-btn {
         width: 100%;
-        padding: 16px 24px;
-        background: #1a1a1a;
-        color: #fff;
-        font-size: 16px;
-        font-weight: 600;
-        border: none;
-        border-radius: 30px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        transition: all 0.3s ease;
-        margin-top: 20px;
     }
-
-    .checkout-submit-btn:hover {
-        background: #333;
-        transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-    }
-
-    .checkout-submit-btn svg {
-        transition: transform 0.3s ease;
-    }
-
-    .checkout-submit-btn:hover svg {
-        transform: translateX(4px);
-    }
-
-    /* Animations */
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-
-    @keyframes slideInDown {
-        from {
-            opacity: 0;
-            transform: translateY(-20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @keyframes slideInLeft {
-        from {
-            opacity: 0;
-            transform: translateX(-30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-
-    @keyframes slideInRight {
-        from {
-            opacity: 0;
-            transform: translateX(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-
-    @keyframes slideInUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    /* Responsive */
-    @media (max-width: 1024px) {
-        .checkout-form {
-            grid-template-columns: 1fr;
-        }
-
-        .order-summary-sidebar {
-            position: static;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .checkout-title {
-            font-size: 24px;
-        }
-
-        .checkout-section {
-            padding: 25px 20px;
-        }
-
-        .summary-card {
-            padding: 25px 20px;
-        }
-
-        .address-details {
-            margin-left: 0;
-        }
-
-        .form-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .temp-address-form {
-            padding: 20px;
-        }
-    }
+}
 </style>
 
 <script>
-{% comment %} document.addEventListener('DOMContentLoaded', function () {
-    const addressCards = document.querySelectorAll('.address-card');
-    const radios = document.querySelectorAll('input[name="address_id"]');
-    const tempForm = document.getElementById('temp-address-form');
-
-    addressCards.forEach(card => {
-        const radio = card.querySelector('.address-radio');
-
-        card.addEventListener('click', function () {
-            addressCards.forEach(c => c.classList.remove('selected'));
-            this.classList.add('selected');
-            radio.checked = true;
-
-            // Trigger change event
-            radio.dispatchEvent(new Event('change'));
-        });
-    });
-
-    radios.forEach(radio => {
-        radio.addEventListener('change', () => {
-            if (radio.value === 'temporary') {
-                tempForm.style.display = 'block';
-            } else {
-                tempForm.style.display = 'none';
-            }
-        });
-    });
-}); {% endcomment %}
-
-
-
 document.addEventListener('DOMContentLoaded', function () {
     const addressCards = document.querySelectorAll('.address-card');
     const radios = document.querySelectorAll('input[name="address_id"]');
@@ -740,6 +905,13 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
+function copyCoupon(code) {
+    const input = document.querySelector('.coupon-input');
+    if (!input) return;
+    input.value = code;
+    input.focus();
+}
 </script>
 
 {% endblock %}

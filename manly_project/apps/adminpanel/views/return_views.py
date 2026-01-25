@@ -39,32 +39,33 @@ def approve_return(request, return_id):
     return_request = get_object_or_404(
         ReturnRequest,
         id=return_id,
-        status="pending",
+        status=ReturnRequest.STATUS_PENDING
     )
 
     order_item = return_request.order_item
     order = order_item.order
 
-
-   
-    return_request.status = "approved"
+    # Update return request
+    return_request.status = ReturnRequest.STATUS_APPROVED
     return_request.save(update_fields=["status"])
 
- 
-    order_item.status = "returned"
+    # Update item status
+    order_item.status = OrderItem.STATUS_RETURNED
     order_item.save(update_fields=["status"])
 
-   
-    order_item.variant.stock += order_item.quantity
-    order_item.variant.save(update_fields=["stock"])
+    # Restore stock
+    restore_stock(order_item)
 
-    
+    # Refund
     refund_to_wallet(
-    user=order.user,
-    order_item=order_item,
-    amount=order_item.final_price_paid,
-    reason=f"Refund for returned item {order_item.product.name}",
+        user=order.user,
+        order_item=order_item,
+        amount=order_item.final_price_paid,
+        reason=f"Refund for returned item ({order.order_id})",
     )
+
+    # ✅ VERY IMPORTANT
+    recalculate_order_status(order)
 
     messages.success(request, "Return approved and refund credited to user wallet.")
     return redirect("admin_return_request_list")
@@ -74,11 +75,14 @@ def approve_return(request, return_id):
 
 @login_required(login_url="admin_login")
 def admin_reject_return(request, return_id):
-    return_request = get_object_or_404(ReturnRequest, id=return_id)
+    return_request = get_object_or_404(
+        ReturnRequest,
+        id=return_id,
+        status=ReturnRequest.STATUS_PENDING
+    )
 
     return_request.status = ReturnRequest.STATUS_REJECTED
-    return_request.save()
+    return_request.save(update_fields=["status"])
 
     messages.error(request, "Return rejected")
     return redirect("admin_return_request_list")
-
