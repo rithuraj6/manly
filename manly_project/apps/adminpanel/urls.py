@@ -63,6 +63,7 @@ from apps.adminpanel.views.offers_views import (
     toggle_offer_status,
 )
 from .views.coupon_views import coupon_list, toggle_coupon_status ,add_coupon,edit_coupon
+from apps.adminpanel.views.export_sales_views import admin_sales_export
 
 
 
@@ -71,6 +72,8 @@ urlpatterns = [
     path("logout/", admin_logout, name="admin_logout"),
 
     path("dashboard/", admin_dashboard, name="admin_dashboard"),
+     path("sales-export/", admin_sales_export, name="admin_sales_export"),
+
 
     path("users/", admin_users, name="admin_users"),
     path("users/toggle/<int:user_id>/", toggle_user_status, name="toggle_user"),
