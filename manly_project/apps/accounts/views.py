@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.contrib import messages
 from apps.accounts.models import EmailOTP
-
+from django.core.paginator import Paginator
 from apps.accounts.models import UserProfile, UserAddress
 from apps.sizeguide.models import SizeGuide
 from .utils import send_otp
@@ -17,6 +17,9 @@ from apps.accounts.validators import name_with_spaces_validator
 
 from apps.accounts.validators import validate_measurement
 from apps.accounts.services.size_mapping import calculate_user_size
+from django.utils.timezone import now
+
+from apps.coupons.models import Coupon, CouponUsage
 
 import cloudinary.uploader
 import base64
@@ -304,9 +307,7 @@ def profile_edit(request):
             messages.error(request,str(e))
             return redirect('account_profile_edit')
 
-        # profile.chest = float(chest) if chest else ""
-        # profile.shoulder = float(shoulder) if shoulder else ""
-
+      
         profile.size = calculate_user_size(
             chest=profile.chest,
             shoulder=profile.shoulder,
@@ -725,10 +726,7 @@ def change_password(request):
 
 @login_required
 def toggle_user_size_filter(request):
-    """
-    Toggle user-size-based product prioritization.
-    Stored in session only.
-    """
+  
 
     current = request.session.get("ignore_user_size", False)
 
@@ -737,3 +735,48 @@ def toggle_user_size_filter(request):
     request.session.modified = True
 
     return redirect(request.META.get("HTTP_REFERER", "/"))
+
+
+@login_required
+def user_coupons(request):
+    user = request.user
+
+    used_coupon_ids = CouponUsage.objects.filter(
+        user=user
+    ).values_list("coupon_id", flat=True)
+
+    coupons = Coupon.objects.filter(
+        is_active=True
+    ).order_by("-created_at")
+
+    coupon_list = []
+
+    for coupon in coupons:
+        coupon_list.append({
+            "code": coupon.code,
+            "discount_type": coupon.discount_type,
+            "discount_value": coupon.discount_value,
+            "min_purchase_amount": coupon.min_purchase_amount,
+            "valid_to": coupon.valid_to,
+            "is_used": coupon.id in used_coupon_ids,
+        })
+        
+    paginator = Paginator(coupon_list, 5)
+
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    breadcrumbs = [
+        {"label": "Home", "url": "/"},
+        {"label": "Profile", "url": None},
+        {"label": "My Coupons", "url": None},
+    ]
+
+    context = {
+        "breadcrumbs": breadcrumbs,
+        "coupons": coupon_list,
+          "page_obj": page_obj,
+        "today": now().date(),
+    }
+
+    return render(request, "account/profile_coupons.html", context)

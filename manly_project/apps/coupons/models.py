@@ -49,7 +49,7 @@ class Coupon(models.Model):
 
     def clean(self):
         
-        # Percentage validation
+      
         if self.discount_type == "PERCENT":
             if self.discount_value > 90:
                 raise ValidationError("Percentage discount cannot exceed 90%")
@@ -59,7 +59,6 @@ class Coupon(models.Model):
                     "Max discount amount is required for percentage coupons"
                 )
 
-        # Date validation (ONLY valid_from / valid_to)
         if self.valid_from and self.valid_to:
             if self.valid_to < self.valid_from:
                 raise ValidationError(

@@ -68,7 +68,7 @@ def add_coupon(request):
             return redirect("admin_coupon_list")
 
         except ValidationError as e:
-            messages.error(request, e.message)
+            messages.error(request, e.messages[0])
 
         except Exception as e:
             messages.error(request, f"Error: {e}")
@@ -96,7 +96,7 @@ def edit_coupon(request, coupon_id):
             coupon.max_discount_amount = request.POST.get("max_discount_amount") or None
             coupon.is_active = True if request.POST.get("is_active") else False
 
-            # ✅ ONLY valid_from / valid_to (NO start_date anywhere)
+          
             valid_from_str = request.POST.get("valid_from")
             valid_to_str = request.POST.get("valid_to")
 
@@ -123,10 +123,10 @@ def edit_coupon(request, coupon_id):
             return redirect("admin_coupon_list")
 
         except ValidationError as e:
-            messages.error(request, e.message)
+            messages.error(request, e.messages[0])
 
         except Exception as e:
-            # TEMP: show exact error (we'll remove later)
+           
             messages.error(request, f"Error: {e}")
 
     return render(

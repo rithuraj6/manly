@@ -3,7 +3,7 @@ from . import views
 from .views import (
     user_login, user_signup,
     forgot_password, verify_otp, reset_password,
-    resend_otp, user_logout ,verify_email_change ,change_password,toggle_user_size_filter
+    resend_otp, user_logout ,verify_email_change ,change_password,toggle_user_size_filter,user_coupons
 )
 
 from . import views
@@ -28,7 +28,8 @@ urlpatterns =[
     path("profile/edit/", views.profile_edit, name="account_profile_edit"),
     
     
-     path("toggle-size-filter/",toggle_user_size_filter,name="toggle_user_size_filter"),
+    path("toggle-size-filter/",toggle_user_size_filter,name="toggle_user_size_filter"),
+    path("coupons/", user_coupons, name="user_coupons"),
 
     
     path("addresses/", views.address, name="account_addresses"),
