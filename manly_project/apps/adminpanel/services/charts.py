@@ -26,7 +26,7 @@ def get_revenue_timeseries(start_date, end_date):
         .order_by("day")
     )
 
-    labels = [str(row["day"]) for row in qs]
+    labels = [row["day"].strftime("%Y-%m-%d") for row in qs]
     data = [row["count"] for row in qs]
 
     return {
