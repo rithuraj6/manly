@@ -38,10 +38,19 @@
                 <circle cx="12" cy="7" r="4"></circle>
             </svg>
         </a>
-        <a href="#" class="nav-icon" title="Wishlist">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-            </svg>
+        <a href="{% url 'wishlist_page' %}" class="nav-icon" title="Wishlist">
+              
+                  <svg width="24" height="24" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <path d="M16 10a4 4 0 0 1-8 0"></path>
+                </svg>
+
+             <span class="wishlist-count"
+                {% if wishlist_count == 0 %}style="display:none"{% endif %}>
+                {{ wishlist_count }}
+             </span>
         </a>
         <a href="{% url 'cart_page' %}" class="nav-icon" title="Cart">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -62,6 +71,24 @@
 
 
 <style>
+.wishlist-count {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    min-width: 18px;
+    height: 18px;
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 50%;
+    padding: 0 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    animation: pulse 2s infinite;
+}
 
 .nav-icon {
     position: relative;
@@ -557,6 +584,13 @@
 </style>
 
 <script>
+window.updateNavbarWishlistCount = function (count) {
+    const badge = document.querySelector(".wishlist-count");
+    if (!badge) return;
+
+    badge.innerText = count;
+    badge.style.display = count > 0 ? "flex" : "none";
+};
 // Add scroll effect to navbar
 window.addEventListener('scroll', function() {
     const navbar = document.querySelector('.navbar');

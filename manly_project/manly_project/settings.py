@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     "apps.wallet.apps.WalletConfig",
 
     "apps.offers",
+    "apps.wishlist",
     
     
     
@@ -122,6 +123,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'apps.core.context_processors.cloudinary_settings',
+                "apps.wishlist.context_processors.wishlist_count",
                 
                 
                 "apps.cart.context_processors.cart_count",

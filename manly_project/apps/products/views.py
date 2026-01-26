@@ -18,10 +18,7 @@ from apps.products.utils import attach_offer_data
 from apps.sizeguide.models import SizeGuide
 
 def toggle_user_size(request):
-    """
-    Toggle user-size auto filtering (session based)
-    Works via GET to avoid nested form issues
-    """
+    
     current = request.session.get("disable_user_size", False)
     request.session["disable_user_size"] = not current
     request.session.modified = True
@@ -171,8 +168,9 @@ def product_list_by_category(request, category_id):
     sort = request.GET.get("sort", "").strip()
     
     category_ids = [base_category.id]
+    wishlist_product_ids = set()
 
-   
+ 
     
     if selected_category_ids:
         category_ids.extend([int(cid) for cid in selected_category_ids])
@@ -288,8 +286,19 @@ def product_list_by_category(request, category_id):
     default_size = (
         request.user.profile.size
         if request.user.is_authenticated and hasattr(request.user, "profile")
+       
+       
         else None
     )
+    wwishlist_product_ids = set()
+
+    if request.user.is_authenticated:
+        wishlist = getattr(request.user, "wishlist", None)
+        if wishlist:
+            wishlist_product_ids = set(
+                wishlist.items.values_list("product_id", flat=True)
+            )
+
 
 
  
@@ -307,6 +316,7 @@ def product_list_by_category(request, category_id):
         "sort": sort,
         "search_query": search_query,
         "breadcrumbs": breadcrumbs,
+        "wishlist_product_ids": wishlist_product_ids,
        
         "has_filters": has_filters,
             "filter_keys": FILTER_KEYS,
@@ -326,7 +336,13 @@ def product_list_by_category(request, category_id):
     ),
 
 
+
+
+
         }
+    
+    
+   
 
     return render(request, "products/products_list.html", context)
 

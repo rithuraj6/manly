@@ -1,0 +1,512 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+    .wishlist-page-wrapper {
+        background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        min-height: 100vh;
+        padding: 60px 20px;
+    }
+
+    .wishlist-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2d3436;
+        margin-bottom: 40px;
+        text-align: center;
+        position: relative;
+        padding-bottom: 15px;
+    }
+
+    .page-title::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 4px;
+        background: linear-gradient(90deg, #6c5ce7, #a29bfe);
+        border-radius: 2px;
+    }
+
+    .wishlist-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 30px;
+        margin-top: 40px;
+    }
+
+    .wishlist-card {
+        background: #ffffff;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+    }
+
+    .wishlist-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .wishlist-card.disabled {
+        opacity: 0.6;
+        pointer-events: none;
+    }
+
+    .wishlist-card.disabled::before {
+        content: 'UNAVAILABLE';
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: #ff6b6b;
+        color: white;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        z-index: 10;
+        letter-spacing: 0.5px;
+    }
+
+    .wishlist-image {
+        position: relative;
+        width: 100%;
+        height: 300px;
+        overflow: hidden;
+        background: #f8f9fa;
+    }
+
+    .wishlist-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .wishlist-card:hover .wishlist-image img {
+        transform: scale(1.08);
+    }
+
+    .wishlist-info {
+        padding: 24px;
+    }
+
+    .wishlist-info h4 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #2d3436;
+        margin-bottom: 12px;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .price {
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .price del {
+        font-size: 1rem;
+        color: #b2bec3;
+        text-decoration: line-through;
+    }
+
+    .price span {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #6c5ce7;
+    }
+
+    .variant-select {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        color: #2d3436;
+        background: #ffffff;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 16px;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236c5ce7' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 16px center;
+        padding-right: 40px;
+    }
+
+    .variant-select:hover {
+        border-color: #6c5ce7;
+    }
+
+    .variant-select:focus {
+        outline: none;
+        border-color: #6c5ce7;
+        box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+    }
+
+    .error-text {
+        color: #ff6b6b;
+        font-size: 0.9rem;
+        font-weight: 500;
+        padding: 12px;
+        background: #ffe0e0;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        text-align: center;
+    }
+
+    .actions {
+        display: flex;
+        gap: 12px;
+    }
+
+    .add-to-cart-btn,
+    .remove-btn {
+        flex: 1;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 10px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .add-to-cart-btn {
+        background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+        color: white;
+    }
+
+    .add-to-cart-btn:hover:not(:disabled) {
+        background: linear-gradient(135deg, #5f4fd1, #9189e8);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(108, 92, 231, 0.3);
+    }
+
+    .add-to-cart-btn:disabled {
+        background: #dfe6e9;
+        color: #b2bec3;
+        cursor: not-allowed;
+    }
+
+    .remove-btn {
+        background: #ffffff;
+        color: #ff6b6b;
+        border: 2px solid #ff6b6b;
+    }
+
+    .remove-btn:hover {
+        background: #ff6b6b;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 107, 107, 0.3);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .empty-state p {
+        font-size: 1.5rem;
+        color: #636e72;
+        margin-bottom: 30px;
+        font-weight: 500;
+    }
+
+    .empty-state a {
+        display: inline-block;
+        padding: 14px 40px;
+        background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+        color: white;
+        text-decoration: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .empty-state a:hover {
+        background: linear-gradient(135deg, #5f4fd1, #9189e8);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(108, 92, 231, 0.3);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .wishlist-page-wrapper {
+            padding: 40px 15px;
+        }
+
+        .page-title {
+            font-size: 2rem;
+        }
+
+        .wishlist-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .actions {
+            flex-direction: column;
+        }
+
+        .add-to-cart-btn,
+        .remove-btn {
+            width: 100%;
+        }
+    }
+
+    /* Animation for card removal */
+    @keyframes fadeOut {
+        to {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+    }
+
+    .wishlist-card.removing {
+        animation: fadeOut 0.3s ease forwards;
+    }
+</style>
+
+<div class="wishlist-page-wrapper">
+    <div class="wishlist-container">
+
+        <h2 class="page-title">My Wishlist</h2>
+
+        {% if items %}
+            <div class="wishlist-grid">
+                {% for entry in items %}
+                    <div class="wishlist-card {% if entry.is_invalid %}disabled{% endif %}">
+
+                        <div class="wishlist-image">
+                            {% if entry.image %}
+                                <img src="{{ entry.image.image.url }}">
+                            {% else %}
+                                <img src="{% static 'images/placeholder.png' %}">
+                            {% endif %}
+                        </div>
+
+                        <div class="wishlist-info">
+                            <h4>{{ entry.product.name }}</h4>
+
+                            <div class="price">
+                                {% if entry.base_price != entry.discounted_price %}
+                                    <del>₹{{ entry.base_price }}</del>
+                                    <span>₹{{ entry.discounted_price }}</span>
+                                {% else %}
+                                    <span>₹{{ entry.base_price }}</span>
+                                {% endif %}
+                            </div>
+
+                            {% if not entry.is_invalid %}
+                                <select class="variant-select"
+                                        data-product-id="{{ entry.product.id }}">
+                                    <option disabled selected>
+                                        Select size
+                                    </option>
+                                    {% for v in entry.variants %}
+                                        <option value="{{ v.id }}"
+                                            {% if v.stock == 0 %}disabled{% endif %}>
+                                            {{ v.size }}
+                                            {% if v.stock == 0 %}(Out of stock){% endif %}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            {% else %}
+                                <p class="error-text">
+                                    Product unavailable
+                                </p>
+                            {% endif %}
+
+                            <div class="actions">
+                                
+                                <button class="add-to-cart-btn"
+                                        data-product-id="{{ entry.product.id }}"
+                                        {% if entry.is_invalid %}disabled{% else %}disabled{% endif %}>
+                                    Add to Cart
+                                </button>
+
+                                <button class="remove-btn"
+                                        data-product-id="{{ entry.product.id }}">
+                                    Remove
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <p>Your wishlist is empty</p>
+                <a href="{% url 'shop' %}">Continue Shopping</a>
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+
+
+
+<script>
+    document.querySelectorAll(".wishlist-card").forEach(card => {
+
+    const sizeSelect = card.querySelector(".variant-select");
+    const addBtn = card.querySelector(".add-to-cart-btn");
+
+    if (!sizeSelect || !addBtn) return;
+
+    // 🔒 Disable initially
+    addBtn.disabled = true;
+
+    // ✅ Enable only when size selected
+    sizeSelect.addEventListener("change", function () {
+        if (this.value) {
+            addBtn.disabled = false;
+        } else {
+            addBtn.disabled = true;
+        }
+    });
+});
+function getCSRF() {
+    return document.cookie
+        .split("; ")
+        .find(row => row.startsWith("csrftoken="))
+        ?.split("=")[1];
+}
+
+document.addEventListener("click", function (e) {
+
+    /* ===============================
+       REMOVE FROM WISHLIST
+    =============================== */
+    const removeBtn = e.target.closest(".remove-btn");
+    if (removeBtn) {
+        const productId = removeBtn.dataset.productId;
+        const card = removeBtn.closest(".wishlist-card");
+        
+        // Add removing animation
+        card.classList.add("removing");
+
+        fetch("/wishlist/remove/", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": getCSRF(),
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: new URLSearchParams({
+                product_id: productId
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                setTimeout(() => {
+                    card.remove();
+                }, 300);
+
+                if (typeof window.updateNavbarWishlistCount === "function") {
+                    window.updateNavbarWishlistCount(data.wishlist_count);
+                }
+            }
+        });
+
+        return; // ✅ safe return (only for remove)
+    }
+
+    /* ===============================
+       ADD TO CART FROM WISHLIST
+    =============================== */
+    const cartBtn = e.target.closest(".add-to-cart-btn");
+    if (!cartBtn) return;
+
+    const card = cartBtn.closest(".wishlist-card");
+    const productId = cartBtn.dataset.productId;
+    const variantSelect = card.querySelector(".variant-select");
+    const variantId = variantSelect?.value;
+
+    // 🚫 SIZE NOT SELECTED
+    if (!variantId) {
+        if (typeof window.showGlobalError === "function") {
+            window.showGlobalError("Please select a size");
+        }
+        return;
+    }
+
+    cartBtn.disabled = true;
+    cartBtn.innerText = "Adding...";
+
+    fetch("/wishlist/add-to-cart/", {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": getCSRF(),
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: new URLSearchParams({
+            product_id: productId,
+            variant_id: variantId,
+            quantity: 1
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            card.classList.add("removing");
+            setTimeout(() => {
+                card.remove();
+            }, 300);
+
+            if (typeof window.updateNavbarCartCount === "function") {
+                window.updateNavbarCartCount(data.cart_count);
+            }
+
+            if (typeof window.updateNavbarWishlistCount === "function") {
+                window.updateNavbarWishlistCount(
+                    document.querySelectorAll(".wishlist-card").length
+                );
+            }
+        } else {
+            cartBtn.disabled = false;
+            cartBtn.innerText = "Add to Cart";
+
+            if (typeof window.showGlobalError === "function") {
+                window.showGlobalError(data.message || "Unable to add to cart");
+            }
+        }
+    })
+    .catch(() => {
+        cartBtn.disabled = false;
+        cartBtn.innerText = "Add to Cart";
+
+        if (typeof window.showGlobalError === "function") {
+            window.showGlobalError("Something went wrong");
+        }
+    });
+});
+</script>
+
+{% endblock %}

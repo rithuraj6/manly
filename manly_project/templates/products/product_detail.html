@@ -104,12 +104,15 @@
 
             <!-- Action Buttons -->
             <div class="action-buttons">
-                <button class="btn wishlist-btn" disabled>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <button class="btn wishlist-btn"
+                        data-product-id="{{ product.id }}">
+                    <svg width="20" height="20" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                     </svg>
-                    Wishlist
+                    <span class="wishlist-text">Wishlist</span>
                 </button>
+
 
                 <button class="btn buy-now-btn" disabled>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -516,10 +519,75 @@ nextBtn?.addEventListener('click', () => {
     scrollAmount = Math.min(maxScroll, scrollAmount + scrollStep);
     slider.style.transform = `translateX(-${scrollAmount}px)`;
 });
+
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const wishlistBtn = document.querySelector(".wishlist-btn");
+    if (!wishlistBtn) return;
+
+    const productId = wishlistBtn.dataset.productId;
+    const textEl = wishlistBtn.querySelector(".wishlist-text");
+
+    // 🚫 If user not logged in → redirect on click
+    wishlistBtn.addEventListener("click", function () {
+        if (!isAuthenticated) {
+            window.location.href =
+                "{% url 'login' %}?next={{ request.path }}";
+            return;
+        }
+
+        toggleWishlist();
+    });
+
+    // 🔁 Initial state check
+    fetch(`/wishlist/check/?product_id=${productId}`)
+        .then(res => res.json())
+        .then(data => {
+            updateWishlistUI(data.in_wishlist);
+        });
+
+    function toggleWishlist() {
+        fetch("/wishlist/toggle/", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": getCookie("csrftoken"),
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: new URLSearchParams({
+                product_id: productId
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                updateWishlistUI(data.action === "added");
+
+                // 🧮 Update navbar wishlist count later
+                if (typeof window.updateNavbarWishlistCount === "function") {
+                    window.updateNavbarWishlistCount(data.wishlist_count);
+                }
+            }
+        });
+    }
+
+    function updateWishlistUI(inWishlist) {
+        if (inWishlist) {
+            wishlistBtn.classList.add("active");
+            textEl.innerText = "Remove from Wishlist";
+        } else {
+            wishlistBtn.classList.remove("active");
+            textEl.innerText = "Add to Wishlist";
+        }
+    }
+
+});
 </script>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+
 .old-price {
     font-size: 18px;
     color: #888;

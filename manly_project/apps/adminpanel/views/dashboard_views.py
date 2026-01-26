@@ -9,15 +9,14 @@ from apps.adminpanel.services.charts import get_revenue_timeseries
 def admin_dashboard(request):
     today = timezone.now().date()
 
-    # ---- GET PARAMS ----
     filter_type = request.GET.get("filter", "last_7_days")
     year = int(request.GET.get("year", today.year))
 
-    # ---- BASE YEAR BOUNDARIES ----
+
     year_start = date(year, 1, 1)
     year_end = date(year, 12, 31)
 
-    # ---- DATE RANGE LOGIC ----
+    
     if filter_type == "last_7_days":
         end_date = min(today, year_end)
         start_date = end_date - timedelta(days=6)
@@ -38,7 +37,7 @@ def admin_dashboard(request):
         start_date = year_start
         end_date = min(today, year_end)
 
-    # ---- CONTEXT ----
+
     context = {
         "kpis": get_kpis_with_growth(start_date, end_date),
         "chart": get_revenue_timeseries(start_date, end_date),

@@ -162,7 +162,31 @@
     position: absolute;
     right: 10px;
     bottom: 10px;
-    font-size: 20px;
+
+    font-size: 32px;
+    font-weight: 900;
+    color: #d1d1d1;
+    cursor: pointer;
+
+    /* 🔥 thickness trick */
+    text-shadow:
+        1px 0 0 currentColor,
+       -1px 0 0 currentColor,
+        0 1px 0 currentColor,
+        0 -1px 0 currentColor,
+        1px 1px 0 currentColor,
+       -1px -1px 0 currentColor;
+
+    transition: color 0.25s ease, transform 0.15s ease;
+}
+
+.wishlist.active {
+    
+    color: #eb0f0f;
+}
+
+.product-card:hover .wishlist {
+    transform: scale(1.1);
 }
 
 .breadcrumbs{font-size:14px;color:#777}  
@@ -426,6 +450,7 @@
     }
 }
 
+
 </style>
 
 <form method="get">
@@ -601,7 +626,8 @@
                         ₹{{ product.base_price }}
                     {% endif %}
                 </p>
-                <span class="wishlist">♡</span>
+               <span class="wishlist {% if product.id in wishlist_product_ids %}active{% endif %}"
+                    data-product-id="{{ product.id }}">♡</span>
             </a>
             {% endfor %}
         </div>
