@@ -1,12 +1,13 @@
+
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from apps.orders.utils.pricing import apply_offer
+
+from apps.products.utils import attach_offer_data
 
 
 @login_required(login_url="login")
 def wishlist_page(request):
     wishlist = getattr(request.user, "wishlist", None)
-
     items = []
 
     if wishlist:
@@ -16,6 +17,9 @@ def wishlist_page(request):
             .prefetch_related("product__variants", "product__images")
         )
 
+        products = [wi.product for wi in qs]
+        attach_offer_data(products)
+
         for wi in qs:
             product = wi.product
 
@@ -24,19 +28,14 @@ def wishlist_page(request):
                 not product.category.is_active
             )
 
-            discounted_price = (
-                apply_offer(product, product.base_price)
-                if not is_invalid
-                else product.base_price
-            )
-
             items.append({
                 "wishlist_item": wi,
                 "product": product,
                 "image": product.images.first(),
                 "variants": product.variants.filter(is_active=True),
                 "base_price": product.base_price,
-                "discounted_price": discounted_price,
+                "discounted_price": product.discounted_price,
+                "offer_percentage": product.offer_percentage,
                 "is_invalid": is_invalid,
             })
 

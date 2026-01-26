@@ -290,6 +290,21 @@
     .wishlist-card.removing {
         animation: fadeOut 0.3s ease forwards;
     }
+
+.offer-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: #c62828;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    z-index: 5;
+}
+
+
 </style>
 
 <div class="wishlist-page-wrapper">
@@ -308,7 +323,14 @@
                             {% else %}
                                 <img src="{% static 'images/placeholder.png' %}">
                             {% endif %}
+
+                            {% if entry.offer_percentage %}
+                                <div class="offer-badge">
+                                    {{ entry.offer_percentage }}% OFF
+                                </div>
+                            {% endif %}
                         </div>
+
 
                         <div class="wishlist-info">
                             <h4>{{ entry.product.name }}</h4>
@@ -380,10 +402,10 @@
 
     if (!sizeSelect || !addBtn) return;
 
-    // 🔒 Disable initially
+    
     addBtn.disabled = true;
 
-    // ✅ Enable only when size selected
+    
     sizeSelect.addEventListener("change", function () {
         if (this.value) {
             addBtn.disabled = false;
@@ -435,7 +457,7 @@ document.addEventListener("click", function (e) {
             }
         });
 
-        return; // ✅ safe return (only for remove)
+        return; 
     }
 
     /* ===============================
@@ -485,10 +507,9 @@ document.addEventListener("click", function (e) {
             }
 
             if (typeof window.updateNavbarWishlistCount === "function") {
-                window.updateNavbarWishlistCount(
-                    document.querySelectorAll(".wishlist-card").length
-                );
+                window.updateNavbarWishlistCount(data.wishlist_count);
             }
+            
         } else {
             cartBtn.disabled = false;
             cartBtn.innerText = "Add to Cart";
