@@ -1,37 +1,227 @@
 {% extends "adminpanel/base.html" %}
-{% load admin_filters %}
+{% block title %}Products | Admin{% endblock %}
 
 {% block content %}
 
+<div class="products-page">
+    <!-- Header Section -->
+    <div class="page-header">
+        <h1 class="page-title">Products</h1>
+        <!-- Flash Messages Container -->
+        
+        
+        <a href="{% url 'admin_add_product' %}" class="btn-add">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add Product
+        </a>
+    </div>
+
+    <!-- Search Box -->
+    <div class="search-section">
+        <form method="get" class="search-form">
+            <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+            </svg>
+            <input 
+                type="text" 
+                name="search" 
+                value="{{ search }}" 
+                placeholder="Search product"
+                class="search-input"
+            >
+        </form>
+    </div>
+
+    <!-- Table Container -->
+    <div class="table-container">
+        <table class="products-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in page_obj %}
+                <tr class="table-row">
+                    <td>{{ product.id }}</td>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.category.name }}</td>
+
+                    <td>
+                        {% if product.is_active %}
+                            <span class="status active">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                                Active
+                            </span>
+                        {% else %}
+                            <span class="status inactive">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                                </svg>
+                                Inactive
+                            </span>
+                        {% endif %}
+                        
+
+                    </td>
+
+                    <td>
+                        <div class="product-actions">
+                            <!-- EDIT PRODUCT -->
+                            <a href="{% url 'admin_edit_product' product.id %}" class="action-btn btn-edit">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                                Edit
+                            </a>
+
+                            <!-- TOGGLE PRODUCT -->
+                            <form method="post"
+                                  action="{% url 'admin_toggle_product' product.id %}"
+                                  class="toggle-form"
+                                  onsubmit="return confirmToggleProduct(event, '{{ product.name }}', '{{ product.is_active|yesno:'deactivate,activate' }}')">
+                                {% csrf_token %}
+                                <button type="submit" class="action-btn {% if product.is_active %}btn-deactivate{% else %}btn-activate{% endif %}">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        {% if product.is_active %}
+                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                        {% else %}
+                                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                        {% endif %}
+                                    </svg>
+                                    {% if product.is_active %}Deactivate{% else %}Activate{% endif %}
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- VARIANTS -->
+                        {% if product.variants.exists %}
+                            <div class="variants-section">
+                                <div class="variants-label">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                                    </svg>
+                                    Variants
+                                </div>
+                                <div class="variants-list">
+                                    {% for variant in product.variants.all %}
+                                    <div class="variant-item">
+                                        <span class="variant-size">{{ variant.size }}</span>
+                                        <form method="post"
+                                              action="{% url 'admin_toggle_variant' variant.id %}"
+                                              class="variant-toggle-form"
+                                              onsubmit="return confirmToggleVariant(event, '{{ product.name }}', '{{ variant.size }}', '{{ variant.is_active|yesno:'deactivate,activate' }}')">
+                                            {% csrf_token %}
+                                            <button type="submit" class="variant-action-btn {% if variant.is_active %}variant-deactivate{% else %}variant-activate{% endif %}">
+                                                {% if variant.is_active %}
+                                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                                    </svg>
+                                                {% else %}
+                                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                                    </svg>
+                                                {% endif %}
+                                            </button>
+                                        </form>
+                                        <span class="variant-status {% if variant.is_active %}active{% else %}inactive{% endif %}">
+                                            {{ variant.is_active|yesno:'✓,✗' }}
+                                        </span>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="empty-state">
+                        <div class="empty-content">
+                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="1.5">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="9" cy="9" r="2"></circle>
+                                <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"></path>
+                            </svg>
+                            <p>No products found</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}&search={{ search }}" class="page-btn prev-next">
+                Previous
+            </a>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if num == page_obj.number %}
+                <span class="page-btn active">{{ num }}</span>
+            {% else %}
+                <a href="?page={{ num }}&search={{ search }}" class="page-btn">
+                    {{ num }}
+                </a>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}&search={{ search }}" class="page-btn prev-next">
+                Next
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Confirmation Modal -->
+<div id="confirmModal" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-content">
+            <div class="modal-icon" id="modalIcon"></div>
+            <h2 class="modal-title" id="modalTitle">Confirm Action</h2>
+            <p class="modal-message" id="modalMessage">Are you sure?</p>
+            <div class="modal-buttons">
+                <button class="modal-btn btn-cancel" id="btnCancel">Cancel</button>
+                <button class="modal-btn btn-confirm" id="btnConfirm">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
 <style>
-/* ============================================
-   MANLY ADMIN - SALES REPORT PAGE
-   ============================================ */
 
-.sales-report-page {
+
+MANLY ADMIN - PRODUCTS LIST PAGE
+
+
+.products-page {
     padding: 0;
-    animation: fadeIn 0.6s ease;
-    position: relative;
-}
-
-/* Animated Background Effect */
-.sales-report-page::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle at 20% 50%, rgba(255, 140, 0, 0.03) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(255, 140, 0, 0.02) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: 0;
-    animation: backgroundPulse 15s ease-in-out infinite;
-}
-
-@keyframes backgroundPulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+    animation: fadeIn 0.5s ease;
 }
 
 /* Page Header */
@@ -41,57 +231,97 @@
     align-items: center;
     margin-bottom: 30px;
     animation: slideInDown 0.6s ease;
-    position: relative;
-    z-index: 1;
 }
 
 .page-title {
-    font-size: 36px;
+    font-size: 32px;
     font-weight: 700;
     color: #fff;
     letter-spacing: 0.5px;
-    text-shadow: 0 0 30px rgba(255, 140, 0, 0.3);
-    position: relative;
 }
 
-.page-title::after {
-    content: '';
-    position: absolute;
-    bottom: -8px;
-    left: 0;
-    width: 80px;
-    height: 4px;
-    background: linear-gradient(90deg, #ff8c00, transparent);
-    border-radius: 2px;
-}
-
-/* Filter Bar */
-.filter-bar {
+.btn-add {
     display: flex;
     align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-    padding: 20px;
+    gap: 8px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
+    color: #0a0a0a;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
+}
+
+.btn-add:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
+}
+
+/* Search Section */
+.search-section {
+    margin-bottom: 25px;
+    animation: slideInDown 0.6s ease 0.1s backwards;
+}
+
+.search-form {
+    position: relative;
+    max-width: 400px;
+}
+
+.search-icon {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+    pointer-events: none;
+}
+
+.search-input {
+    width: 100%;
+    padding: 14px 20px 14px 48px;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    color: #e0e0e0;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.search-input::placeholder {
+    color: #666;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #fff;
+    background: #151515;
+    box-shadow: 0 0 20px rgba(255,255,255,0.1);
+}
+
+/* Table Container with Liquid Effect */
+.table-container {
     background: rgba(26, 26, 26, 0.8);
     backdrop-filter: blur(10px);
     border: 1px solid #2a2a2a;
     border-radius: 16px;
-    margin-bottom: 30px;
-    animation: slideInDown 0.6s ease 0.1s backwards;
-    position: relative;
     overflow: hidden;
-    z-index: 1;
+    animation: slideInUp 0.6s ease;
+    position: relative;
 }
 
-.filter-bar::before {
+.table-container::before {
     content: '';
     position: absolute;
     top: -50%;
     left: -50%;
     width: 200%;
     height: 200%;
-    background: linear-gradient(45deg, transparent, rgba(255, 140, 0, 0.02), transparent);
-    animation: liquidFlow 8s ease-in-out infinite;
+    background: linear-gradient(45deg, transparent, rgba(255, 140, 0, 0.03), transparent);
+    animation: liquidFlow 6s ease-in-out infinite;
     pointer-events: none;
 }
 
@@ -101,325 +331,264 @@
     66% { transform: translate(-10%, 10%) rotate(240deg); }
 }
 
-.filter-bar input[type="date"],
-.filter-bar select {
-    padding: 12px 16px;
-    background: #0f0f0f;
-    border: 1px solid #2a2a2a;
-    border-radius: 10px;
-    color: #e0e0e0;
-    font-size: 14px;
-    transition: all 0.3s ease;
-    position: relative;
-    z-index: 1;
-}
-
-.filter-bar input[type="date"]:focus,
-.filter-bar select:focus {
-    outline: none;
-    border-color: #ff8c00;
-    background: #151515;
-    box-shadow: 0 0 20px rgba(255, 140, 0, 0.2);
-}
-
-.filter-bar button[type="submit"],
-.filter-bar a {
-    padding: 12px 20px;
-    border: none;
-    border-radius: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    position: relative;
-    z-index: 1;
-}
-
-.filter-bar button[type="submit"] {
-    background: linear-gradient(135deg, #ff8c00, #ff6b00);
-    color: #fff;
-}
-
-.filter-bar button[type="submit"]:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 140, 0, 0.4);
-}
-
-.filter-bar a {
-    background: #1a1a1a;
-    color: #e0e0e0;
-    border: 1px solid #2a2a2a;
-}
-
-.filter-bar a:hover {
-    background: #2a2a2a;
-    border-color: #ff8c00;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(255, 140, 0, 0.2);
-}
-
-.btn-print,
-.filter-bar a[href*="pdf"],
-.filter-bar a[href*="excel"] {
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
-}
-
-.btn-print:hover,
-.filter-bar a[href*="pdf"]:hover,
-.filter-bar a[href*="excel"]:hover {
-    background: linear-gradient(135deg, #2563eb, #1d4ed8);
-    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
-}
-
-/* KPI Grid */
-.kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
-    animation: slideInUp 0.6s ease 0.2s backwards;
-    position: relative;
-    z-index: 1;
-}
-
-.kpi-card {
-    background: rgba(26, 26, 26, 0.8);
-    backdrop-filter: blur(10px);
-    border: 1px solid #2a2a2a;
-    border-radius: 16px;
-    padding: 24px;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.kpi-card::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255, 140, 0, 0.05) 0%, transparent 70%);
-    animation: liquidRotate 10s linear infinite;
-    pointer-events: none;
-}
-
-@keyframes liquidRotate {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-.kpi-card:hover {
-    transform: translateY(-5px);
-    border-color: #ff8c00;
-    box-shadow: 0 10px 30px rgba(255, 140, 0, 0.2);
-}
-
-.kpi-card.highlight {
-    background: linear-gradient(135deg, rgba(255, 140, 0, 0.1), rgba(255, 107, 0, 0.05));
-    border-color: rgba(255, 140, 0, 0.3);
-}
-
-.kpi-card.highlight:hover {
-    box-shadow: 0 10px 40px rgba(255, 140, 0, 0.3);
-}
-
-.kpi-card p {
-    font-size: 13px;
-    color: #999;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 12px;
-    font-weight: 600;
-    position: relative;
-    z-index: 1;
-}
-
-.kpi-card h3 {
-    font-size: 28px;
-    font-weight: 700;
-    color: #fff;
-    margin: 0;
-    position: relative;
-    z-index: 1;
-}
-
-.kpi-card.highlight h3 {
-    color: #ff8c00;
-    text-shadow: 0 0 20px rgba(255, 140, 0, 0.3);
-}
-
-/* Report Table */
-.report-table {
+/* Table Styling */
+.products-table {
     width: 100%;
     border-collapse: collapse;
-    background: rgba(26, 26, 26, 0.8);
-    backdrop-filter: blur(10px);
-    border: 1px solid #2a2a2a;
-    border-radius: 16px;
-    overflow: hidden;
-    margin-bottom: 30px;
-    animation: slideInUp 0.6s ease 0.3s backwards;
     position: relative;
     z-index: 1;
 }
 
-.report-table::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(45deg, transparent, rgba(255, 140, 0, 0.02), transparent);
-    animation: liquidFlow 8s ease-in-out infinite;
-    pointer-events: none;
-}
-
-.report-table thead {
+.products-table thead {
     background: #0f0f0f;
-    position: relative;
-    z-index: 1;
 }
 
-.report-table th {
-    padding: 18px 20px;
+.products-table th {
+    padding: 20px 24px;
     text-align: left;
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 14px;
+    font-weight: 600;
     color: #fff;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    border-bottom: 2px solid #2a2a2a;
+    text-transform: capitalize;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #2a2a2a;
 }
 
-.report-table tbody tr {
+.products-table tbody tr {
     border-bottom: 1px solid #2a2a2a;
     transition: all 0.3s ease;
-    position: relative;
-    z-index: 1;
 }
 
-.report-table tbody tr:last-child {
+.products-table tbody tr:last-child {
     border-bottom: none;
 }
 
-.report-table tbody tr:hover {
+.products-table tbody tr:hover {
     background: rgba(255, 140, 0, 0.05);
     transform: translateX(5px);
 }
 
-.report-table tbody tr[id^="details-"] {
-    background: #111 !important;
-}
-
-.report-table tbody tr[id^="details-"]:hover {
-    background: #151515 !important;
-}
-
-.report-table td {
-    padding: 16px 20px;
+.products-table td {
+    padding: 20px 24px;
     font-size: 14px;
     color: #e0e0e0;
-    position: relative;
 }
 
-.report-table td strong {
-    color: #ff8c00;
+/* Status Badge */
+.status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
     font-weight: 600;
+    letter-spacing: 0.5px;
 }
 
-.report-table button {
+.status.active {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.status.inactive {
+    background: rgba(156, 163, 175, 0.15);
+    color: #9ca3af;
+    border: 1px solid rgba(156, 163, 175, 0.3);
+}
+
+/* Product Actions */
+.product-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     padding: 8px 16px;
-    background: linear-gradient(135deg, #3b82f6, #2563eb);
-    color: #fff;
     border: none;
     border-radius: 8px;
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-}
-
-.report-table button:hover {
-    background: linear-gradient(135deg, #2563eb, #1d4ed8);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-}
-
-/* Section Titles */
-h3 {
-    font-size: 24px;
-    font-weight: 700;
-    color: #fff;
-    margin: 40px 0 20px;
-    position: relative;
-    padding-left: 20px;
-    animation: slideInLeft 0.6s ease;
-}
-
-h3::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 6px;
-    height: 30px;
-    background: linear-gradient(180deg, #ff8c00, #ff6b00);
-    border-radius: 3px;
-}
-
-/* Charts Container */
-.charts-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 30px;
-    margin: 30px 0;
-    position: relative;
-    z-index: 1;
-}
-
-.chart-wrapper {
-    background: rgba(26, 26, 26, 0.8);
-    backdrop-filter: blur(10px);
-    border: 1px solid #2a2a2a;
-    border-radius: 16px;
-    padding: 24px;
+    text-decoration: none;
     position: relative;
     overflow: hidden;
-    animation: slideInUp 0.6s ease;
+    font-family: inherit;
 }
 
-.chart-wrapper::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255, 140, 0, 0.03) 0%, transparent 70%);
-    animation: liquidRotate 12s linear infinite;
-    pointer-events: none;
-}
-
-.chart-wrapper h4 {
-    font-size: 18px;
-    font-weight: 600;
+.btn-edit {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     color: #fff;
-    margin: 0 0 20px 0;
-    position: relative;
-    z-index: 1;
+    flex: 1;
 }
 
-canvas {
-    position: relative;
-    z-index: 1;
+.btn-edit:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+.btn-activate {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #fff;
+    flex: 1;
+}
+
+.btn-activate:hover {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.btn-deactivate {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: #fff;
+    flex: 1;
+}
+
+.btn-deactivate:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+/* Variants Section */
+.variants-section {
+    margin-top: 12px;
+    padding: 12px;
+    background: rgba(255, 140, 0, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 140, 0, 0.1);
+}
+
+.variants-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #ff8c00;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.variants-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.variant-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: rgba(26, 26, 26, 0.8);
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.variant-item:hover {
+    border-color: #ff8c00;
+    background: rgba(255, 140, 0, 0.05);
+}
+
+.variant-size {
+    font-size: 12px;
+    font-weight: 600;
+    color: #e0e0e0;
+    min-width: 24px;
+    text-align: center;
+}
+
+.variant-toggle-form {
+    margin: 0;
+    padding: 0;
+}
+
+.variant-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+}
+
+.variant-activate {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+}
+
+.variant-activate:hover {
+    background: rgba(16, 185, 129, 0.3);
+    transform: scale(1.1);
+}
+
+.variant-deactivate {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+.variant-deactivate:hover {
+    background: rgba(239, 68, 68, 0.3);
+    transform: scale(1.1);
+}
+
+.variant-status {
+    font-size: 11px;
+    font-weight: 700;
+    width: 16px;
+    text-align: center;
+}
+
+.variant-status.active {
+    color: #10b981;
+}
+
+.variant-status.inactive {
+    color: #ef4444;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 80px 20px !important;
+}
+
+.empty-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.empty-content svg {
+    opacity: 0.3;
+    animation: float 3s ease-in-out infinite;
+}
+
+.empty-content p {
+    color: #666;
+    font-size: 16px;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
 }
 
 /* Pagination */
@@ -428,14 +597,11 @@ canvas {
     justify-content: center;
     align-items: center;
     gap: 10px;
-    margin: 40px 0 20px;
-    animation: fadeIn 0.8s ease 0.4s backwards;
-    position: relative;
-    z-index: 1;
+    margin-top: 35px;
+    animation: fadeIn 0.8s ease 0.3s backwards;
 }
 
-.pagination a,
-.pagination span {
+.page-btn {
     min-width: 40px;
     height: 40px;
     display: flex;
@@ -452,12 +618,207 @@ canvas {
     transition: all 0.3s ease;
 }
 
-.pagination a:hover {
+.page-btn:hover {
     background: #2a2a2a;
     border-color: #ff8c00;
     color: #fff;
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(255, 140, 0, 0.2);
+}
+
+.page-btn.active {
+    background: linear-gradient(135deg, #ff8c00, #ff6b00);
+    border-color: #ff8c00;
+    color: #fff;
+    font-weight: 700;
+}
+
+.page-btn.prev-next {
+    padding: 0 20px;
+    font-weight: 600;
+}
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.show {
+    display: flex;
+    animation: fadeInOverlay 0.3s ease forwards;
+}
+
+@keyframes fadeInOverlay {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-container {
+    animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8) translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 100%);
+    border: 1px solid rgba(255, 140, 0, 0.3);
+    border-radius: 20px;
+    padding: 40px;
+    width: 450px;
+    max-width: 90vw;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(255, 140, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.modal-content::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 140, 0, 0.05) 0%, transparent 70%);
+    animation: liquidRotate 8s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes liquidRotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.modal-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    position: relative;
+    z-index: 1;
+    animation: iconPulse 2s ease-in-out infinite;
+}
+
+.modal-icon.warning {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.2));
+    border: 2px solid rgba(239, 68, 68, 0.5);
+}
+
+.modal-icon.warning svg {
+    stroke: #ef4444;
+}
+
+.modal-icon.success {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2));
+    border: 2px solid rgba(16, 185, 129, 0.5);
+}
+
+.modal-icon.success svg {
+    stroke: #10b981;
+}
+
+@keyframes iconPulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(255, 140, 0, 0.3); }
+    50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(255, 140, 0, 0.5); }
+}
+
+.modal-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
+}
+
+.modal-message {
+    font-size: 15px;
+    color: #aaa;
+    line-height: 1.6;
+    margin-bottom: 32px;
+    position: relative;
+    z-index: 1;
+}
+
+.modal-message strong {
+    color: #fff;
+    font-weight: 600;
+    display: block;
+    margin-top: 12px;
+    font-size: 16px;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+}
+
+.modal-btn {
+    flex: 1;
+    padding: 14px 28px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-cancel {
+    background: #2a2a2a;
+    color: #fff;
+    border: 1px solid #3a3a3a;
+}
+
+.btn-cancel:hover {
+    background: #3a3a3a;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.btn-confirm {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: #fff;
+}
+
+.btn-confirm.activate-btn {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.btn-confirm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+}
+
+.btn-confirm.activate-btn:hover {
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
 }
 
 /* Animations */
@@ -469,7 +830,7 @@ canvas {
 @keyframes slideInDown {
     from {
         opacity: 0;
-        transform: translateY(-30px);
+        transform: translateY(-20px);
     }
     to {
         opacity: 1;
@@ -480,7 +841,7 @@ canvas {
 @keyframes slideInUp {
     from {
         opacity: 0;
-        transform: translateY(30px);
+        transform: translateY(20px);
     }
     to {
         opacity: 1;
@@ -488,10 +849,21 @@ canvas {
     }
 }
 
-@keyframes slideInLeft {
+.table-row {
+    animation: fadeInRow 0.5s ease forwards;
+    opacity: 0;
+}
+
+.table-row:nth-child(1) { animation-delay: 0.1s; }
+.table-row:nth-child(2) { animation-delay: 0.15s; }
+.table-row:nth-child(3) { animation-delay: 0.2s; }
+.table-row:nth-child(4) { animation-delay: 0.25s; }
+.table-row:nth-child(5) { animation-delay: 0.3s; }
+
+@keyframes fadeInRow {
     from {
         opacity: 0;
-        transform: translateX(-30px);
+        transform: translateX(-10px);
     }
     to {
         opacity: 1;
@@ -499,521 +871,173 @@ canvas {
     }
 }
 
-/* Responsive Design */
-@media (max-width: 1024px) {
-    .kpi-grid {
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    }
-    
-    .charts-container {
-        grid-template-columns: 1fr;
-    }
-}
-
+/* Responsive */
 @media (max-width: 768px) {
-    .page-title {
-        font-size: 28px;
-    }
-    
-    .filter-bar {
+    .page-header {
         flex-direction: column;
-        align-items: stretch;
+        align-items: flex-start;
+        gap: 20px;
     }
-    
-    .filter-bar input,
-    .filter-bar select,
-    .filter-bar button,
-    .filter-bar a {
+
+    .search-input {
+        max-width: 100%;
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    .products-table {
+        min-width: 700px;
+    }
+
+    .product-actions {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .action-btn {
         width: 100%;
     }
-    
-    .kpi-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .report-table {
-        overflow-x: auto;
-        display: block;
-    }
-    
-    .report-table thead,
-    .report-table tbody,
-    .report-table tr,
-    .report-table td,
-    .report-table th {
-        display: block;
-    }
-    
-    .report-table thead {
-        display: none;
-    }
-    
-    .report-table tr {
-        margin-bottom: 20px;
-        border: 1px solid #2a2a2a;
-        border-radius: 12px;
-        padding: 15px;
-    }
-    
-    .report-table td {
-        padding: 8px 0;
-        text-align: right;
-        position: relative;
-        padding-left: 50%;
-        border-bottom: 1px solid #2a2a2a;
-    }
-    
-    .report-table td:last-child {
-        border-bottom: none;
-    }
-    
-    .report-table td::before {
-        content: attr(data-label);
-        position: absolute;
-        left: 0;
-        width: 45%;
-        padding-right: 10px;
-        text-align: left;
-        font-weight: 600;
-        color: #999;
-    }
-}
 
-@media (max-width: 480px) {
-    .page-title {
-        font-size: 24px;
+    .variants-list {
+        flex-direction: column;
     }
-    
-    .kpi-card h3 {
-        font-size: 24px;
+
+    .variant-item {
+        justify-content: space-between;
+    }
+
+    .modal-content {
+        width: 90vw;
+        padding: 30px 20px;
     }
 }
 </style>
 
-<div class="sales-report-page">
-    <div class="page-header">
-        <h2 class="page-title">Sales Report</h2>
-    </div>
-
-    <!-- FILTER SECTION -->
-    <form method="get" class="filter-bar">
-        <input type="date" name="from_date" value="{{ from_date }}" placeholder="From Date">
-        <input type="date" name="to_date" value="{{ to_date }}" placeholder="To Date">
-
-        <button type="submit">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-            </svg>
-            Apply
-        </button>
-        
-        <select name="filter" onchange="this.form.submit()">
-            <option value="">Select Range</option>
-            <option value="today" {% if active_filter == "today" %}selected{% endif %}>Today</option>
-            <option value="last_7_days" {% if active_filter == "last_7_days" %}selected{% endif %}>Last 7 Days</option>
-            <option value="this_month" {% if active_filter == "this_month" %}selected{% endif %}>This Month</option>
-            <option value="this_year" {% if active_filter == "this_year" %}selected{% endif %}>This Year</option>
-        </select>
-
-        <a href="{% url 'admin_sales_report' %}">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="1 4 1 10 7 10"></polyline>
-                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
-            </svg>
-            Reset
-        </a>
-
-        <a href="{% url 'admin_sales_report_print' %}?{{ request.GET.urlencode }}" target="_blank" class="btn-print">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="6 9 6 2 18 2 18 9"></polyline>
-                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
-                <rect x="6" y="14" width="12" height="8"></rect>
-            </svg>
-            Print
-        </a>
-        
-        <a href="{% url 'admin_sales_report_pdf' %}?{{ request.GET.urlencode }}" target="_blank">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-                <line x1="16" y1="13" x2="8" y2="13"></line>
-                <line x1="16" y1="17" x2="8" y2="17"></line>
-                <polyline points="10 9 9 9 8 9"></polyline>
-            </svg>
-            Export PDF
-        </a>
-        
-        <a href="{% url 'admin_sales_report_excel' %}?{{ request.GET.urlencode }}">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-                <line x1="12" y1="18" x2="12" y2="12"></line>
-                <line x1="9" y1="15" x2="15" y2="15"></line>
-            </svg>
-            Export Excel
-        </a>
-    </form>
-
-    <!-- KPI SECTION -->
-    <div class="kpi-grid">
-        <div class="kpi-card">
-            <p>Total Orders</p>
-            <h3>{{ totals.total_orders }}</h3>
-        </div>
-
-        <div class="kpi-card">
-            <p>Gross Amount</p>
-            <h3>{{ totals.gross_amount|inr }}</h3>
-        </div>
-
-        <div class="kpi-card">
-            <p>Coupon Discount</p>
-            <h3>{{ totals.total_coupon_discount|inr }}</h3>
-        </div>
-
-        <div class="kpi-card">
-            <p>Tax Collected</p>
-            <h3>{{ totals.total_tax|inr }}</h3>
-        </div>
-
-        <div class="kpi-card">
-            <p>Shipping</p>
-            <h3>{{ totals.total_shipping|inr }}</h3>
-        </div>
-
-        <div class="kpi-card highlight">
-            <p>Net Revenue</p>
-            <h3>{{ totals.net_revenue|inr }}</h3>
-        </div>
-    </div>
-
-    <!-- OFFER BREAKDOWN SECTION -->
-    <div class="kpi-grid">
-        <div class="kpi-card">
-            <p>Orders with Coupon</p>
-            <h3>{{ offer_breakdown.orders_with_coupon }}</h3>
-        </div>
-
-        <div class="kpi-card">
-            <p>Orders without Coupon</p>
-            <h3>{{ offer_breakdown.orders_without_coupon }}</h3>
-        </div>
-
-        <div class="kpi-card">
-            <p>Revenue (Coupon Orders)</p>
-            <h3>{{ offer_breakdown.revenue_with_coupon|inr }}</h3>
-        </div>
-
-        <div class="kpi-card">
-            <p>Revenue (No Coupon)</p>
-            <h3>{{ offer_breakdown.revenue_without_coupon|inr }}</h3>
-        </div>
-
-        <div class="kpi-card highlight">
-            <p>Total Coupon Loss</p>
-            <h3>{{ offer_breakdown.coupon_loss|inr }}</h3>
-        </div>
-
-        <div class="kpi-card">
-            <p>Total Transactions</p>
-            <h3>{{ totals.total_orders }}</h3>
-        </div>
-
-        <div class="kpi-card">
-            <p>Total Items Sold</p>
-            <h3>{{ totals.total_items_sold }}</h3>
-        </div>
-    </div>
-
-    <!-- ORDERS TABLE -->
-    <h3>Order Details</h3>
-    <table class="report-table">
-        <thead>
-            <tr>
-                <th>Order ID</th>
-                <th>Date</th>
-                <th>Items</th>
-                <th>Gross</th>
-                <th>Coupon</th>
-                <th>Tax</th>
-                <th>Shipping</th>
-                <th>Final</th>
-                <th>Details</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for order in orders %}
-            <tr>
-                <td data-label="Order ID">{{ order.order__order_id }}</td>
-                <td data-label="Date">{{ order.order__created_at|date:"d M Y" }}</td>
-                <td data-label="Items">{{ order.items_count }}</td>
-                <td data-label="Gross">{{ order.gross_amount|inr }}</td>
-                <td data-label="Coupon">{{ order.order__coupon_discount|inr }}</td>
-                <td data-label="Tax">{{ order.order__tax|inr }}</td>
-                <td data-label="Shipping">{{ order.order__shipping_charge|inr }}</td>
-                <td data-label="Final"><strong>{{ order.net_revenue|inr }}</strong></td>
-                <td data-label="Details">
-                    <button onclick="toggleDetails('{{ order.order__id }}')">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="1"></circle>
-                            <circle cx="12" cy="5" r="1"></circle>
-                            <circle cx="12" cy="19" r="1"></circle>
-                        </svg>
-                        View
-                    </button>
-                </td>
-            </tr>
-
-            <!-- Collapsible Details -->
-            <tr id="details-{{ order.order__id }}" style="display:none;">
-                <td colspan="9" style="padding: 20px;">
-                    <strong style="color: #ff8c00; font-size: 16px;">Order Details</strong><br><br>
-                    <strong>User:</strong> {{ order.order__user__email|default:"Deleted User" }}<br>
-                    <strong>Order ID:</strong> {{ order.order__order_id }}<br>
-                    <strong>Date:</strong> {{ order.order__created_at|date:"d M Y H:i" }}
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-    <!-- PAGINATION -->
-    {% if orders.has_other_pages %}
-    <div class="pagination">
-        {% if orders.has_previous %}
-            <a href="?page={{ orders.previous_page_number }}&{{ request.GET.urlencode }}">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="15 18 9 12 15 6"></polyline>
-                </svg>
-                Prev
-            </a>
-        {% endif %}
-
-        <span>Page {{ orders.number }} of {{ orders.paginator.num_pages }}</span>
-
-        {% if orders.has_next %}
-            <a href="?page={{ orders.next_page_number }}&{{ request.GET.urlencode }}">
-                Next
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
-            </a>
-        {% endif %}
-    </div>
-    {% endif %}
-
-    <!-- TOP PRODUCTS & CATEGORIES -->
-    <h3>Top 10 Selling Products</h3>
-    <table class="report-table">
-        <thead>
-            <tr>
-                <th>Product</th>
-                <th>Units Sold</th>
-                <th>Revenue</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for p in top_products %}
-            <tr>
-                <td data-label="Product">{{ p.product__name }}</td>
-                <td data-label="Units Sold">{{ p.units_sold }}</td>
-                <td data-label="Revenue">{{ p.revenue|inr }}</td>
-            </tr>
-        {% empty %}
-            <tr><td colspan="3" style="text-align: center; padding: 40px; color: #666;">No data available</td></tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-    <h3>Top 10 Selling Categories</h3>
-    <table class="report-table">
-        <thead>
-            <tr>
-                <th>Category</th>
-                <th>Units Sold</th>
-                <th>Revenue</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for c in top_categories %}
-            <tr>
-                <td data-label="Category">{{ c.product__category__name }}</td>
-                <td data-label="Units Sold">{{ c.units_sold }}</td>
-                <td data-label="Revenue">{{ c.revenue|inr }}</td>
-            </tr>
-        {% empty %}
-            <tr><td colspan="3" style="text-align: center; padding: 40px; color: #666;">No data available</td></tr>
-        {% endfor %}
-        </tbody>
-    </table>
-
-    <!-- CHARTS SECTION -->
-    <div class="charts-container">
-        <div class="chart-wrapper">
-            <h4>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
-                    <line x1="12" y1="20" x2="12" y2="10"></line>
-                    <line x1="18" y1="20" x2="18" y2="4"></line>
-                    <line x1="6" y1="20" x2="6" y2="16"></line>
-                </svg>
-                Top Products Performance
-            </h4>
-            <canvas id="productChart"></canvas>
-        </div>
-
-        <div class="chart-wrapper">
-            <h4>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
-                    <line x1="18" y1="20" x2="18" y2="10"></line>
-                    <line x1="12" y1="20" x2="12" y2="4"></line>
-                    <line x1="6" y1="20" x2="6" y2="14"></line>
-                </svg>
-                Category Performance
-            </h4>
-            <canvas id="categoryChart"></canvas>
-        </div>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
-// Modern Chart Configuration
-const chartDefaults = {
-    backgroundColor: 'rgba(255, 140, 0, 0.8)',
-    hoverBackgroundColor: 'rgba(255, 140, 0, 1)',
-    borderColor: 'rgba(255, 140, 0, 0.5)',
-    borderWidth: 2,
-    borderRadius: 8,
-};
+let confirmCallback = null;
+let currentForm = null;
 
-const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: true,
-    plugins: {
-        legend: {
-            display: true,
-            position: 'top',
-            labels: {
-                color: '#e0e0e0',
-                font: {
-                    size: 12,
-                    weight: 600
-                },
-                padding: 15
-            }
-        },
-        tooltip: {
-            backgroundColor: 'rgba(15, 15, 15, 0.95)',
-            titleColor: '#ff8c00',
-            bodyColor: '#e0e0e0',
-            borderColor: '#2a2a2a',
-            borderWidth: 1,
-            padding: 12,
-            cornerRadius: 8,
-            displayColors: true
-        }
-    },
-    scales: {
-        x: {
-            grid: {
-                color: 'rgba(255, 140, 0, 0.1)',
-                drawBorder: false
-            },
-            ticks: {
-                color: '#999',
-                font: {
-                    size: 11
-                }
-            }
-        },
-        y: {
-            grid: {
-                color: 'rgba(255, 140, 0, 0.1)',
-                drawBorder: false
-            },
-            ticks: {
-                color: '#999',
-                font: {
-                    size: 11
-                }
-            }
-        }
-    },
-    animation: {
-        duration: 1500,
-        easing: 'easeInOutQuart'
+function confirmToggleProduct(event, productName, action) {
+    event.preventDefault();
+    currentForm = event.target.closest('form');
+    showModal(action, productName, 'product');
+    return false;
+}
+
+function confirmToggleVariant(event, productName, variantSize, action) {
+    event.preventDefault();
+    currentForm = event.target.closest('form');
+    showModal(action, `${productName} - ${variantSize}`, 'variant');
+    return false;
+}
+
+function showModal(action, itemName, type) {
+    const modal = document.getElementById('confirmModal');
+    const modalIcon = document.getElementById('modalIcon');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalMessage = document.getElementById('modalMessage');
+    const btnConfirm = document.getElementById('btnConfirm');
+    
+    if (action === 'deactivate') {
+        modalIcon.className = 'modal-icon warning';
+        modalIcon.innerHTML = `
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="15" y1="9" x2="9" y2="15"></line>
+                <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+        `;
+        modalTitle.textContent = 'Deactivate ' + (type === 'product' ? 'Product' : 'Variant');
+        modalMessage.innerHTML = `Are you sure you want to <strong style="color: #ef4444;">DEACTIVATE</strong> this ${type}?<strong>${itemName}</strong>`;
+        btnConfirm.textContent = 'Deactivate';
+        btnConfirm.className = 'modal-btn btn-confirm';
+    } else {
+        modalIcon.className = 'modal-icon success';
+        modalIcon.innerHTML = `
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+        `;
+        modalTitle.textContent = 'Activate ' + (type === 'product' ? 'Product' : 'Variant');
+        modalMessage.innerHTML = `Are you sure you want to <strong style="color: #10b981;">ACTIVATE</strong> this ${type}?<strong>${itemName}</strong>`;
+        btnConfirm.textContent = 'Activate';
+        btnConfirm.className = 'modal-btn btn-confirm activate-btn';
     }
-};
-
-// Product Chart
-const productCtx = document.getElementById('productChart');
-if (productCtx) {
-    new Chart(productCtx, {
-        type: 'bar',
-        data: {
-            labels: [{% for p in top_products %}"{{ p.product__name }}",{% endfor %}],
-            datasets: [{
-                label: 'Units Sold',
-                data: [{% for p in top_products %}{{ p.units_sold }},{% endfor %}],
-                ...chartDefaults
-            }]
-        },
-        options: chartOptions
-    });
-}
-
-// Category Chart
-const categoryCtx = document.getElementById('categoryChart');
-if (categoryCtx) {
-    new Chart(categoryCtx, {
-        type: 'bar',
-        data: {
-            labels: [{% for c in top_categories %}"{{ c.product__category__name }}",{% endfor %}],
-            datasets: [{
-                label: 'Units Sold',
-                data: [{% for c in top_categories %}{{ c.units_sold }},{% endfor %}],
-                backgroundColor: 'rgba(59, 130, 246, 0.8)',
-                hoverBackgroundColor: 'rgba(59, 130, 246, 1)',
-                borderColor: 'rgba(59, 130, 246, 0.5)',
-                borderWidth: 2,
-                borderRadius: 8
-            }]
-        },
-        options: chartOptions
-    });
-}
-
-// Toggle Details Function
-function toggleDetails(orderId) {
-    const row = document.getElementById("details-" + orderId);
-    if (row) {
-        const isVisible = row.style.display !== "none";
-        row.style.display = isVisible ? "none" : "table-row";
-        
-        // Animate the transition
-        if (!isVisible) {
-            row.style.animation = "slideInUp 0.3s ease";
+    
+    confirmCallback = function() {
+        if (currentForm) {
+            const submitBtn = currentForm.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                const originalHTML = submitBtn.innerHTML;
+                submitBtn.innerHTML = `
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;">
+                        <circle cx="12" cy="12" r="10"></circle>
+                    </svg>
+                `;
+                submitBtn.disabled = true;
+                
+                // Submit the form
+                currentForm.submit();
+                
+                // Restore button after 3 seconds if still on page
+                setTimeout(() => {
+                    if (submitBtn.parentElement) {
+                        submitBtn.innerHTML = originalHTML;
+                        submitBtn.disabled = false;
+                    }
+                }, 3000);
+            } else {
+                currentForm.submit();
+            }
         }
-    }
+    };
+    
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
 }
 
-// Add loading animation to buttons
-document.querySelectorAll('.filter-bar button[type="submit"]').forEach(button => {
-    button.addEventListener('click', function() {
-        this.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;"><circle cx="12" cy="12" r="10"></circle></svg> Loading...';
+function closeModal() {
+    const modal = document.getElementById('confirmModal');
+    modal.classList.remove('show');
+    document.body.style.overflow = '';
+    confirmCallback = null;
+    currentForm = null;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const btnCancel = document.getElementById('btnCancel');
+    const btnConfirm = document.getElementById('btnConfirm');
+    const modalOverlay = document.getElementById('confirmModal');
+    
+    btnCancel.addEventListener('click', closeModal);
+    
+    btnConfirm.addEventListener('click', function() {
+        if (confirmCallback) {
+            confirmCallback();
+        }
+        closeModal();
+    });
+    
+    modalOverlay.addEventListener('click', function(e) {
+        if (e.target === modalOverlay) {
+            closeModal();
+        }
+    });
+    
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeModal();
+        }
     });
 });
 
-// Spin animation for loading
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    }
-`;
-document.head.appendChild(style);
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
 </script>
 
 {% endblock %}

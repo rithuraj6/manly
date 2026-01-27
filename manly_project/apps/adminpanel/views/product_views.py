@@ -24,7 +24,7 @@ def admin_product_list(request):
 
     products = products.order_by("-created_at")
 
-    paginator = Paginator(products, 10)
+    paginator = Paginator(products, 7)
     page_obj = paginator.get_page(request.GET.get("page"))
 
     return render(

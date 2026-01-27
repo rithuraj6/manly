@@ -29,7 +29,7 @@ urlpatterns = [
     path("<str:order_id>/", order_detail, name="order_detail"),
     
     
-    path("<str:order_id>/invoice/", print_invoice, name="print_invoice"),
+    path("<str:order_id>/invoice/print/", print_invoice, name="print_invoice"),
     path("<str:order_id>/invoice/", order_invoice, name="order_invoice"),
     path("item/<int:item_id>/return/",request_return,name="return_order_item"),
     
