@@ -1,0 +1,549 @@
+{% load admin_filters %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sales Report - MANLY</title>
+    <style>
+        
+/* ===============================
+   WEASYPRINT SAFE OVERRIDES
+   =============================== */
+@media print {
+
+    /* REMOVE GRID */
+    .summary-grid {
+        display: block;
+    }
+
+    .summary-item {
+        display: block;
+        width: 100%;
+        margin-bottom: 8px;
+    }
+
+    .summary-item span {
+        display: inline-block;
+        width: 48%;
+    }
+
+    .summary-item.highlight span {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+        
+        /* ============================================
+           PROFESSIONAL PDF SALES REPORT STYLING
+           ============================================ */
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @page {
+            size: A4;
+            margin: 15mm;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 11px;
+            line-height: 1.6;
+            color: #1a1a1a;
+            background: #ffffff;
+            padding: 20px;
+        }
+
+        /* Header Section */
+        .report-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #ff8c00;
+            position: relative;
+        }
+
+        .company-name {
+            font-size: 32px;
+            font-weight: 900;
+            color: #1a1a1a;
+            letter-spacing: 4px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .report-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #666;
+            margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .report-subtitle {
+            font-size: 12px;
+            color: #999;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        /* Report Info Section */
+        .report-info {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 9px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .info-value {
+            font-size: 13px;
+            color: #1a1a1a;
+            font-weight: 700;
+        }
+
+        /* Summary Section */
+        .summary-section {
+            background: linear-gradient(135deg, #fff5e6 0%, #ffe8cc 100%);
+            border: 2px solid #ff8c00;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .summary-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1a1a1a;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #ff8c00;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: #ffffff;
+            border-radius: 6px;
+            border: 1px solid #ffd699;
+        }
+
+        .summary-item.highlight {
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+            border: none;
+            color: #ffffff;
+        }
+
+        .summary-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .summary-item.highlight .summary-label {
+            color: #ffffff;
+            font-size: 12px;
+        }
+
+        .summary-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .summary-item.highlight .summary-value {
+            color: #ffffff;
+            font-size: 16px;
+        }
+
+        /* Divider */
+        .divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ff8c00, transparent);
+            margin: 25px 0;
+            border: none;
+        }
+
+        /* Table Section */
+        .table-section {
+            margin-top: 25px;
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1a1a1a;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 12px;
+            padding-left: 10px;
+            border-left: 4px solid #ff8c00;
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            background: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+        }
+
+        th {
+            padding: 12px 10px;
+            text-align: left;
+            font-size: 10px;
+            font-weight: 700;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            border-bottom: 3px solid #ff8c00;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #e9ecef;
+            transition: background 0.2s ease;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: #fff5e6;
+        }
+
+        td {
+            padding: 10px;
+            font-size: 11px;
+            color: #1a1a1a;
+            border-right: 1px solid #f0f0f0;
+        }
+
+        td:last-child {
+            border-right: none;
+            font-weight: 700;
+            color: #ff8c00;
+        }
+
+        /* Footer Totals Section */
+        .footer-totals {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 25px;
+        }
+
+        .footer-totals-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1a1a1a;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .totals-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .total-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: #ffffff;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+        }
+
+        .total-item.final {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            border: none;
+            padding: 12px 15px;
+            margin-top: 5px;
+        }
+
+        .total-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .total-item.final .total-label {
+            color: #ffffff;
+            font-size: 13px;
+        }
+
+        .total-value {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .total-item.final .total-value {
+            color: #ff8c00;
+            font-size: 18px;
+        }
+
+        /* Page Footer */
+        .page-footer {
+            margin-top: 40px;
+            padding-top: 15px;
+            border-top: 2px solid #dee2e6;
+            text-align: center;
+            font-size: 9px;
+            color: #999;
+        }
+
+        .page-footer p {
+            margin: 3px 0;
+        }
+        @media print {
+
+    .totals-grid {
+        display: block;
+    }
+
+    .total-item {
+        display: block;
+        width: 100%;
+        margin-bottom: 6px;
+    }
+
+    .total-item span {
+        display: inline-block;
+        width: 48%;
+    }
+
+    .total-item.final {
+        text-align: center;
+    }
+
+    
+    @media print {
+    table {
+        table-layout: fixed;
+    }
+
+    th, td {
+        word-wrap: break-word;
+    }
+}
+
+}
+
+
+        /* Print Optimizations */
+        @media print {
+            body {
+                padding: 0;
+            }
+
+            .report-header {
+                page-break-after: avoid;
+            }
+
+            .summary-section {
+                page-break-inside: avoid;
+            }
+
+            table {
+                page-break-inside: auto;
+            }
+
+            tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
+            }
+
+            thead {
+                display: table-header-group;
+            }
+
+            .footer-totals {
+                page-break-before: avoid;
+            }
+        }
+
+        /* Accessibility */
+        @media screen {
+            body {
+                max-width: 210mm;
+                margin: 20px auto;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+                padding: 40px;
+            }
+        }
+    </style>
+</head>
+<body onload="window.print()">
+
+    <!-- Header Section -->
+    <div class="report-header">
+        <div class="company-name">MANLY</div>
+        <div class="report-title">Sales Report</div>
+        <div class="report-subtitle">Apparel Store Financial Summary</div>
+    </div>
+
+    <!-- Report Information -->
+    <div class="report-info">
+        <div class="info-item">
+            <span class="info-label">Report Period</span>
+            <span class="info-value">{{ start_date }} → {{ end_date }}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Total Transactions</span>
+            <span class="info-value">{{ totals.total_orders }}</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Generated On</span>
+            <span class="info-value">{{ printed_on|date:"d M Y H:i" }}</span>
+        </div>
+    </div>
+
+    <!-- Executive Summary -->
+    <div class="summary-section">
+        <div class="summary-title">Executive Summary</div>
+        <div class="summary-grid">
+            <div class="summary-item">
+                <span class="summary-label">Gross Revenue</span>
+                <span class="summary-value">{{ totals.gross_amount|inr }}</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Coupon Discount</span>
+                <span class="summary-value">{{ totals.total_coupon_discount|inr }}</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Tax Collected</span>
+                <span class="summary-value">{{ totals.total_tax|inr }}</span>
+            </div>
+            <div class="summary-item">
+                <span class="summary-label">Shipping Collected</span>
+                <span class="summary-value">{{ totals.total_shipping|inr }}</span>
+            </div>
+            <div class="summary-item highlight">
+                <span class="summary-label">Net Revenue</span>
+                <span class="summary-value">{{ totals.net_revenue|inr }}</span>
+            </div>
+        </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Transaction Details Table -->
+    <div class="table-section">
+        <div class="section-title">Transaction Details</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Date</th>
+                    <th>Gross</th>
+                    <th>Coupon</th>
+                    <th>Tax</th>
+                    <th>Shipping</th>
+                    <th>Final</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>{{ order.order__order_id }}</td>
+                    <td>{{ order.order__created_at|date:"d M Y" }}</td>
+                    <td>{{ order.gross_amount|inr }}</td>
+                    <td>{{ order.order__coupon_discount|inr }}</td>
+                    <td>{{ order.order__tax|inr }}</td>
+                    <td>{{ order.order__shipping_charge|inr }}</td>
+                    <td>{{ order.net_revenue|inr }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Footer Totals -->
+    <div class="footer-totals">
+        <div class="footer-totals-title">Financial Summary</div>
+        <div class="totals-grid">
+            <div class="total-item">
+                <span class="total-label">Gross Total</span>
+                <span class="total-value">{{ totals.gross_amount|inr }}</span>
+            </div>
+            <div class="total-item">
+                <span class="total-label">Coupon Discount</span>
+                <span class="total-value">{{ totals.total_coupon_discount|inr }}</span>
+            </div>
+            <div class="total-item">
+                <span class="total-label">Tax Collected</span>
+                <span class="total-value">{{ totals.total_tax|inr }}</span>
+            </div>
+            <div class="total-item">
+                <span class="total-label">Shipping Collected</span>
+                <span class="total-value">{{ totals.total_shipping|inr }}</span>
+            </div>
+            <div class="total-item final">
+                <span class="total-label">NET REVENUE</span>
+                <span class="total-value">{{ totals.net_revenue|inr }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page Footer -->
+    <div class="page-footer">
+        <p><strong>MANLY Apparel Store</strong> — Sales Report</p>
+        <p>Generated on {{ printed_on|date:"d M Y H:i" }} | Period: {{ start_date }} to {{ end_date }}</p>
+        <p>This is a computer-generated document. No signature is required.</p>
+    </div>
+
+</body>
+</html>
