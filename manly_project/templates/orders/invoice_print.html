@@ -2,107 +2,575 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>Invoice - {{ order.order_id }}</title>
     <style>
-        body {
-            font-family: Nunito Sans, sans-serif;
-            font-size: 13px;
+        /* ============================================
+           PROFESSIONAL INVOICE STYLING
+           ============================================ */
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
+
+        @page {
+            size: A4;
+            margin: 15mm;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Nunito Sans', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 30px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #1a1a1a;
+            background: #ffffff;
+        }
+
+        /* Invoice Header */
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 35px;
+            padding-bottom: 25px;
+            border-bottom: 3px solid #ff8c00;
+        }
+
+        .company-info {
+            flex: 1;
+        }
+
+        .company-name {
+            font-size: 28px;
+            font-weight: 900;
+            color: #1a1a1a;
+            letter-spacing: 3px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .company-tagline {
+            font-size: 12px;
+            color: #666;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .invoice-meta {
+            text-align: right;
+        }
+
+        .invoice-title {
+            font-size: 32px;
+            font-weight: 900;
+            color: #ff8c00;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .invoice-subtitle {
+            font-size: 11px;
+            color: #999;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Order Details Section */
+        .order-details {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            font-size: 10px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            color: #1a1a1a;
+            font-weight: 700;
+        }
+
+        /* Address Section */
+        .address-section {
+            background: #ffffff;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .address-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1a1a1a;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #ff8c00;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .address-content {
+            font-size: 13px;
+            color: #333;
+            line-height: 1.8;
+        }
+
+        .address-content strong {
+            color: #1a1a1a;
+        }
+
+        /* Items Table */
+        .items-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1a1a1a;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 12px;
+            padding-left: 10px;
+            border-left: 4px solid #ff8c00;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 12px;
+            background: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border-radius: 8px;
+            overflow: hidden;
         }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
+
+        thead {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
         }
+
         th {
-            background: #f5f5f5;
+            padding: 14px 12px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 700;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            border-bottom: 3px solid #ff8c00;
         }
-        .right {
+
+        th.right {
             text-align: right;
         }
-        .cancelled {
+
+        tbody tr {
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        td {
+            padding: 12px;
+            font-size: 13px;
+            color: #1a1a1a;
+            border-right: 1px solid #f0f0f0;
+        }
+
+        td:last-child {
+            border-right: none;
+        }
+
+        td.right {
+            text-align: right;
+            font-weight: 700;
+            color: #ff8c00;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-badge.cancelled,
+        .status-badge.returned {
+            background: #fee;
             color: #c62828;
+            border: 1px solid #c62828;
+        }
+
+        .status-badge.delivered {
+            background: #e6f7f0;
+            color: #10b981;
+            border: 1px solid #10b981;
+        }
+
+        .status-badge.pending,
+        .status-badge.processing {
+            background: #fff5e6;
+            color: #ff8c00;
+            border: 1px solid #ff8c00;
+        }
+
+        .status-badge.shipped {
+            background: #e3f2fd;
+            color: #1976d2;
+            border: 1px solid #1976d2;
+        }
+
+        /* Payment Section */
+        .payment-section {
+            background: linear-gradient(135deg, #fff5e6 0%, #ffe8cc 100%);
+            border: 2px solid #ff8c00;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .payment-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1a1a1a;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #ff8c00;
+        }
+
+        .payment-content {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .payment-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: #ffffff;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+
+        .payment-label {
             font-weight: 600;
+            color: #666;
+        }
+
+        .payment-value {
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .payment-value.success {
+            color: #10b981;
+        }
+
+        .payment-value.pending {
+            color: #ff8c00;
+        }
+
+        .payment-value.failed {
+            color: #ef4444;
+        }
+
+        .payment-not-available {
+            color: #777;
+            font-style: italic;
+            padding: 8px 12px;
+            background: #ffffff;
+            border-radius: 5px;
+        }
+
+        /* Summary Section */
+        .summary-section {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #dee2e6;
+            font-size: 13px;
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+
+        .summary-label {
+            color: #666;
+            font-weight: 600;
+        }
+
+        .summary-value {
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .summary-row.discount .summary-value {
+            color: #10b981;
+        }
+
+        .summary-row.total {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            margin: 10px -20px -20px -20px;
+            padding: 15px 20px;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .summary-row.total .summary-label {
+            color: #ffffff;
+            font-size: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .summary-row.total .summary-value {
+            color: #ff8c00;
+            font-size: 20px;
+        }
+
+        /* Divider */
+        .divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ff8c00, transparent);
+            margin: 25px 0;
+            border: none;
+        }
+
+        /* Footer */
+        .invoice-footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #dee2e6;
+            text-align: center;
+        }
+
+        .footer-note {
+            font-size: 11px;
+            color: #999;
+            font-style: italic;
+            margin-top: 10px;
+        }
+
+        .footer-branding {
+            font-size: 10px;
+            color: #666;
+            margin-top: 15px;
+            font-weight: 600;
+        }
+
+        /* Print Optimizations */
+        @media print {
+            body {
+                padding: 0;
+            }
+
+            .invoice-header {
+                page-break-after: avoid;
+            }
+
+            table {
+                page-break-inside: auto;
+            }
+
+            tr {
+                page-break-inside: avoid;
+                page-break-after: auto;
+            }
+
+            thead {
+                display: table-header-group;
+            }
+        }
+
+        /* Screen Preview */
+        @media screen {
+            body {
+                max-width: 210mm;
+                margin: 20px auto;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+                padding: 40px;
+            }
         }
     </style>
 </head>
 <body onload="window.print()">
+    
+    <!-- Invoice Header -->
+    <div class="invoice-header">
+        <div class="company-info">
+            <div class="company-name">Manly Apparel Store</div>
+            <div class="company-tagline">Premium Fashion & Lifestyle</div>
+        </div>
+        <div class="invoice-meta">
+            <div class="invoice-title">Invoice</div>
+            <div class="invoice-subtitle">Order Tax Invoice</div>
+        </div>
+    </div>
 
-<h2>MANLY APPAREL STORE</h2>
-<p><strong>Tax Invoice</strong></p>
+    <!-- Order Details -->
+    <div class="order-details">
+        <div class="detail-item">
+            <div class="detail-label">Invoice Number</div>
+            <div class="detail-value">{{ order.order_id }}</div>
+        </div>
+        <div class="detail-item">
+            <div class="detail-label">Invoice Date</div>
+            <div class="detail-value">{{ order.created_at|date:"d M Y" }}</div>
+        </div>
+    </div>
 
-<hr>
+    <!-- Shipping Address -->
+    <div class="address-section">
+        <div class="address-title">📍 Shipping Address</div>
+        <div class="address-content">
+            <strong>{{ order.address_snapshot.full_name }}</strong><br>
+            {{ order.address_snapshot.phone }}<br>
+            {{ order.address_snapshot.house_name }}, {{ order.address_snapshot.street }}<br>
+            {{ order.address_snapshot.city }}, {{ order.address_snapshot.state }} - {{ order.address_snapshot.pincode }}
+        </div>
+    </div>
 
-<p>
-    <strong>Invoice:</strong> {{ order.order_id }}<br>
-    <strong>Date:</strong> {{ order.created_at|date:"d M Y" }}
-</p>
+    <!-- Items Section -->
+    <div class="items-section">
+        <div class="section-title">Order Items</div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Status</th>
+                    <th class="right">Amount Paid</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>
+                        <span class="status-badge {{ item.status|lower }}">
+                            {{ item.status|title }}
+                        </span>
+                    </td>
+                    <td class="right">₹ {{ item.final_price_paid }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-<hr>
+    <hr class="divider">
 
-<h4>Shipping Address</h4>
-<p>
-    {{ order.address_snapshot.full_name }}<br>
-    {{ order.address_snapshot.phone }}<br>
-    {{ order.address_snapshot.house_name }},
-    {{ order.address_snapshot.street }}<br>
-    {{ order.address_snapshot.city }},
-    {{ order.address_snapshot.state }} - {{ order.address_snapshot.pincode }}
-</p>
+    <!-- Payment Details -->
+    <div class="payment-section">
+        <div class="payment-title">💳 Payment Details</div>
+        {% if order.payment %}
+        <div class="payment-content">
+            <div class="payment-item">
+                <span class="payment-label">Payment Method:</span>
+                <span class="payment-value">{{ order.payment.get_payment_method_display }}</span>
+            </div>
+            <div class="payment-item">
+                <span class="payment-label">Payment ID:</span>
+                <span class="payment-value">OD83jdm9HED2</span>
+            </div>
+            <div class="payment-item" style="grid-column: 1 / -1;">
+                <span class="payment-label">Payment Status:</span>
+                <span class="payment-value {{ order.payment.status|lower }}">
+                    {{ order.payment.status|title }}
+                </span>
+            </div>
+        </div>
+        {% else %}
+        <div class="payment-not-available">
+            Payment details not available.
+        </div>
+        {% endif %}
+    </div>
 
-<hr>
+    <!-- Summary Section -->
+    <div class="summary-section">
+        <div class="summary-row">
+            <span class="summary-label">Items Total:</span>
+            <span class="summary-value">₹ {{ order.subtotal }}</span>
+        </div>
+        <div class="summary-row">
+            <span class="summary-label">Delivery Fee:</span>
+            <span class="summary-value">₹ {{ order.shipping_charge }}</span>
+        </div>
+        {% if order.coupon_discount > 0 %}
+        <div class="summary-row discount">
+            <span class="summary-label">Coupon Discount:</span>
+            <span class="summary-value">- ₹ {{ order.coupon_discount }}</span>
+        </div>
+        {% endif %}
+        <div class="summary-row">
+            <span class="summary-label">GST (18%):</span>
+            <span class="summary-value">₹ {{ order.tax }}</span>
+        </div>
+        <div class="summary-row total">
+            <span class="summary-label">Total Paid:</span>
+            <span class="summary-value">₹ {{ order.total_amount }}</span>
+        </div>
+    </div>
 
-<table>
-    <thead>
-        <tr>
-            <th>Product</th>
-            <th>Qty</th>
-            <th>Status</th>
-            <th class="right">Amount Paid</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for item in items %}
-        <tr>
-            <td>{{ item.product.name }}</td>
-            <td>{{ item.quantity }}</td>
-            <td class="{% if item.status in 'cancelled returned' %}cancelled{% endif %}">
-                {{ item.status|title }}
-            </td>
-            <td class="right">₹ {{ item.final_price_paid }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-<hr>
-
-<p class="right">Subtotal: ₹ {{ order.subtotal }}</p>
-<p class="right">Delivery Fee: ₹ {{ order.shipping_charge }}</p>  
-
-<td>₹ {{ item.line_total }}</td>
-{% if order.coupon_discount > 0 %}
-<p class="right">
-    Coupon Discount: - ₹ {{ order.coupon_discount }}
-</p>
-{% endif %}
-<p class="right">GST (18%): ₹ {{ order.tax }}</p>
-
-
-
-
-<hr>
-
-<p class="right">
-    <strong>Total Paid:</strong> ₹ {{ order.total_amount }}
-</p>
-
-<p style="margin-top:30px;font-size:11px;color:#777;">
-    This is a system generated invoice.
-</p>
+    <!-- Footer -->
+    <div class="invoice-footer">
+        <div class="footer-note">
+            This is a system generated invoice and does not require a signature.
+        </div>
+        <div class="footer-branding">
+            MANLY APPAREL STORE • Premium Fashion & Lifestyle
+        </div>
+    </div>
 
 </body>
 </html>

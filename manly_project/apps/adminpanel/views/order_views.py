@@ -58,7 +58,7 @@ def admin_order_list(request):
     elif sort == "prev_year":
         orders = orders.filter(created_at__year=now.year - 1)
 
-    paginator = Paginator(orders, 6)
+    paginator = Paginator(orders, 10)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 

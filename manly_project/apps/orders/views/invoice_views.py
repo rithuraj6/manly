@@ -3,25 +3,22 @@ from django.contrib.auth.decorators import login_required
 
 from apps.orders.models import Order
 
-
 @login_required
 def print_invoice(request, order_id):
     order = get_object_or_404(
-        Order,
+        Order.objects.select_related("user", "payment"),
         order_id=order_id,
         user=request.user
     )
-
-    items = order.items.select_related("product")
+    items = order.items.all()
 
     context = {
         "order": order,
         "items": items,
-        "print_mode": True,  
+        "print_mode": True,
     }
 
-    return render(request, "orders/invoice_print.html", context)
-
+    return render(request, "orders/invoice.html", context)
 
 @login_required
 def order_invoice(request, order_id):
@@ -40,4 +37,4 @@ def order_invoice(request, order_id):
         "items": items,
     }
 
-    return render(request, "orders/invoice.html", context)
+    return render(request, "orders/invoice_print.html", context)

@@ -37,20 +37,21 @@ def get_sales_report(start_date, end_date):
    
     totals = items_qs.aggregate(
         total_orders=Count("order", distinct=True),
+        total_items_sold=Coalesce(Sum("quantity"), 0, output_field=DecimalField()),
         gross_amount=Coalesce(Sum("line_total"), 0, output_field=DecimalField()),
         net_revenue=Coalesce(Sum("final_price_paid"), 0, output_field=DecimalField()),
         total_coupon_discount=Coalesce(
-            Sum("order__coupon_discount", distinct=True),
+            Sum("order__coupon_discount"),
             0,
             output_field=DecimalField(),
         ),
         total_tax=Coalesce(
-            Sum("order__tax", distinct=True),
+            Sum("order__tax"),
             0,
             output_field=DecimalField(),
         ),
         total_shipping=Coalesce(
-            Sum("order__shipping_charge", distinct=True),
+            Sum("order__shipping_charge"),
             0,
             output_field=DecimalField(),
         ),
@@ -79,7 +80,7 @@ def get_sales_report(start_date, end_date):
             output_field=DecimalField(),
         ),
         coupon_loss=Coalesce(
-            Sum("order__coupon_discount", distinct=True),
+            Sum("order__coupon_discount"),
             0,
             output_field=DecimalField(),
         ),

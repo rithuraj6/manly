@@ -42,21 +42,59 @@
                 {% for user in page_obj %}
                 <tr class="table-row">
                     <td>{{ user.id }}</td>
-                    <td>{{ user.first_name }}</td>
+
+                    <td>
+                        {% if user.latest_addresses %}
+                            {{ user.latest_addresses.0.full_name }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+
                     <td>{{ user.email }}</td>
-                    <td>{{ user.phone|default:"—" }}</td>
-                    <td>{{ user.city|default:"—" }}</td>
+
+                    <td>
+                        {% if user.latest_addresses %}
+                            {{ user.latest_addresses.0.phone }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+
+                    <!-- ✅ ADDRESS COLUMN -->
+                    <td>
+                        {% if user.latest_addresses %}
+                            {{ user.latest_addresses.0.city }},
+                            {{ user.latest_addresses.0.state }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+
+                    <!-- ✅ ACTION COLUMN -->
                     <td>
                         <div class="action-buttons">
                             {% if user.is_active %}
-                                <a href="{% url 'toggle_user' user.id %}" class="btn-block" onclick="return confirmBlock(event, '{{ user.email }}', '{% url 'toggle_user' user.id %}')">Block</a>
+                                <a
+                                    href="{% url 'toggle_user' user.id %}"
+                                    class="btn-block"
+                                    onclick="return confirmBlock(event, '{{ user.email }}', '{% url 'toggle_user' user.id %}')"
+                                >
+                                    Block
+                                </a>
                             {% else %}
-                                <a href="{% url 'toggle_user' user.id %}" class="btn-unblock" onclick="return confirmUnblock(event, '{{ user.email }}', '{% url 'toggle_user' user.id %}')">UnBlock</a>
+                                <a
+                                    href="{% url 'toggle_user' user.id %}"
+                                    class="btn-unblock"
+                                    onclick="return confirmUnblock(event, '{{ user.email }}', '{% url 'toggle_user' user.id %}')"
+                                >
+                                    UnBlock
+                                </a>
                             {% endif %}
                         </div>
                     </td>
                 </tr>
-                {% empty %}
+                                {% empty %}
                 <tr>
                     <td colspan="6" class="empty-state">
                         <div class="empty-content">
