@@ -66,14 +66,28 @@ from .views.coupon_views import coupon_list, toggle_coupon_status ,add_coupon,ed
 from apps.adminpanel.views.export_sales_views import admin_sales_export
 
 
+from apps.adminpanel.views.sales_report_views import (
+    admin_sales_report,
+    admin_sales_report_print,
+    admin_sales_report_pdf,
+     admin_sales_report_excel, 
+)
+
 
 urlpatterns = [
     path("login/", admin_login, name="admin_login"),
     path("logout/", admin_logout, name="admin_logout"),
 
     path("dashboard/", admin_dashboard, name="admin_dashboard"),
-     path("sales-export/", admin_sales_export, name="admin_sales_export"),
-
+    path("sales-export/", admin_sales_export, name="admin_sales_export"),
+     
+     
+     
+    path("sales-report/", admin_sales_report, name="admin_sales_report"),
+    path("sales-report/print/",admin_sales_report_print,name="admin_sales_report_print",),
+    
+    
+    path("sales-report/excel/",admin_sales_report_excel,name="admin_sales_report_excel",),
 
     path("users/", admin_users, name="admin_users"),
     path("users/toggle/<int:user_id>/", toggle_user_status, name="toggle_user"),
@@ -106,7 +120,7 @@ urlpatterns = [
     path("wallet/", admin_wallet_dashboard, name="admin_wallet"),
 
     
-    
+    path("sales-report/pdf/",  admin_sales_report_pdf,name="admin_sales_report_pdf",),
     
     
 

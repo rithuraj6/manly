@@ -8,8 +8,16 @@
    MANLY ADMIN - SALES REPORT PAGE
    ============================================ */
 
-.sales-report-page {
+* {
+    margin: 0;
     padding: 0;
+    box-sizing: border-box;
+}
+
+.sales-report-page {
+    padding: 30px;
+    min-height: 100vh;
+    background: #0a0a0a;
     animation: fadeIn 0.6s ease;
     position: relative;
 }
@@ -52,6 +60,7 @@
     letter-spacing: 0.5px;
     text-shadow: 0 0 30px rgba(255, 140, 0, 0.3);
     position: relative;
+    margin: 0;
 }
 
 .page-title::after {
@@ -72,7 +81,7 @@
     gap: 12px;
     flex-wrap: wrap;
     padding: 20px;
-    background: rgba(26, 26, 26, 0.8);
+    background: rgba(26, 26, 26, 0.95);
     backdrop-filter: blur(10px);
     border: 1px solid #2a2a2a;
     border-radius: 16px;
@@ -109,9 +118,11 @@
     border-radius: 10px;
     color: #e0e0e0;
     font-size: 14px;
+    font-family: inherit;
     transition: all 0.3s ease;
     position: relative;
     z-index: 1;
+    min-width: 150px;
 }
 
 .filter-bar input[type="date"]:focus,
@@ -129,6 +140,7 @@
     border-radius: 10px;
     font-size: 14px;
     font-weight: 600;
+    font-family: inherit;
     cursor: pointer;
     transition: all 0.3s ease;
     text-decoration: none;
@@ -137,6 +149,7 @@
     gap: 8px;
     position: relative;
     z-index: 1;
+    white-space: nowrap;
 }
 
 .filter-bar button[type="submit"] {
@@ -166,6 +179,7 @@
 .filter-bar a[href*="pdf"],
 .filter-bar a[href*="excel"] {
     background: linear-gradient(135deg, #3b82f6, #2563eb);
+    border: none;
 }
 
 .btn-print:hover,
@@ -178,7 +192,7 @@
 /* KPI Grid */
 .kpi-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 20px;
     margin-bottom: 30px;
     animation: slideInUp 0.6s ease 0.2s backwards;
@@ -187,7 +201,7 @@
 }
 
 .kpi-card {
-    background: rgba(26, 26, 26, 0.8);
+    background: rgba(26, 26, 26, 0.95);
     backdrop-filter: blur(10px);
     border: 1px solid #2a2a2a;
     border-radius: 16px;
@@ -221,8 +235,8 @@
 }
 
 .kpi-card.highlight {
-    background: linear-gradient(135deg, rgba(255, 140, 0, 0.1), rgba(255, 107, 0, 0.05));
-    border-color: rgba(255, 140, 0, 0.3);
+    background: linear-gradient(135deg, rgba(255, 140, 0, 0.15), rgba(255, 107, 0, 0.08));
+    border-color: rgba(255, 140, 0, 0.4);
 }
 
 .kpi-card.highlight:hover {
@@ -230,10 +244,10 @@
 }
 
 .kpi-card p {
-    font-size: 13px;
+    font-size: 12px;
     color: #999;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 1.2px;
     margin-bottom: 12px;
     font-weight: 600;
     position: relative;
@@ -241,24 +255,47 @@
 }
 
 .kpi-card h3 {
-    font-size: 28px;
+    font-size: 32px;
     font-weight: 700;
     color: #fff;
     margin: 0;
     position: relative;
     z-index: 1;
+    line-height: 1.2;
 }
 
 .kpi-card.highlight h3 {
     color: #ff8c00;
-    text-shadow: 0 0 20px rgba(255, 140, 0, 0.3);
+    text-shadow: 0 0 20px rgba(255, 140, 0, 0.4);
 }
 
-/* Report Table */
-.report-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: rgba(26, 26, 26, 0.8);
+/* Section Titles */
+.section-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #fff;
+    margin: 50px 0 25px;
+    position: relative;
+    padding-left: 20px;
+    animation: slideInLeft 0.6s ease;
+    z-index: 1;
+}
+
+.section-title::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 30px;
+    background: linear-gradient(180deg, #ff8c00, #ff6b00);
+    border-radius: 3px;
+}
+
+/* Table Container */
+.table-container {
+    background: rgba(26, 26, 26, 0.95);
     backdrop-filter: blur(10px);
     border: 1px solid #2a2a2a;
     border-radius: 16px;
@@ -269,7 +306,7 @@
     z-index: 1;
 }
 
-.report-table::before {
+.table-container::before {
     content: '';
     position: absolute;
     top: -50%;
@@ -281,6 +318,14 @@
     pointer-events: none;
 }
 
+/* Report Table */
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    position: relative;
+    z-index: 1;
+}
+
 .report-table thead {
     background: #0f0f0f;
     position: relative;
@@ -290,11 +335,11 @@
 .report-table th {
     padding: 18px 20px;
     text-align: left;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     color: #fff;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 1.2px;
     border-bottom: 2px solid #2a2a2a;
 }
 
@@ -311,15 +356,16 @@
 
 .report-table tbody tr:hover {
     background: rgba(255, 140, 0, 0.05);
-    transform: translateX(5px);
+    transform: translateX(3px);
 }
 
 .report-table tbody tr[id^="details-"] {
-    background: #111 !important;
+    background: #0f0f0f !important;
 }
 
 .report-table tbody tr[id^="details-"]:hover {
     background: #151515 !important;
+    transform: translateX(0) !important;
 }
 
 .report-table td {
@@ -331,7 +377,7 @@
 
 .report-table td strong {
     color: #ff8c00;
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .report-table button {
@@ -342,8 +388,12 @@
     border-radius: 8px;
     font-size: 12px;
     font-weight: 600;
+    font-family: inherit;
     cursor: pointer;
     transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .report-table button:hover {
@@ -352,41 +402,18 @@
     box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
 }
 
-/* Section Titles */
-h3 {
-    font-size: 24px;
-    font-weight: 700;
-    color: #fff;
-    margin: 40px 0 20px;
-    position: relative;
-    padding-left: 20px;
-    animation: slideInLeft 0.6s ease;
-}
-
-h3::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 6px;
-    height: 30px;
-    background: linear-gradient(180deg, #ff8c00, #ff6b00);
-    border-radius: 3px;
-}
-
 /* Charts Container */
 .charts-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
     gap: 30px;
-    margin: 30px 0;
+    margin: 30px 0 50px;
     position: relative;
     z-index: 1;
 }
 
 .chart-wrapper {
-    background: rgba(26, 26, 26, 0.8);
+    background: rgba(26, 26, 26, 0.95);
     backdrop-filter: blur(10px);
     border: 1px solid #2a2a2a;
     border-radius: 16px;
@@ -415,11 +442,15 @@ h3::before {
     margin: 0 0 20px 0;
     position: relative;
     z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 canvas {
     position: relative;
     z-index: 1;
+    max-height: 300px;
 }
 
 /* Pagination */
@@ -428,7 +459,7 @@ canvas {
     justify-content: center;
     align-items: center;
     gap: 10px;
-    margin: 40px 0 20px;
+    margin: 40px 0;
     animation: fadeIn 0.8s ease 0.4s backwards;
     position: relative;
     z-index: 1;
@@ -450,6 +481,7 @@ canvas {
     font-weight: 500;
     text-decoration: none;
     transition: all 0.3s ease;
+    gap: 6px;
 }
 
 .pagination a:hover {
@@ -511,6 +543,10 @@ canvas {
 }
 
 @media (max-width: 768px) {
+    .sales-report-page {
+        padding: 20px;
+    }
+
     .page-title {
         font-size: 28px;
     }
@@ -528,54 +564,28 @@ canvas {
     }
     
     .kpi-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    .kpi-card {
+        padding: 18px;
+    }
+
+    .kpi-card h3 {
+        font-size: 24px;
     }
     
-    .report-table {
+    .table-container {
         overflow-x: auto;
-        display: block;
     }
-    
-    .report-table thead,
-    .report-table tbody,
-    .report-table tr,
-    .report-table td,
-    .report-table th {
-        display: block;
+
+    .report-table {
+        min-width: 800px;
     }
-    
-    .report-table thead {
-        display: none;
-    }
-    
-    .report-table tr {
-        margin-bottom: 20px;
-        border: 1px solid #2a2a2a;
-        border-radius: 12px;
-        padding: 15px;
-    }
-    
-    .report-table td {
-        padding: 8px 0;
-        text-align: right;
-        position: relative;
-        padding-left: 50%;
-        border-bottom: 1px solid #2a2a2a;
-    }
-    
-    .report-table td:last-child {
-        border-bottom: none;
-    }
-    
-    .report-table td::before {
-        content: attr(data-label);
-        position: absolute;
-        left: 0;
-        width: 45%;
-        padding-right: 10px;
-        text-align: left;
-        font-weight: 600;
-        color: #999;
+
+    .charts-container {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -584,8 +594,12 @@ canvas {
         font-size: 24px;
     }
     
+    .kpi-grid {
+        grid-template-columns: 1fr;
+    }
+
     .kpi-card h3 {
-        font-size: 24px;
+        font-size: 28px;
     }
 }
 </style>
@@ -638,7 +652,6 @@ canvas {
                 <polyline points="14 2 14 8 20 8"></polyline>
                 <line x1="16" y1="13" x2="8" y2="13"></line>
                 <line x1="16" y1="17" x2="8" y2="17"></line>
-                <polyline points="10 9 9 9 8 9"></polyline>
             </svg>
             Export PDF
         </a>
@@ -726,56 +739,58 @@ canvas {
     </div>
 
     <!-- ORDERS TABLE -->
-    <h3>Order Details</h3>
-    <table class="report-table">
-        <thead>
-            <tr>
-                <th>Order ID</th>
-                <th>Date</th>
-                <th>Items</th>
-                <th>Gross</th>
-                <th>Coupon</th>
-                <th>Tax</th>
-                <th>Shipping</th>
-                <th>Final</th>
-                <th>Details</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for order in orders %}
-            <tr>
-                <td data-label="Order ID">{{ order.order__order_id }}</td>
-                <td data-label="Date">{{ order.order__created_at|date:"d M Y" }}</td>
-                <td data-label="Items">{{ order.items_count }}</td>
-                <td data-label="Gross">{{ order.gross_amount|inr }}</td>
-                <td data-label="Coupon">{{ order.order__coupon_discount|inr }}</td>
-                <td data-label="Tax">{{ order.order__tax|inr }}</td>
-                <td data-label="Shipping">{{ order.order__shipping_charge|inr }}</td>
-                <td data-label="Final"><strong>{{ order.net_revenue|inr }}</strong></td>
-                <td data-label="Details">
-                    <button onclick="toggleDetails('{{ order.order__id }}')">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="12" cy="12" r="1"></circle>
-                            <circle cx="12" cy="5" r="1"></circle>
-                            <circle cx="12" cy="19" r="1"></circle>
-                        </svg>
-                        View
-                    </button>
-                </td>
-            </tr>
+    <h3 class="section-title">Order Details</h3>
+    <div class="table-container">
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Date</th>
+                    <th>Items</th>
+                    <th>Gross</th>
+                    <th>Coupon</th>
+                    <th>Tax</th>
+                    <th>Shipping</th>
+                    <th>Final</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for order in orders %}
+                <tr>
+                    <td>{{ order.order__order_id }}</td>
+                    <td>{{ order.order__created_at|date:"d M Y" }}</td>
+                    <td>{{ order.items_count }}</td>
+                    <td>{{ order.gross_amount|inr }}</td>
+                    <td>{{ order.order__coupon_discount|inr }}</td>
+                    <td>{{ order.order__tax|inr }}</td>
+                    <td>{{ order.order__shipping_charge|inr }}</td>
+                    <td><strong>{{ order.net_revenue|inr }}</strong></td>
+                    <td>
+                        <button onclick="toggleDetails('{{ order.order__id }}')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="1"></circle>
+                                <circle cx="12" cy="5" r="1"></circle>
+                                <circle cx="12" cy="19" r="1"></circle>
+                            </svg>
+                            View
+                        </button>
+                    </td>
+                </tr>
 
-            <!-- Collapsible Details -->
-            <tr id="details-{{ order.order__id }}" style="display:none;">
-                <td colspan="9" style="padding: 20px;">
-                    <strong style="color: #ff8c00; font-size: 16px;">Order Details</strong><br><br>
-                    <strong>User:</strong> {{ order.order__user__email|default:"Deleted User" }}<br>
-                    <strong>Order ID:</strong> {{ order.order__order_id }}<br>
-                    <strong>Date:</strong> {{ order.order__created_at|date:"d M Y H:i" }}
-                </td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+                <!-- Collapsible Details -->
+                <tr id="details-{{ order.order__id }}" style="display:none;">
+                    <td colspan="9" style="padding: 20px;">
+                        <strong style="color: #ff8c00; font-size: 16px;">Order Details</strong><br><br>
+                        <strong>User:</strong> {{ order.order__user__email|default:"Deleted User" }}<br>
+                        <strong>Order ID:</strong> {{ order.order__order_id }}<br>
+                        <strong>Date:</strong> {{ order.order__created_at|date:"d M Y H:i" }}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
     <!-- PAGINATION -->
     {% if orders.has_other_pages %}
@@ -803,55 +818,59 @@ canvas {
     {% endif %}
 
     <!-- TOP PRODUCTS & CATEGORIES -->
-    <h3>Top 10 Selling Products</h3>
-    <table class="report-table">
-        <thead>
-            <tr>
-                <th>Product</th>
-                <th>Units Sold</th>
-                <th>Revenue</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for p in top_products %}
-            <tr>
-                <td data-label="Product">{{ p.product__name }}</td>
-                <td data-label="Units Sold">{{ p.units_sold }}</td>
-                <td data-label="Revenue">{{ p.revenue|inr }}</td>
-            </tr>
-        {% empty %}
-            <tr><td colspan="3" style="text-align: center; padding: 40px; color: #666;">No data available</td></tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    <h3 class="section-title">Top 10 Selling Products</h3>
+    <div class="table-container">
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Units Sold</th>
+                    <th>Revenue</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for p in top_products %}
+                <tr>
+                    <td>{{ p.product__name }}</td>
+                    <td>{{ p.units_sold }}</td>
+                    <td><strong>{{ p.revenue|inr }}</strong></td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="3" style="text-align: center; padding: 40px; color: #666;">No data available</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-    <h3>Top 10 Selling Categories</h3>
-    <table class="report-table">
-        <thead>
-            <tr>
-                <th>Category</th>
-                <th>Units Sold</th>
-                <th>Revenue</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for c in top_categories %}
-            <tr>
-                <td data-label="Category">{{ c.product__category__name }}</td>
-                <td data-label="Units Sold">{{ c.units_sold }}</td>
-                <td data-label="Revenue">{{ c.revenue|inr }}</td>
-            </tr>
-        {% empty %}
-            <tr><td colspan="3" style="text-align: center; padding: 40px; color: #666;">No data available</td></tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    <h3 class="section-title">Top 10 Selling Categories</h3>
+    <div class="table-container">
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Units Sold</th>
+                    <th>Revenue</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for c in top_categories %}
+                <tr>
+                    <td>{{ c.product__category__name }}</td>
+                    <td>{{ c.units_sold }}</td>
+                    <td><strong>{{ c.revenue|inr }}</strong></td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="3" style="text-align: center; padding: 40px; color: #666;">No data available</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
     <!-- CHARTS SECTION -->
     <div class="charts-container">
         <div class="chart-wrapper">
             <h4>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="12" y1="20" x2="12" y2="10"></line>
                     <line x1="18" y1="20" x2="18" y2="4"></line>
                     <line x1="6" y1="20" x2="6" y2="16"></line>
@@ -863,7 +882,7 @@ canvas {
 
         <div class="chart-wrapper">
             <h4>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="18" y1="20" x2="18" y2="10"></line>
                     <line x1="12" y1="20" x2="12" y2="4"></line>
                     <line x1="6" y1="20" x2="6" y2="14"></line>
@@ -879,13 +898,8 @@ canvas {
 
 <script>
 // Modern Chart Configuration
-const chartDefaults = {
-    backgroundColor: 'rgba(255, 140, 0, 0.8)',
-    hoverBackgroundColor: 'rgba(255, 140, 0, 1)',
-    borderColor: 'rgba(255, 140, 0, 0.5)',
-    borderWidth: 2,
-    borderRadius: 8,
-};
+Chart.defaults.color = '#e0e0e0';
+Chart.defaults.borderColor = 'rgba(255, 140, 0, 0.1)';
 
 const chartOptions = {
     responsive: true,
@@ -897,10 +911,12 @@ const chartOptions = {
             labels: {
                 color: '#e0e0e0',
                 font: {
-                    size: 12,
-                    weight: 600
+                    size: 13,
+                    weight: 600,
+                    family: 'inherit'
                 },
-                padding: 15
+                padding: 15,
+                usePointStyle: true
             }
         },
         tooltip: {
@@ -911,33 +927,45 @@ const chartOptions = {
             borderWidth: 1,
             padding: 12,
             cornerRadius: 8,
-            displayColors: true
+            displayColors: true,
+            titleFont: {
+                size: 14,
+                weight: 'bold'
+            },
+            bodyFont: {
+                size: 13
+            }
         }
     },
     scales: {
         x: {
             grid: {
-                color: 'rgba(255, 140, 0, 0.1)',
+                color: 'rgba(255, 140, 0, 0.08)',
                 drawBorder: false
             },
             ticks: {
                 color: '#999',
                 font: {
-                    size: 11
-                }
+                    size: 11,
+                    family: 'inherit'
+                },
+                maxRotation: 45,
+                minRotation: 0
             }
         },
         y: {
             grid: {
-                color: 'rgba(255, 140, 0, 0.1)',
+                color: 'rgba(255, 140, 0, 0.08)',
                 drawBorder: false
             },
             ticks: {
                 color: '#999',
                 font: {
-                    size: 11
+                    size: 11,
+                    family: 'inherit'
                 }
-            }
+            },
+            beginAtZero: true
         }
     },
     animation: {
@@ -956,7 +984,12 @@ if (productCtx) {
             datasets: [{
                 label: 'Units Sold',
                 data: [{% for p in top_products %}{{ p.units_sold }},{% endfor %}],
-                ...chartDefaults
+                backgroundColor: 'rgba(255, 140, 0, 0.8)',
+                hoverBackgroundColor: 'rgba(255, 140, 0, 1)',
+                borderColor: 'rgba(255, 140, 0, 1)',
+                borderWidth: 2,
+                borderRadius: 8,
+                borderSkipped: false
             }]
         },
         options: chartOptions
@@ -975,9 +1008,10 @@ if (categoryCtx) {
                 data: [{% for c in top_categories %}{{ c.units_sold }},{% endfor %}],
                 backgroundColor: 'rgba(59, 130, 246, 0.8)',
                 hoverBackgroundColor: 'rgba(59, 130, 246, 1)',
-                borderColor: 'rgba(59, 130, 246, 0.5)',
+                borderColor: 'rgba(59, 130, 246, 1)',
                 borderWidth: 2,
-                borderRadius: 8
+                borderRadius: 8,
+                borderSkipped: false
             }]
         },
         options: chartOptions
@@ -991,7 +1025,6 @@ function toggleDetails(orderId) {
         const isVisible = row.style.display !== "none";
         row.style.display = isVisible ? "none" : "table-row";
         
-        // Animate the transition
         if (!isVisible) {
             row.style.animation = "slideInUp 0.3s ease";
         }
@@ -1000,20 +1033,25 @@ function toggleDetails(orderId) {
 
 // Add loading animation to buttons
 document.querySelectorAll('.filter-bar button[type="submit"]').forEach(button => {
-    button.addEventListener('click', function() {
-        this.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;"><circle cx="12" cy="12" r="10"></circle></svg> Loading...';
+    button.addEventListener('click', function(e) {
+        const svg = this.querySelector('svg');
+        if (svg) {
+            svg.style.animation = 'spin 1s linear infinite';
+        }
+        this.style.opacity = '0.7';
+        this.style.pointerEvents = 'none';
     });
 });
 
-// Spin animation for loading
-const style = document.createElement('style');
-style.textContent = `
+// Spin animation keyframes
+const styleSheet = document.createElement('style');
+styleSheet.textContent = `
     @keyframes spin {
         from { transform: rotate(0deg); }
         to { transform: rotate(360deg); }
     }
 `;
-document.head.appendChild(style);
+document.head.appendChild(styleSheet);
 </script>
 
 {% endblock %}
