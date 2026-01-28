@@ -9,17 +9,16 @@ from django.shortcuts import render
 from django.core.paginator import Paginator
 from apps.wallet.models import WalletTransaction, Wallet
 from apps.orders.models import Payment
-
+from apps.accounts.decorators import user_required
 from django.urls import reverse
 client = razorpay.Client(
     auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
 )
 
 
-@login_required
+@user_required
 def wallet_page(request):
-    if request.user.is_superuser  or not request.user.is_authenticated:
-        return redirect("login")
+    
     
     wallet, _ = Wallet.objects.get_or_create(user=request.user)
 
@@ -53,7 +52,7 @@ def wallet_page(request):
 
 
 @require_POST
-@login_required
+@user_required
 def create_wallet_topup_order(request):
     if request.user.is_superuser  or not request.user.is_authenticated:
         return redirect("login")
@@ -90,7 +89,7 @@ def create_wallet_topup_order(request):
 
 
 @require_POST
-@login_required
+@user_required
 def verify_wallet_payment(request):
     
     razorpay_order_id = request.POST.get("razorpay_order_id")

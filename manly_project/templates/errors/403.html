@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title|default:"Access Denied" }}</title>
+    <style>
+        body {
+            font-family: 'Nunito Sans', sans-serif;
+            background: #0f0f0f;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .box {
+            background: #1c1c1c;
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 420px;
+            box-shadow: 0 0 40px rgba(0,0,0,0.4);
+        }
+        .box h1 {
+            color: #ff4d4d;
+            margin-bottom: 10px;
+        }
+        .box p {
+            color: #ccc;
+            margin-bottom: 25px;
+        }
+        .box button {
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h1>{{ title }}</h1>
+    <p>{{ message }}</p>
+    <button onclick="window.history.back()">Go Back</button>
+</div>
+
+</body>
+</html>
+ 

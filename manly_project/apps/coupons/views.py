@@ -1,4 +1,4 @@
-from django.contrib.auth.decorators import login_required
+from apps.accounts.decorators import user_required
 from django.shortcuts import redirect
 from django.contrib import messages
 from decimal import Decimal
@@ -10,7 +10,7 @@ from apps.orders.utils.pricing import apply_offer
 
 
 
-@login_required
+@user_required
 def apply_coupon(request):
     if request.method != "POST":
         return redirect("checkout_page")
@@ -69,7 +69,7 @@ def apply_coupon(request):
     messages.success(request, f"Coupon '{coupon.code}' applied successfully")
     return redirect("checkout_page")
 
-@login_required
+@user_required
 def remove_coupon(request):
     request.session.pop("applied_coupon_id", None)
     request.session.pop("coupon_discount", None)

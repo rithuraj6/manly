@@ -1,6 +1,5 @@
 from django.shortcuts import redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-
+from apps.accounts.decorators import user_required
 from django.db import transaction
 
 from apps.cart.models import Cart
@@ -8,7 +7,7 @@ from apps.cart.models import Cart
 from apps.orders.services.order_creation import create_order
 
 
-@login_required
+@user_required
 @transaction.atomic
 def place_order(request):
     

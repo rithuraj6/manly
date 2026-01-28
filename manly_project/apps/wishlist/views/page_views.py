@@ -1,11 +1,11 @@
 
-from django.contrib.auth.decorators import login_required
+from apps.accounts.decorators import user_required
 from django.shortcuts import render
 
 from apps.products.utils import attach_offer_data
 
 
-@login_required(login_url="login")
+@user_required
 def wishlist_page(request):
     wishlist = getattr(request.user, "wishlist", None)
     items = []

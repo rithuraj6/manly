@@ -1,12 +1,12 @@
 from django.shortcuts import get_object_or_404, redirect, render
-from django.contrib.auth.decorators import login_required
+from apps.accounts.decorators import user_required
 from django.contrib import messages
 
 from apps.orders.models import OrderItem
 from apps.reviews.models import ProductReview
 
 
-@login_required
+@user_required
 def rate_product(request, item_id):
     if request.user.is_superuser  or not request.user.is_authenticated:
         return redirect("login")

@@ -8,12 +8,11 @@ from apps.orders.models import Order, OrderItem
 
 from apps.orders.models import Order
 
+from apps.accounts.decorators import user_required
 
-
-@login_required(login_url='login')
+@user_required
 def user_orders(request):
-    if request.user.is_superuser or not request.user.is_authenticated:
-        return redirect("login")
+   
     user = request.user
     orders = Order.objects.filter(user=user).order_by("-created_at")
 

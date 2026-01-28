@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
+from apps.accounts.decorators import user_required
 
 from apps.orders.services.order_state import recalculate_order_status
 
@@ -15,7 +15,7 @@ from apps.wallet.services.wallet_services import refund_to_wallet
 
 
 @transaction.atomic
-@login_required
+@user_required
 def cancel_order_item(request, item_id):
     order_item = get_object_or_404(
         OrderItem,

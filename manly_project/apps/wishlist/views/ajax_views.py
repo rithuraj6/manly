@@ -1,5 +1,5 @@
 from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
+from apps.accounts.decorators import user_required
 from django.views.decorators.http import require_POST
 from django.shortcuts import get_object_or_404
 from django.db import transaction
@@ -14,7 +14,7 @@ from django.views.decorators.http import require_GET
 
 
 
-@login_required(login_url="login")
+@user_required
 @require_POST
 def toggle_wishlist(request):
     product_id = request.POST.get("product_id")
@@ -57,7 +57,7 @@ def toggle_wishlist(request):
     
     
     
-@login_required(login_url="login")
+@user_required
 def wishlist_count(request):
     wishlist = getattr(request.user, "wishlist", None)
     count = wishlist.items.count() if wishlist else 0
@@ -65,8 +65,7 @@ def wishlist_count(request):
     return JsonResponse({
         "wishlist_count": count
     })
-
-@login_required(login_url="login")
+@user_required
 @require_POST
 def remove_from_wishlist(request):
     product_id = request.POST.get("product_id")
@@ -87,7 +86,7 @@ def remove_from_wishlist(request):
 
 
 
-@login_required(login_url="login")
+@user_required
 @require_POST
 @transaction.atomic
 def wishlist_add_to_cart(request):
@@ -140,7 +139,7 @@ def wishlist_add_to_cart(request):
     })
 
 
-@login_required(login_url="login")
+@user_required
 @require_GET
 def is_in_wishlist(request):
     product_id = request.GET.get("product_id")
