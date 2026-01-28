@@ -1,7 +1,7 @@
 from django.core.paginator import Paginator
 from django.db.models import Prefetch, Q
 from django.shortcuts import render, get_object_or_404,redirect
-
+from decimal import Decimal
 from apps.banners.models import SiteBanner
 
 from apps.categories.models import Category
@@ -118,15 +118,26 @@ def product_detail(request, product_id):
     average_rating = round(reviews_agg["avg_rating"] or 0, 1)
     total_reviews = reviews_agg["total_reviews"] or 0
     
-    offer = get_best_offer(product)
+    # offer = get_best_offer(product)
 
-    discounted_price = (
-        apply_offer(product, product.base_price)
-        if offer else product.base_price
-    )
+    # discounted_price = (
+    #     apply_offer(product, product.base_price)
+    #     if offer else product.base_price
+    # )
 
-    offer_percentage = offer.discount_percentage if offer else None
-        
+    # offer_percentage = offer.discount_percentage if offer else None
+    
+    discounted_price = apply_offer(product, product.base_price)
+
+    if discounted_price < product.base_price:
+        offer_percentage = (
+            (product.base_price - discounted_price)
+            / product.base_price * 100
+        ).quantize(Decimal("1"))
+    else:
+        offer_percentage = None
+
+            
 
    
     breadcrumbs = [

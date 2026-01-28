@@ -45,18 +45,15 @@ def approve_return(request, return_id):
     order_item = return_request.order_item
     order = order_item.order
 
-    # Update return request
     return_request.status = ReturnRequest.STATUS_APPROVED
     return_request.save(update_fields=["status"])
 
-    # Update item status
     order_item.status = OrderItem.STATUS_RETURNED
     order_item.save(update_fields=["status"])
 
-    # Restore stock
     restore_stock(order_item)
 
-    # Refund
+
     refund_to_wallet(
         user=order.user,
         order_item=order_item,
@@ -64,7 +61,6 @@ def approve_return(request, return_id):
         reason=f"Refund for returned item ({order.order_id})",
     )
 
-    # ✅ VERY IMPORTANT
     recalculate_order_status(order)
 
     messages.success(request, "Return approved and refund credited to user wallet.")
