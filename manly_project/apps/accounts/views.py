@@ -234,14 +234,25 @@ def profile_edit(request):
             request.user.save(update_fields=["auth_provider"])
 
     if request.method == "POST":
-        new_email = request.POST.get("email", "").strip()
-        current_email = request.user.email
-        if request.user.auth_provider == "google" and new_email != current_email:
-            messages.error(
-                request,
-                "Email change is not allowed for Google authenticated accounts"
-            )
-            return redirect("account_profile_edit")
+        # new_email = request.POST.get("email", "").strip()
+        # current_email = request.user.email
+        # if request.user.auth_provider == "google" and new_email != current_email:
+        #     messages.error(
+        #         request,
+        #         "Email change is not allowed for Google authenticated accounts"
+        #     ) 
+        #     return redirect("account_profile_edit")
+        new_email = request.POST.get("email")
+        if new_email is not None:
+            new_email = new_email.strip()
+            current_email = request.user.email
+
+            if request.user.auth_provider == "google" and new_email != current_email:
+                messages.error(
+                    request,
+                    "Email change is not allowed for Google authenticated accounts"
+                )
+                return redirect("account_profile_edit")
 
         if new_email and new_email != current_email:
 

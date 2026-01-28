@@ -103,7 +103,8 @@ def get_product_offer(product):
             start_date__lte=timezone.now(),
             end_date__gte=timezone.now(),
         )
-        .order_by("-discount_percentage")
+        .order_by("-discount_percentage", "-created_at")
+
         .values_list("discount_percentage", flat=True)
         .first()
     )
@@ -117,7 +118,8 @@ def get_category_offer(category):
             start_date__lte=timezone.now(),
             end_date__gte=timezone.now(),
         )
-        .order_by("-discount_percentage")
+        .order_by("-discount_percentage", "-created_at")
+
         .values_list("discount_percentage", flat=True)
         .first()
     )
@@ -132,7 +134,9 @@ def apply_offer(product, base_price):
     if not offers:
         return base_price
 
-    best_offer = max(offers)  
+    best_offer = max(offers)
+    # best_offer = product_offer if product_offer else category_offer
+
 
     discount_amount = (Decimal(best_offer) / Decimal("100")) * base_price
     return (base_price - discount_amount).quantize(Decimal("0.01"))
