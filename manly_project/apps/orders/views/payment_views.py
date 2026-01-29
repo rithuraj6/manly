@@ -3,7 +3,7 @@ import razorpay
 from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect, render
 from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
+from apps.accounts.decorators import user_required
 from razorpay.errors import SignatureVerificationError
 from apps.accounts.models import UserAddress
 from decimal import Decimal
@@ -27,7 +27,7 @@ from apps.orders.services.get_order_preview import get_order_preview
 
 
         
-@login_required
+@user_required
 def payment_page(request):
     preview = get_order_preview(request)
     cart = getattr(request.user, "cart", None)
@@ -66,7 +66,7 @@ def payment_page(request):
     return render(request, "orders/payment.html", context)
 
 
-@login_required
+@user_required
 def create_razorpay_order(request):
     preview = get_order_preview(request)
 
@@ -162,7 +162,7 @@ def verify_razorpay_payment(request):
 
 
 
-@login_required
+@user_required
 def retry_payment(request,payment_id):
     payment = get_object_or_404(
         Payment,id=payment_id,user=request.user,status='failed'
@@ -192,8 +192,7 @@ def retry_payment(request,payment_id):
     
 
     
-
-@login_required
+@user_required
 def order_failure(request, payment_id):
     payment = get_object_or_404(
         Payment,
@@ -208,7 +207,7 @@ def order_failure(request, payment_id):
 
    
     
-@login_required
+@user_required
 def wallet_payment(request):
     user = request.user
     cart = getattr(user, "cart", None)
@@ -244,8 +243,7 @@ def wallet_payment(request):
 
     return redirect("order_success", order_id=order.order_id)
 
-
-@login_required
+@user_required
 def cod_payment(request):
     user = request.user
     cart = getattr(user, "cart", None)

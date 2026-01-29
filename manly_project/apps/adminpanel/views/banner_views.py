@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from apps.banners.models import SiteBanner
-from django.contrib.auth.decorators import login_required
+from apps.accounts.decorators import admin_required
 
-@login_required(login_url='admin_login')
+
+
+@admin_required
 def admin_banner_list(request):
     if not request.user.is_authenticated or not request.user.is_superuser:
         return redirect("admin_login")
@@ -17,7 +19,7 @@ def admin_banner_list(request):
     )
 
 
-@login_required(login_url='admin_login')
+@admin_required
 def admin_add_banner(request):
     if not request.user.is_authenticated or not request.user.is_superuser:
         return redirect("admin_login")
@@ -35,8 +37,7 @@ def admin_add_banner(request):
 
     return render(request, "adminpanel/banners/banner_add.html")
 
-
-@login_required(login_url='admin_login')
+@admin_required
 def admin_toggle_banner(request, banner_id):
     if not request.user.is_authenticated or not request.user.is_superuser:
         return redirect("admin_login")

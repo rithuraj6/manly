@@ -1,11 +1,11 @@
-from django.contrib.auth.decorators import login_required
+from apps.accounts.decorators import user_required
 from django.shortcuts import render
 from apps.cart.models import Cart
 from apps.orders.utils.pricing import apply_offer, get_best_offer
 
 
 
-@login_required(login_url="login")
+@user_required
 def cart_page(request):
     cart_items = []
     subtotal = 0

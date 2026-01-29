@@ -8,6 +8,7 @@ from apps.categories.models import Category
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from django.core.exceptions import ValidationError
+from apps.accounts.decorators import admin_required
 
 from django.utils import timezone
 from datetime import datetime
@@ -19,7 +20,7 @@ def make_aware_date(date_str):
 
 
 
-
+@admin_required
 def offer_list(request):
     
     offers = Offer.objects.select_related(
@@ -33,7 +34,7 @@ def offer_list(request):
 
 
 
-
+@admin_required
 def offer_add(request):
     products = Product.objects.filter(is_active=True)
     categories = Category.objects.filter(is_active=True)
@@ -108,6 +109,7 @@ def offer_add(request):
             
 
 @require_POST
+@admin_required
 def toggle_offer_status(request, offer_id):
     
     offer = get_object_or_404(Offer, id=offer_id)
@@ -133,7 +135,7 @@ def toggle_offer_status(request, offer_id):
         "success": True,
         "is_active": offer.is_active
     })
-
+@admin_required
 def offer_edit(request, offer_id):
     offer = get_object_or_404(Offer, id=offer_id)
 
@@ -185,7 +187,7 @@ def offer_edit(request, offer_id):
 
 
 
-
+@admin_required
 def offer_list(request):
     now = timezone.now()
 

@@ -1,5 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
+from apps.accounts.decorators import admin_required
+from apps.accounts.decorators import user_required
+
 from django.contrib import messages
 from apps.orders.services.order_state import recalculate_order_status
 from django.db import transaction
@@ -9,7 +11,7 @@ from apps.orders.utils.stock import restore_stock
 from apps.orders.models import OrderItem, ReturnRequest
 
 
-@login_required
+@user_required
 def view_return_reason(request, item_id):
     order_item = get_object_or_404(
         OrderItem,
@@ -27,8 +29,7 @@ def view_return_reason(request, item_id):
         }
     )
     
-    
-@login_required
+@user_required
 def request_return(request, item_id):
     item = get_object_or_404(
         OrderItem,
@@ -71,10 +72,11 @@ def request_return(request, item_id):
 
 
 
-@staff_member_required
+
 @transaction.atomic
-@login_required(login_url="admin_login")
+@admin_required
 def admin_approve_return(request, return_id):
+    
     return_request = get_object_or_404(ReturnRequest, id=return_id)
     order_item = return_request.order_item
     order = order_item.order

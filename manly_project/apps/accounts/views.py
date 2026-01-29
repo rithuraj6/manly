@@ -4,7 +4,7 @@ from django.contrib.auth import update_session_auth_hash
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout, get_user_model
-from django.contrib.auth.decorators import login_required
+from apps.accounts.decorators import user_required
 from django.http import JsonResponse
 from django.contrib import messages
 from apps.accounts.models import EmailOTP
@@ -30,25 +30,53 @@ User = get_user_model()
 
 
 def user_login(request):
-    error = None
+    error =None
+   
 
     if request.method == "POST":
         email = request.POST.get("email")
         password = request.POST.get("password")
 
         user = authenticate(request, email=email, password=password)
+        if not user:
+            messages.error(request, "Invalid email or password")
+            return redirect("login")
+        
+        if user.is_superuser or user.is_staff:
+            return render(
+                request,"errors/403.html",{
+                    "title":"Access Denied!",
+                    "message":"Admin accounts must  use the  admni login page "
+                },
+                status =403,
+            )
 
-        if user:
-            if not user.is_active:
-                error = "Please verify your account"
-            else:
-                login(request, user)
-                return redirect("home")
-        else:
-            error = "Invalid email or password"
+        
+        if user.is_blocked:
+            request.session["blocked_reason"] = "account_blocked"
+            return redirect("forbidden")
+
+
+       
+        login(request, user)
+        return redirect("home")
+
+    
 
     return render(request, "pages/login.html", {"error": error})
 
+def forbidden_view(request):
+    reason = request.session.pop("blocked_reason", None)
+
+    return render(
+        request,
+        "errors/403.html",
+        {
+            "title": "Access Denied!",
+            "message": "Your account has been blocked. Please contact support.",
+        },
+        status=403,
+    )
 
 def user_signup(request):
     error = None
@@ -198,11 +226,9 @@ def user_logout(request):
     logout(request)
     return redirect("login")
 
-
-@login_required
+@user_required
 def profile_view(request):
-    if request.user.is_superuser  or not request.user.is_authenticated:
-        return redirect("login")
+    
 
     breadcrumbs = [
         {"label": "Home", "url": "/"},
@@ -222,10 +248,9 @@ def get_client_ip(request):
 
 
 
-@login_required
+@user_required
 def profile_edit(request):
-    if request.user.is_superuser  or not request.user.is_authenticated:
-        return redirect("login")
+  
     profile = request.user.profile
 
     if request.user.socialaccount_set.filter(provider="google").exists():
@@ -234,14 +259,7 @@ def profile_edit(request):
             request.user.save(update_fields=["auth_provider"])
 
     if request.method == "POST":
-        # new_email = request.POST.get("email", "").strip()
-        # current_email = request.user.email
-        # if request.user.auth_provider == "google" and new_email != current_email:
-        #     messages.error(
-        #         request,
-        #         "Email change is not allowed for Google authenticated accounts"
-        #     ) 
-        #     return redirect("account_profile_edit")
+ 
         new_email = request.POST.get("email")
         if new_email is not None:
             new_email = new_email.strip()
@@ -341,7 +359,6 @@ def profile_edit(request):
 
 
 
-
 def verify_email_change(request):
     new_email = request.session.get("email_change_new")
     user_id = request.session.get("email_change_user")
@@ -396,11 +413,9 @@ def verify_email_change(request):
 
     return render(request, "account/verify_email_change.html" , {"breadcrumbs": breadcrumbs})
 
-    
-@login_required
+@user_required
 def address(request):
-    if request.user.is_superuser  or not request.user.is_authenticated:
-        return redirect("login")
+   
     
     addresses = UserAddress.objects.filter(
         user=request.user
@@ -451,11 +466,9 @@ def validate_only_numbers(fields_dict):
                 f"{field_name.replace('_', ' ').title()} should contain only numbers."
             )      
 
-@login_required
+@user_required
 def address_add(request):
-    
-    if request.user.is_superuser  or not request.user.is_authenticated:
-        return redirect("login")
+  
     
     breadcrumbs = [
         {"label": "Home", "url": "/"},
@@ -553,10 +566,9 @@ def address_add(request):
 
 
             
-@login_required
+@user_required
 def address_edit(request,address_id):
-    if request.user.is_superuser  or not request.user.is_authenticated:
-        return redirect("login")
+   
     
     address = get_object_or_404(
         UserAddress,id=address_id,user=request.user
@@ -652,8 +664,7 @@ def address_edit(request,address_id):
     
     return render(request,'account/address_edit.html',context)  
     
-    
-@login_required
+@user_required
 def address_delete(request, address_id):
 
     if request.user.is_superuser  or not request.user.is_authenticated:
@@ -673,7 +684,7 @@ def address_delete(request, address_id):
     
     
     
-@login_required
+@user_required
 def orders(request):
     if request.user.is_superuser:
         return redirect("login")
@@ -687,7 +698,7 @@ def orders(request):
     return render(request,"account/orders.html",{"breadcrumbs": breadcrumbs})
 
 
-@login_required
+@user_required
 def change_password(request):
     if request.user.is_superuser  or not request.user.is_authenticated:
         return redirect("login")
@@ -734,8 +745,7 @@ def change_password(request):
 
     return render(request,"account/password_change.html",{"breadcrumbs": breadcrumbs})
 
-
-@login_required
+@user_required
 def toggle_user_size_filter(request):
   
 
@@ -748,7 +758,7 @@ def toggle_user_size_filter(request):
     return redirect(request.META.get("HTTP_REFERER", "/"))
 
 
-@login_required
+@user_required
 def user_coupons(request):
     user = request.user
 

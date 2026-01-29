@@ -1,11 +1,11 @@
 from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from apps.accounts.decorators import user_required
 from decimal import Decimal
 
 from apps.orders.models import Order
 
 
-@login_required
+@user_required
 def order_detail(request, order_id):
 
     order = get_object_or_404(

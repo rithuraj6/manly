@@ -1,4 +1,4 @@
-from django.contrib.auth.decorators import login_required
+from apps.accounts.decorators import user_required
 from django.shortcuts import get_object_or_404, redirect, render
 from decimal import Decimal
 from django.contrib import messages
@@ -14,7 +14,7 @@ from apps.coupons.utils.pricing import calculate_coupon_discount
 
 
 
-@login_required
+@user_required
 def checkout_page(request):
     user = request.user 
     cart = getattr(request.user, "cart", None)

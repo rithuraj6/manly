@@ -1,6 +1,6 @@
 from apps.orders.models import OrderItem
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
+from apps.accounts.decorators import admin_required
 from django.contrib import messages
 from django.db import transaction
 from apps.orders.models import ReturnRequest ,OrderItem  
@@ -14,7 +14,7 @@ from django.core.paginator import Paginator
 from apps.orders.models import ReturnRequest
 
 
-@login_required(login_url="admin_login")
+@admin_required
 def admin_return_request_list(request):
     
     
@@ -35,6 +35,7 @@ def admin_return_request_list(request):
 
 
 @transaction.atomic
+@admin_required
 def approve_return(request, return_id):
     return_request = get_object_or_404(
         ReturnRequest,
@@ -68,8 +69,7 @@ def approve_return(request, return_id):
 
 
 
-
-@login_required(login_url="admin_login")
+@admin_required
 def admin_reject_return(request, return_id):
     return_request = get_object_or_404(
         ReturnRequest,

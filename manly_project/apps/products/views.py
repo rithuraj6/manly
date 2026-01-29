@@ -6,7 +6,7 @@ from apps.banners.models import SiteBanner
 
 from apps.categories.models import Category
 from apps.products.models import Product, ProductVariant, ProductImage
-
+from apps.accounts.decorators import user_required
 from django.db.models import Avg, Count
 from apps.reviews.models import ProductReview
 
@@ -17,6 +17,7 @@ from apps.products.utils import attach_offer_data
 
 from apps.sizeguide.models import SizeGuide
 
+@user_required
 def toggle_user_size(request):
     
     current = request.session.get("disable_user_size", False)
@@ -75,7 +76,6 @@ def shop_page(request):
 
 
 
-
 def product_detail(request, product_id):
     product = get_object_or_404(Product, id=product_id, is_active=True)
 
@@ -117,15 +117,7 @@ def product_detail(request, product_id):
 
     average_rating = round(reviews_agg["avg_rating"] or 0, 1)
     total_reviews = reviews_agg["total_reviews"] or 0
-    
-    # offer = get_best_offer(product)
 
-    # discounted_price = (
-    #     apply_offer(product, product.base_price)
-    #     if offer else product.base_price
-    # )
-
-    # offer_percentage = offer.discount_percentage if offer else None
     
     discounted_price = apply_offer(product, product.base_price)
 

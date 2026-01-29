@@ -5,6 +5,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login | MANLY</title>
     <style>
+
+
+    
+.popup-message {
+    min-width: 320px;
+    padding: 18px 26px;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+    animation: slideIn 0.4s ease, fadeOut 0.4s ease 4.5s forwards;
+}
+
+/* SUCCESS */
+.popup-success {
+    background: linear-gradient(135deg, #e66d0bff, #da7401ff);
+}
+
+/* ERROR */
+.popup-error {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+/* INFO */
+.popup-info {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+}
+
         /* ========================================
            MANLY ADMIN - DARK THEME
            Color Palette:
@@ -345,6 +392,16 @@
     </style>
 </head>
 <body>
+
+    {% if messages %}
+    <div id="admin-popup">
+        {% for message in messages %}
+            <div class="popup-message popup-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
     <!-- Logo Section -->
     <div class="logo-container">
         <div class="logo">MANLY</div>

@@ -3,7 +3,7 @@ from . import views
 from .views import (
     user_login, user_signup,
     forgot_password, verify_otp, reset_password,
-    resend_otp, user_logout ,verify_email_change ,change_password,toggle_user_size_filter,user_coupons
+    resend_otp, user_logout ,verify_email_change ,change_password,toggle_user_size_filter,user_coupons,forbidden_view
 )
 
 from . import views
@@ -25,6 +25,8 @@ urlpatterns =[
 
 
     path("profile/", views.profile_view, name="account_profile"),
+    path("403/", forbidden_view, name="forbidden"),
+
     path("profile/edit/", views.profile_edit, name="account_profile_edit"),
     
     

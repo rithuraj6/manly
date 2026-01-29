@@ -3,11 +3,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 
 
-
 def admin_login(request):
-    if request.user.is_authenticated and request.user.is_staff:
-        return redirect('admin_dashboard')
-
+   
     if request.method == "POST":
         email = request.POST.get('email')
         password = request.POST.get('password')
@@ -17,10 +14,15 @@ def admin_login(request):
         if user is None:
             messages.error(request, "Invalid email or password")
             return redirect('admin_login')
-
-        if not user.is_staff:
-            messages.error(request, "You are not allowed to access admin panel")
-            return redirect('admin_login')
+        
+        
+        if not (user.is_staff or user.is_superuser):
+            
+            return render(request,"errors/403.html",{
+                "title":"Access  Denied!",
+                "message":"Customers must use the customer login page!"
+            },status=403,
+            )
 
         login(request, user)
         return redirect('admin_dashboard')

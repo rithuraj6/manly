@@ -1,9 +1,9 @@
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
-
+from apps.accounts.decorators import user_required
 from apps.orders.models import Order
 
-@login_required
+@user_required
 def print_invoice(request, order_id):
     order = get_object_or_404(
         Order.objects.select_related("user", "payment"),
@@ -20,7 +20,8 @@ def print_invoice(request, order_id):
 
     return render(request, "orders/invoice.html", context)
 
-@login_required
+
+@user_required
 def order_invoice(request, order_id):
     order = get_object_or_404(
         Order,
