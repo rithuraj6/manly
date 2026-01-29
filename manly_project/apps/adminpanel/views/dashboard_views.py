@@ -1,11 +1,12 @@
 from django.shortcuts import render
 from datetime import date, timedelta
 from django.utils import timezone
+from apps.accounts.decorators import admin_required
 
 from apps.adminpanel.services.kpis import get_kpis_with_growth
 from apps.adminpanel.services.charts import get_revenue_timeseries
 
-
+@admin_required
 def admin_dashboard(request):
     today = timezone.now().date()
 

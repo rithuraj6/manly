@@ -7,10 +7,10 @@ def admin_required(view_func):
     def _wrapped_view(request, *args, **kwargs):
 
         if not request.user.is_authenticated:
-            return redirect("login")
+            return redirect("admin_login")
 
        
-        if not request.user.is_superuser:
+        if not (request.user.is_superuser  or  request.user.is_staff):
             return render(
                 request,
                 "errors/403.html",
@@ -35,7 +35,7 @@ def user_required(view_func):
             return redirect("login")
 
         
-        if request.user.is_superuser:
+        if request.user.is_superuser or request.user.is_staff :
             return render(
                 request,
                 "errors/403.html",
@@ -47,7 +47,7 @@ def user_required(view_func):
             )
 
        
-        if hasattr(request.user, "profile") and request.user.profile.is_blocked:
+        if request.user.is_blocked:
             return render(
                 request,
                 "errors/403.html",
@@ -57,6 +57,7 @@ def user_required(view_func):
                 },
                 status=403,
             )
+
 
        
         return view_func(request, *args, **kwargs)

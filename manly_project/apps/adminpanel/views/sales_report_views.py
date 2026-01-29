@@ -1,6 +1,6 @@
 from datetime import date, timedelta
 from django.utils import timezone
-from django.contrib.admin.views.decorators import staff_member_required
+from apps.accounts.decorators import admin_required
 from django.core.paginator import Paginator
 from django.shortcuts import render
 
@@ -11,6 +11,9 @@ from django.template.loader import render_to_string
 from weasyprint import HTML
 
 from openpyxl import Workbook
+
+
+
 
 def resolve_date_range(request):
     today = timezone.now().date()
@@ -44,7 +47,7 @@ def resolve_date_range(request):
   
     return today - timedelta(days=6), today
 
-@staff_member_required
+@admin_required
 def admin_sales_report(request):
     start_date, end_date = resolve_date_range(request)
 
@@ -78,7 +81,7 @@ def admin_sales_report(request):
     )
     
     
-@staff_member_required
+@admin_required
 def admin_sales_report_print(request):
     start_date, end_date = resolve_date_range(request)
 
@@ -103,7 +106,7 @@ def admin_sales_report_print(request):
     )
 
 
-@staff_member_required
+@admin_required
 def admin_sales_report_pdf(request):
     start_date, end_date = resolve_date_range(request)
     report_data = get_sales_report(start_date, end_date)
@@ -129,7 +132,7 @@ def admin_sales_report_pdf(request):
     return response
 
 
-@staff_member_required
+@admin_required
 def admin_sales_report_excel(request):
     start_date, end_date = resolve_date_range(request)
     report_data = get_sales_report(start_date, end_date)

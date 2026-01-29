@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.admin.views.decorators import staff_member_required
+from apps.accounts.decorators import admin_required
+
 from django.core.paginator import Paginator
 
 from apps.coupons.models import Coupon
@@ -14,7 +15,7 @@ from django.core.exceptions import ValidationError
 
 
 
-@staff_member_required
+@admin_required
 def coupon_list(request):
     
     coupons = Coupon.objects.all().order_by("-created_at")
@@ -30,7 +31,7 @@ def coupon_list(request):
     
     return render(request,'adminpanel/coupons/coupon_list.html',context)
 
-@staff_member_required
+@admin_required
 def toggle_coupon_status(request,coupon_id):
     coupon = get_object_or_404(Coupon,id=coupon_id)
     coupon.is_active = not coupon.is_active
@@ -39,7 +40,7 @@ def toggle_coupon_status(request,coupon_id):
 
 
 
-@staff_member_required
+@admin_required
 def add_coupon(request):
     if request.method == "POST":
         try:
@@ -83,8 +84,7 @@ def add_coupon(request):
 
 
 
-
-@staff_member_required
+@admin_required
 def edit_coupon(request, coupon_id):
     coupon = get_object_or_404(Coupon, id=coupon_id)
 

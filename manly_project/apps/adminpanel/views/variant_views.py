@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from apps.accounts.decorators import admin_required
 
 from apps.products.models import Product, ProductVariant
 
-
+@admin_required
 def admin_add_variant(request, product_id):
     product = get_object_or_404(Product, id=product_id)
 
@@ -25,7 +25,7 @@ def admin_add_variant(request, product_id):
         messages.success(request, "Variant added successfully")
         return redirect("admin_edit_product", product_id=product.id)
 
-
+@admin_required
 def admin_toggle_variant(request, variant_id):
     variant = get_object_or_404(ProductVariant, id=variant_id)
     variant.is_active = not variant.is_active

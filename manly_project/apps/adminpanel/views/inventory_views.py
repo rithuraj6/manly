@@ -1,4 +1,5 @@
-from django.contrib.auth.decorators import login_required
+from apps.accounts.decorators import admin_required
+
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Count, Sum ,Q
 from django.core.paginator import Paginator
@@ -6,7 +7,7 @@ from django.core.paginator import Paginator
 from apps.products.models import Category, Product, ProductVariant
 
 
-@login_required(login_url="admin_login")
+@admin_required
 def inventory_category_list(request):
     categories = (
         Category.objects
@@ -22,7 +23,7 @@ def inventory_category_list(request):
     return render(request,"adminpanel/inventory/category_list.html",{"categories": categories})
 
 
-@login_required(login_url="admin_login")
+@admin_required
 def inventory_product_list(request, category_id):
     category = get_object_or_404(Category, id=category_id, is_active=True)
 

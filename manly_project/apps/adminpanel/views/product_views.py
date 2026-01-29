@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.http import JsonResponse
-from django.contrib.auth.decorators import login_required
+from apps.accounts.decorators import admin_required
 
 from apps.products.models import Product, ProductVariant, ProductImage
 from apps.categories.models import Category
@@ -10,7 +10,7 @@ from apps.products.validators import validate_product_price
 from django.core.exceptions import ValidationError
 
 
-@login_required(login_url='admin_login')
+@admin_required
 def admin_product_list(request):
     if not request.user.is_authenticated or not request.user.is_superuser:
         return redirect("admin_login")
@@ -39,7 +39,7 @@ def admin_product_list(request):
 
 
 
-
+@admin_required
 def admin_add_product(request):
     if not request.user.is_authenticated or not request.user.is_superuser:
         return redirect("admin_login")
@@ -80,7 +80,7 @@ def admin_add_product(request):
 
 
 
-
+@admin_required
 def admin_edit_product(request, product_id):
     if not request.user.is_authenticated or not request.user.is_superuser:
         return redirect("admin_login")
@@ -125,7 +125,7 @@ def admin_edit_product(request, product_id):
         },
     )
 
-
+@admin_required
 def admin_upload_product_image(request, product_id):
     if not request.user.is_authenticated or not request.user.is_superuser:
         return redirect("admin_login")
@@ -143,7 +143,7 @@ def admin_upload_product_image(request, product_id):
 
     return JsonResponse({"success": False, "error": "Invalid request"}, status=400)
 
-
+@admin_required
 def admin_delete_product_image(request, image_id):
     if not request.user.is_authenticated or not request.user.is_superuser:
         return redirect("admin_login")
@@ -160,7 +160,7 @@ def admin_delete_product_image(request, image_id):
 
     return JsonResponse({"success": False}, status=400)
 
-
+@admin_required
 def admin_add_variant(request, product_id):
     if not request.user.is_authenticated or not request.user.is_superuser:
         return redirect("admin_login")
@@ -195,7 +195,7 @@ def admin_add_variant(request, product_id):
 
 
 
-
+@admin_required
 def admin_update_variant(request, variant_id):
     if not request.user.is_authenticated or not request.user.is_superuser:
         return redirect("admin_login")
@@ -210,8 +210,7 @@ def admin_update_variant(request, variant_id):
     return redirect("admin_edit_product", product_id=variant.product.id)
 
 
-
-
+@admin_required
 def admin_toggle_variant(request, variant_id):
     if not request.user.is_authenticated or not request.user.is_superuser:
         return redirect("admin_login")
@@ -225,7 +224,7 @@ def admin_toggle_variant(request, variant_id):
 
 
 
-
+@admin_required
 def admin_toggle_product(request, product_id):
     if not request.user.is_authenticated or not request.user.is_superuser:
         return redirect("admin_login")

@@ -30,25 +30,53 @@ User = get_user_model()
 
 
 def user_login(request):
-    error = None
+    error =None
+   
 
     if request.method == "POST":
         email = request.POST.get("email")
         password = request.POST.get("password")
 
         user = authenticate(request, email=email, password=password)
+        if not user:
+            messages.error(request, "Invalid email or password")
+            return redirect("login")
+        
+        if user.is_superuser or user.is_staff:
+            return render(
+                request,"errors/403.html",{
+                    "title":"Access Denied!",
+                    "message":"Admin accounts must  use the  admni login page "
+                },
+                status =403,
+            )
 
-        if user:
-            if not user.is_active:
-                error = "Please verify your account"
-            else:
-                login(request, user)
-                return redirect("home")
-        else:
-            error = "Invalid email or password"
+        
+        if user.is_blocked:
+            request.session["blocked_reason"] = "account_blocked"
+            return redirect("forbidden")
+
+
+       
+        login(request, user)
+        return redirect("home")
+
+    
 
     return render(request, "pages/login.html", {"error": error})
 
+def forbidden_view(request):
+    reason = request.session.pop("blocked_reason", None)
+
+    return render(
+        request,
+        "errors/403.html",
+        {
+            "title": "Access Denied!",
+            "message": "Your account has been blocked. Please contact support.",
+        },
+        status=403,
+    )
 
 def user_signup(request):
     error = None
@@ -730,7 +758,7 @@ def toggle_user_size_filter(request):
     return redirect(request.META.get("HTTP_REFERER", "/"))
 
 
-@login_required
+@user_required
 def user_coupons(request):
     user = request.user
 

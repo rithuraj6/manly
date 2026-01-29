@@ -2,10 +2,10 @@ from django.shortcuts import render
 from django.db.models import Sum
 from decimal import Decimal
 from django.core.paginator import Paginator
-
+from apps.accounts.decorators import admin_required
 from apps.wallet.services.wallet_services import get_admin_wallet
 
-
+@admin_required
 def admin_wallet_dashboard(request):
     wallet = get_admin_wallet()
 

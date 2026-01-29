@@ -1,7 +1,7 @@
 
 from datetime import timedelta
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
+from apps.accounts.decorators import admin_required
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.utils import timezone
@@ -14,7 +14,7 @@ from apps.orders.models import Order, OrderItem, OrderStatusHistory
 from apps.orders.constants import ORDER_STATUS_FLOW
 
 
-@login_required(login_url="admin_login")
+@admin_required
 def admin_order_list(request):
     orders = Order.objects.select_related("user").order_by("-created_at")
 
@@ -75,7 +75,7 @@ def admin_order_list(request):
     )
 
 
-@login_required(login_url="admin_login")
+@admin_required
 def admin_order_edit(request, order_id):
     order = get_object_or_404(Order, order_id=order_id)
 
@@ -94,7 +94,7 @@ def admin_order_edit(request, order_id):
     )
 
 
-@login_required(login_url="admin_login")
+@admin_required
 def admin_order_update(request, order_id):
     order = get_object_or_404(Order, order_id=order_id)
 
@@ -151,7 +151,7 @@ def admin_order_update(request, order_id):
 
 
 
-@login_required(login_url="admin_login")
+@admin_required
 def admin_order_update_success(request):
     return render(request, "adminpanel/orders/order_update_success.html")
 

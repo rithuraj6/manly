@@ -74,21 +74,21 @@
                     <!-- ✅ ACTION COLUMN -->
                     <td>
                         <div class="action-buttons">
-                            {% if user.is_active %}
+                            {% if user.is_blocked %}
+                                <a
+                                    href="{% url 'toggle_user' user.id %}"
+                                    class="btn-unblock"
+                                    onclick="return confirmUnblock(event, '{{ user.email }}', '{% url 'toggle_user' user.id %}')"
+                                >
+                                    Unblock
+                                </a>
+                            {% else %}
                                 <a
                                     href="{% url 'toggle_user' user.id %}"
                                     class="btn-block"
                                     onclick="return confirmBlock(event, '{{ user.email }}', '{% url 'toggle_user' user.id %}')"
                                 >
                                     Block
-                                </a>
-                            {% else %}
-                                <a
-                                    href="{% url 'toggle_user' user.id %}"
-                                    class="btn-unblock"
-                                    onclick="return confirmUnblock(event, '{{ user.email }}', '{% url 'toggle_user' user.id %}')"
-                                >
-                                    UnBlock
                                 </a>
                             {% endif %}
                         </div>
