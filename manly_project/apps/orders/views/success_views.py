@@ -5,10 +5,10 @@ from apps.orders.models import Order
 
 
 @user_required
-def order_success(request, order_id):
+def order_success(request, order_uuid):
     order = get_object_or_404(
         Order,
-        order_id=order_id,
+        uuid=order_uuid,
         user=request.user
     )
     request.session.pop("checkout_address_snapshot", None)

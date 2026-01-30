@@ -4,10 +4,10 @@ from apps.accounts.decorators import user_required
 from apps.orders.models import Order
 
 @user_required
-def print_invoice(request, order_id):
+def print_invoice(request, order_uuid):
     order = get_object_or_404(
         Order.objects.select_related("user", "payment"),
-        order_id=order_id,
+        uuid=order_uuid,
         user=request.user
     )
     items = order.items.all()
@@ -22,10 +22,10 @@ def print_invoice(request, order_id):
 
 
 @user_required
-def order_invoice(request, order_id):
+def order_invoice(request, order_uuid):
     order = get_object_or_404(
         Order,
-        order_id=order_id,
+        uuid=order_uuid,
         user=request.user
     )
 

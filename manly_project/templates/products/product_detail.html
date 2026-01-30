@@ -105,7 +105,7 @@
             <!-- Action Buttons -->
             <div class="action-buttons">
                 <button class="btn wishlist-btn"
-                        data-product-id="{{ product.id }}">
+                        data-product-id="{{ product.uuid }}">
                     <svg width="20" height="20" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
@@ -124,7 +124,7 @@
                 </button>
 
                 <button class="btn add-to-cart-btn"
-                        data-product-id="{{ product.id }}"
+                        data-product-id="{{ product.uuid}}"
                         disabled>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -226,7 +226,7 @@
         <div class="product-slider-container">
             <div class="product-slider" id="productSlider">
                 {% for item in similar_products %}
-                    <a href="{% url 'product_detail' item.id %}" class="similar-card">
+                    <a href="{% url 'product_detail' item.uuid %}" class="similar-card">
                         <div class="similar-image-wrapper">
                             {% with img=item.images.first %}
                                 {% if img %}
@@ -345,7 +345,7 @@ cartBtn?.addEventListener("click", function () {
             "Content-Type": "application/x-www-form-urlencoded",
         },
         body: new URLSearchParams({
-            product_id: "{{ product.id }}",
+            product_id: "{{ product.uuid }}",
             variant_id: variantId,
             quantity: 1,
         }),
@@ -397,7 +397,7 @@ buyBtn?.addEventListener("click", function () {
             "Content-Type": "application/x-www-form-urlencoded",
         },
         body: new URLSearchParams({
-            product_id: "{{ product.id }}",
+            product_id: "{{ product.uuid}}",
             variant_id: variantId,
             quantity: 1,
         }),

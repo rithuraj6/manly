@@ -114,7 +114,7 @@
 
                             {% if payable_total == 0 %}
                                 <p style="margin-top:10px;font-size:13px;color:#2e7d32;font-weight:600;">
-                                    ✅ Fully refunded
+                                    Fully refunded
                                 </p>
                             {% endif %}
                         </div>
@@ -126,7 +126,7 @@
 
                 {% if can_download_invoice %}
                 <div style="margin-top: 20px;">
-                    <a href="{% url 'order_invoice' order.order_id %}"
+                    <a href="{% url 'order_invoice' order.uuid %}"
                     target="_blank"
                     class="action-btn rate-btn">
                         Print / Download Invoice
@@ -218,7 +218,7 @@
                             <!-- Action Buttons -->
                             <div class="action-buttons">
                                 {% if item.status == "pending" or item.status == "confirmed" %}
-                                    <a href="{% url 'cancel_order_item' item.id %}" class="action-btn cancel-btn">
+                                    <a href="{% url 'cancel_order_item' item.uuid %}" class="action-btn cancel-btn">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <line x1="18" y1="6" x2="6" y2="18"></line>
                                             <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -228,7 +228,7 @@
                                 {% endif %}
 
                                 {% if item.status == "delivered" %}
-                                    <a href="{% url 'return_order_item' item.id %}" class="action-btn return-btn">
+                                    <a href="{% url 'return_order_item' item.uuid %}" class="action-btn return-btn">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <polyline points="1 4 1 10 7 10"></polyline>
                                             <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
@@ -238,7 +238,7 @@
                                 {% endif %}
 
                                 {% if item.status == "delivered" and not item.review_id %}
-                                    <a href="{% url 'rate_product' item.id %}" class="action-btn rate-btn">
+                                    <a href="{% url 'rate_product' item.uuid %}" class="action-btn rate-btn">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                                         </svg>
@@ -250,7 +250,7 @@
                                 {% endif %}
 
                                 {% if item.status == "return_requested" or item.status == "returned" %}
-                                    <a href="{% url 'view_return_reason' item.id %}" class="action-btn view-reason-btn">
+                                    <a href="{% url 'view_return_reason' item.uuid %}" class="action-btn view-reason-btn">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                             <circle cx="12" cy="12" r="10"></circle>
                                             <line x1="12" y1="16" x2="12" y2="12"></line>

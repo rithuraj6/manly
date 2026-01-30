@@ -15,13 +15,13 @@ from decimal import Decimal
 @require_POST
 @user_required
 def add_to_cart(request):
-    product_id = request.POST.get("product_id")
+    product_uuid = request.POST.get("product_id")
     variant_id = request.POST.get("variant_id")
     qty = int(request.POST.get("quantity", 1))
 
     product = get_object_or_404(
         Product,
-        id=product_id,
+        uuid=product_uuid,
         is_active=True,
         category__is_active=True
     )

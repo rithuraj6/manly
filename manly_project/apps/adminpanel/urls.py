@@ -100,7 +100,8 @@ urlpatterns = [
     
     
     path("products/", admin_product_list, name="admin_product_list"),
-    path("products/edit/<int:product_id>/", admin_edit_product, name="admin_edit_product"),
+    path("products/edit/<uuid:product_uuid>/",admin_edit_product,name="admin_edit_product"),
+    
     path("products/<int:product_id>/variants/add/", admin_add_variant, name="admin_add_variant"),
     path("variants/toggle/<int:variant_id>/", admin_toggle_variant, name="admin_toggle_variant"),
     path("products/add/", admin_add_product, name="admin_add_product"),

@@ -1,8 +1,12 @@
 from django.db import models
 from apps.categories.models import Category
+import uuid
+
 
 
 class Product(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+
     category = models.ForeignKey(Category, related_name='products',on_delete=models.PROTECT)
     name = models.CharField(max_length=150)
     description = models.TextField(blank=True)

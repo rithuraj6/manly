@@ -17,21 +17,22 @@ from django.views.decorators.http import require_GET
 @user_required
 @require_POST
 def toggle_wishlist(request):
-    product_id = request.POST.get("product_id")
+    product_uuid = request.POST.get("product_id")
 
-    if not product_id:
+    if not product_uuid:
         return JsonResponse({"success": False}, status=400)
 
     product = get_object_or_404(
         Product,
-        id=product_id,
+        uuid=product_uuid,
         is_active=True,
         category__is_active=True
     )
 
-    wishlist = getattr(request.user, "wishlist", None)
-    if not wishlist:
-        wishlist = Wishlist.objects.create(user=request.user)
+    wishlist,_= Wishlist.objects.get_or_create(user=request.user)
+
+    # if not wishlist:
+    #     wishlist = Wishlist.objects.create(user=request.user)
 
     item = WishlistItem.objects.filter(
         wishlist=wishlist,
@@ -65,10 +66,12 @@ def wishlist_count(request):
     return JsonResponse({
         "wishlist_count": count
     })
+    
+    
 @user_required
 @require_POST
 def remove_from_wishlist(request):
-    product_id = request.POST.get("product_id")
+    product_uuid = request.POST.get("product_id")
 
     wishlist = getattr(request.user, "wishlist", None)
     if not wishlist:
@@ -76,7 +79,7 @@ def remove_from_wishlist(request):
 
     WishlistItem.objects.filter(
         wishlist=wishlist,
-        product_id=product_id
+        product=product
     ).delete()
 
     return JsonResponse({
@@ -90,10 +93,10 @@ def remove_from_wishlist(request):
 @require_POST
 @transaction.atomic
 def wishlist_add_to_cart(request):
-    product_id = request.POST.get("product_id")
+    product_uuid = request.POST.get("product_id")
     variant_id = request.POST.get("variant_id")
 
-    if not product_id or not variant_id or not variant_id.isdigit():
+    if not product_uuid or not variant_id or not variant_id.isdigit():
         return JsonResponse({
             "success": False,
             "message": "Please select a size before adding to cart"
@@ -109,7 +112,7 @@ def wishlist_add_to_cart(request):
    
     if not WishlistItem.objects.filter(
         wishlist=wishlist,
-        product_id=product_id
+        product=product
     ).exists():
         return JsonResponse({
             "success": False,
@@ -122,7 +125,7 @@ def wishlist_add_to_cart(request):
     
     WishlistItem.objects.filter(
         wishlist=wishlist,
-        product_id=product_id
+        product=product
     ).delete()
 
    
@@ -142,14 +145,14 @@ def wishlist_add_to_cart(request):
 @user_required
 @require_GET
 def is_in_wishlist(request):
-    product_id = request.GET.get("product_id")
+    product_uuid = request.GET.get("product_id")
     
     wishlist = getattr(request.user,"wishlist",None)
     
     exists = False
     
     if wishlist and product_id:
-        exists = wishlist.items.filter(product_id=product_id).exists()
+        exists = wishlist.items.filter(product=product).exists()
         
     return JsonResponse({
         "in_wishlist":exists

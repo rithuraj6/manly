@@ -724,7 +724,7 @@ body {
 
     <div class="category-carousel">
         {% for category in categories %}
-        <a href="{% url 'product_list_by_category' category.id %}" class="category-card 
+        <a href="{% url 'product_list_by_category' category.uuid %}" class="category-card 
             {% if 'Formal' in category.name %}formal
             {% elif 'Casual' in category.name %}casual
             {% elif 'Denim' in category.name %}denim
@@ -766,7 +766,7 @@ body {
         <!-- CAROUSEL -->
         <div class="product-carousel" id="featuredCarousel">
             {% for product in featured_products %}
-                <a href="{% url 'product_detail' product.id %}" class="product-card">
+                <a href="{% url 'product_detail' product.uuid %}" class="product-card">
                     <div class="image-wrapper">
                         {% if product.images.first %}
                             <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
@@ -802,7 +802,7 @@ body {
         
         <div class="product-carousel" id="newLaunchCarousel">
             {% for product in new_launches %}
-            <a href="{% url 'product_detail' product.id %}" class="product-card">
+            <a href="{% url 'product_detail' product.uuid %}" class="product-card">
                 <div class="image-wrapper">
                     {% if product.images.first %}
                         <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}">

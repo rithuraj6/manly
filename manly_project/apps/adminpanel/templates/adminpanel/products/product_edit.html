@@ -257,7 +257,7 @@
             </div>
 
             <!-- Add Variant Form -->
-            <form method="post" action="{% url 'admin_add_variant' product.id %}" class="add-variant-form">
+            <form method="post" action="{% url 'admin_add_variant' product.uuid %}" class="add-variant-form">
                 {% csrf_token %}
                 <div class="variant-input-group">
                     <select name="size" required>
@@ -1467,7 +1467,7 @@
 <input
     type="hidden"
     id="uploadImageUrl"
-    value="{% url 'admin_upload_product_image' product.id %}">
+    value="{% url 'admin_upload_product_image' product.uuid %}">
 {% endif %}
 <script>
 document.addEventListener("DOMContentLoaded", function () {
