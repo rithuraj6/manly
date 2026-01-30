@@ -146,9 +146,9 @@ urlpatterns = [
     
     
     path("coupons/", coupon_list, name="admin_coupon_list"),
-    path("coupons/<int:coupon_id>/toggle/", toggle_coupon_status, name="admin_coupon_toggle"),
+    path("coupons/<uuid:coupon_uuid>/toggle/", toggle_coupon_status, name="admin_coupon_toggle"),
     path("coupons/add/", add_coupon, name="admin_coupon_add"),
-    path("coupons/<int:coupon_id>/edit/",edit_coupon,name="admin_coupon_edit"),
+    path("coupons/<uuid:coupon_uuid>/edit/",edit_coupon,name="admin_coupon_edit"),
 
 
 
