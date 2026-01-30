@@ -128,17 +128,16 @@ def admin_edit_product(request, product_uuid):
 @admin_required
 def admin_upload_product_image(request, product_uuid):
 
-    # 1️⃣ Get product
+    
     product = get_object_or_404(Product, uuid=product_uuid)
 
-    # 2️⃣ Enforce max image limit
     if product.images.count() >= 3:
         return JsonResponse({
             "success": False,
             "error": "Maximum 3 images allowed per product"
         }, status=400)
 
-    # 3️⃣ Get image correctly
+   
     image = request.FILES.get("image")
     if not image:
         return JsonResponse({
@@ -146,7 +145,7 @@ def admin_upload_product_image(request, product_uuid):
             "error": "No image received"
         }, status=400)
 
-    # 4️⃣ Save image
+   
     ProductImage.objects.create(
         product=product,
         image=image

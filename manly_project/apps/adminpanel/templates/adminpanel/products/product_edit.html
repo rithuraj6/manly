@@ -2,7 +2,9 @@
 {% block title %}{% if product %}Edit Product{% else %}Add Product{% endif %} | Admin{% endblock %}
 
 {% block content %}
-
+<div id="toast" class="toast">
+    <span id="toastMessage"></span>
+</div>
 <div class="product-form-page">
     <!-- Back Button -->
     <div class="back-nav">
@@ -1461,6 +1463,42 @@
         max-width: 100%;
     }
 }
+
+
+/* Toast Notification */
+.toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: #111;
+    color: #fff;
+    padding: 14px 22px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+    transition: all 0.35s ease;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.toast.success {
+    border-left: 4px solid #10b981;
+}
+
+.toast.error {
+    border-left: 4px solid #ef4444;
+}
 </style>
 
 {% if product %}
@@ -1470,7 +1508,19 @@
     value="{% url 'admin_upload_product_image' product.uuid %}">
 {% endif %}
 <script>
+function showToast(message, type = "error") {
+    const toast = document.getElementById("toast");
+    const toastMessage = document.getElementById("toastMessage");
 
+    toast.className = `toast ${type}`;
+    toastMessage.textContent = message;
+
+    toast.classList.add("show");
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+    }, 3000);
+}
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== "") {
@@ -1563,7 +1613,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const uploadUrlEl = document.getElementById("uploadImageUrl");
         if (!uploadUrlEl) {
-            alert("Save product before uploading images.");
+            showToast("Save product before uploading images.");
             return;
         }
 
@@ -1594,11 +1644,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     // reload to show new image
                     location.reload();
                 } else {
-                    alert(data.error || "Upload failed");
+                    showToast(data.error || "Upload failed");
                 }
             })
                     
-            .catch(() => alert("Upload error"));
+            .catch(() => showToast("Upload error"));
         }, "image/jpeg");
     });
 
@@ -1624,7 +1674,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     btn.closest(".image-card").remove();
                     updateUploadAvailability();
                 } else {
-                    alert("Delete failed");
+                    showToast("Delete failed");
                 }
             });
 
@@ -1634,5 +1684,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 });
 </script>
+
+
 
 {% endblock%}
