@@ -109,7 +109,7 @@ def refund_to_wallet(*, user, order_item, amount, reason):
 
     wallet, _ = Wallet.objects.get_or_create(user=user)
 
-    # 1️⃣ Credit user wallet
+  
     credit_wallet(
         wallet=wallet,
         amount=Decimal(amount),
@@ -117,7 +117,7 @@ def refund_to_wallet(*, user, order_item, amount, reason):
         order=order,
     )
 
-    # 2️⃣ Debit admin wallet IF admin was credited
+ 
     if admin_wallet_was_credited(order):
         debit_admin_wallet(
             order_item=order_item,
@@ -134,7 +134,7 @@ def credit_admin_wallet(*, order, amount: Decimal):
         order=order,
         transaction_type="credit"
     ).exists():
-        return  # already credited once
+        return 
 
     AdminWalletTransaction.objects.create(
         wallet=wallet,

@@ -7,7 +7,8 @@ from django.db.models import Q
 from django.utils import timezone
 from django.contrib import messages
 from apps.orders.services.order_state import recalculate_order_status
-from apps.wallet.services.wallet_services import credit_admin_wallet
+from apps.wallet.services.wallet_services import credit_admin_wallet,refund_to_wallet
+
 from django.db.models import Sum
 from decimal import Decimal
 from apps.orders.models import Order, OrderItem, OrderStatusHistory
@@ -96,6 +97,7 @@ def admin_order_edit(request, order_uuid):
 
 @admin_required
 def admin_order_update(request, order_uuid):
+    
     order = get_object_or_404(Order, uuid=order_uuid)
 
     if request.method != "POST":
@@ -108,34 +110,91 @@ def admin_order_update(request, order_uuid):
         messages.error(request, "Invalid status transition.")
         return redirect("admin_order_edit", order_id=order.order_id)
 
-    
     if (
-        new_status == "delivered"
-        and order.payment_method == "cod"
-        and not order.is_paid
+        new_status == 'cancelled' and order.is_paid and order.payment_method != "cod"
     ):
-        total_amount = (
+        refundable_items = order.items.exclude(
+            status__in =["cancelled","returned"]
+        )
+        
+        for  item in refundable_items:
+            refund_to_wallet(
+                user=order.user,
+                order_item=item,
+                amount= item.final_price_paid,
+                reason=f"Admin cancelled order {order.order_id}",
+            )
+            
+            item.status = "cancelled"
+            item.save (update_fields=["status"])
+    elif (
+        new_status == "delivered"  and order.payment_method == "cod" and not order.is_paid
+    ):
+        total_amount =(
             order.items.aggregate(
-                total=Sum("final_price_paid")
+                total =Sum("final_price_paid")
+                
             )["total"] or Decimal("0.00")
         )
-
-        credit_admin_wallet(order=order, amount=total_amount)
-
+        
+        
+        credit_admin_wallet(order=order,amount=total_amount)
+        
         order.is_paid = True
+        
         order.save(update_fields=["is_paid"])
-
-    order.items.exclude(
-        status__in=["cancelled", "returned"]
-    ).update(status=new_status)
-
+        
+        order.items.exclude(
+            status__in=["cancelled","returned"]
+ 
+        ).update(status=new_status) 
+        
+        
+    elif new_status != "cancelled":
+        order.items.exclude(
+            status__in =["cancelled","returned"]
+        ).update(status=new_status) 
+        
     recalculate_order_status(order)
-
+    
     OrderStatusHistory.objects.create(
         order=order,
         status=new_status,
         changed_by="admin",
-    )
+    )         
+                    
+        
+        
+        
+        
+        
+    # if (
+    #     new_status == "delivered"
+    #     and order.payment_method == "cod"
+    #     and not order.is_paid
+    # ):
+    #     total_amount = (
+    #         order.items.aggregate(
+    #             total=Sum("final_price_paid")
+    #         )["total"] or Decimal("0.00")
+    #     )
+
+    #     credit_admin_wallet(order=order, amount=total_amount)
+
+    #     order.is_paid = True
+    #     order.save(update_fields=["is_paid"])
+
+    # order.items.exclude(
+    #     status__in=["cancelled", "returned"]
+    # ).update(status=new_status)
+
+    # recalculate_order_status(order)
+
+    # OrderStatusHistory.objects.create(
+    #     order=order,
+    #     status=new_status,
+    #     changed_by="admin",
+    # )
 
     messages.success(request, "Order status updated successfully")
     return redirect("admin_order_edit", order_uuid=order.uuid)
