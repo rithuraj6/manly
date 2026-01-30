@@ -139,8 +139,8 @@ urlpatterns = [
     
     path("offers/", offer_list, name="admin_offer_list"),
     path("offers/add/", offer_add, name="admin_offer_add"),
-    path("offers/<int:offer_id>/toggle/",toggle_offer_status,name="admin_offer_toggle"),
-    path("offers/<int:offer_id>/edit/",offer_edit,name="admin_offer_edit"),
+    path("offers/<uuid:offer_uuid>/toggle/",toggle_offer_status,name="admin_offer_toggle"),
+    path("offers/<uuid:offer_uuid>/edit/",offer_edit,name="admin_offer_edit"),
     
     
     

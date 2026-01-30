@@ -5,9 +5,10 @@ from django.utils import timezone
 from django.core.exceptions import ValidationError
 
 
-
+import uuid
 
 class Offer(models.Model):
+    uuid = models.UUIDField(default = uuid.uuid4,editable=False,unique=True)
     name = models.CharField(max_length=100)
     
     discount_percentage = models.PositiveIntegerField(

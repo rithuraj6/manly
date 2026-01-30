@@ -110,9 +110,9 @@ def offer_add(request):
 
 @require_POST
 @admin_required
-def toggle_offer_status(request, offer_id):
+def toggle_offer_status(request, offer_uuid):
     
-    offer = get_object_or_404(Offer, id=offer_id)
+    offer = get_object_or_404(Offer, uuid=offer_uuid)
     now = timezone.now()
     
     
@@ -136,8 +136,8 @@ def toggle_offer_status(request, offer_id):
         "is_active": offer.is_active
     })
 @admin_required
-def offer_edit(request, offer_id):
-    offer = get_object_or_404(Offer, id=offer_id)
+def offer_edit(request, offer_uuid):
+    offer = get_object_or_404(Offer, uuid=offer_uuid)
 
     products = Product.objects.filter(is_active=True)
     categories = Category.objects.filter(is_active=True)
@@ -154,7 +154,7 @@ def offer_edit(request, offer_id):
        
         if product_id and category_id:
             messages.error(request, "Select only product OR category")
-            return redirect("admin_offer_edit", offer_id=offer.id)
+            return redirect("admin_offer_edit", offer_uuid=offer.uuid)
 
         offer.name = name
         offer.discount_percentage = discount
