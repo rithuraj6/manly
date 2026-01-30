@@ -391,13 +391,13 @@
 
 
                     <td class="actions">
-                        <a href="{% url 'admin_offer_edit' offer.id %}" class="btn-edit">
+                        <a href="{% url 'admin_offer_edit' offer.uuid %}" class="btn-edit">
                             Edit
                         </a>
 
                         {% if offer.status != "expired" %}
                         <button
-                            data-offer-toggle="{{ offer.id }}"
+                            data-offer-toggle="{{ offer.uuid }}"
                             class="{% if offer.is_active %}btn-block{% else %}btn-unblock{% endif %}">
                             {% if offer.is_active %}Block{% else %}Unblock{% endif %}
                         </button>
@@ -451,9 +451,9 @@ document.addEventListener("click", function (e) {
     const btn = e.target.closest("[data-offer-toggle]");
     if (!btn) return;
 
-    const offerId = btn.dataset.offerToggle;
+    const offerUuid = btn.dataset.offerToggle;
 
-    fetch(`/admin-panel/offers/${offerId}/toggle/`, {
+    fetch(`/admin-panel/offers/${offerUuid}/toggle/`, {
         method: "POST",
         headers: {
             "X-CSRFToken": "{{ csrf_token }}"

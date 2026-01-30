@@ -76,8 +76,8 @@ def admin_order_list(request):
 
 
 @admin_required
-def admin_order_edit(request, order_id):
-    order = get_object_or_404(Order, order_id=order_id)
+def admin_order_edit(request, order_uuid):
+    order = get_object_or_404(Order, uuid=order_uuid)
 
     items = OrderItem.objects.filter(order=order).select_related("product", "variant")
 
@@ -95,8 +95,8 @@ def admin_order_edit(request, order_id):
 
 
 @admin_required
-def admin_order_update(request, order_id):
-    order = get_object_or_404(Order, order_id=order_id)
+def admin_order_update(request, order_uuid):
+    order = get_object_or_404(Order, uuid=order_uuid)
 
     if request.method != "POST":
         return redirect("admin_order_list")
@@ -138,7 +138,7 @@ def admin_order_update(request, order_id):
     )
 
     messages.success(request, "Order status updated successfully")
-    return redirect("admin_order_edit", order_id=order.order_id)
+    return redirect("admin_order_edit", order_uuid=order.uuid)
 
 
 

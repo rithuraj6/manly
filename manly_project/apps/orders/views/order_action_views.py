@@ -16,10 +16,10 @@ from apps.wallet.services.wallet_services import refund_to_wallet
 
 @transaction.atomic
 @user_required
-def cancel_order_item(request, item_id):
+def cancel_order_item(request, item_uuid):
     order_item = get_object_or_404(
         OrderItem,
-        id=item_id,
+        uuid=item_uuid,
         order__user=request.user,
         status=OrderItem.STATUS_PENDING
     )
@@ -29,7 +29,7 @@ def cancel_order_item(request, item_id):
 
     if order_item.status not in [OrderItem.STATUS_PENDING]:
         messages.error(request, "This item cannot be cancelled.")
-        return redirect("order_detail", order_id=order.order_id)
+        return redirect("order_detail", order_uuid=order.uuid)
 
 
     order_item.status = OrderItem.STATUS_CANCELLED
@@ -49,4 +49,4 @@ def cancel_order_item(request, item_id):
     recalculate_order_status(order)
 
     messages.success(request, "Item cancelled and refund credited to wallet.")
-    return redirect("order_detail", order_id=order.order_id)
+    return redirect("order_detail", order_uuid=order.uuid)

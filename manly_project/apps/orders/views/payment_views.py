@@ -95,6 +95,74 @@ def create_razorpay_order(request):
         "amount": preview["total_amount"],
     })
 
+# @csrf_exempt
+# @transaction.atomic
+# def verify_razorpay_payment(request):
+    
+#     if payment.user != request.user:
+#         return redirect("payment_page")
+#     razorpay_order_id = request.POST.get("razorpay_order_id")
+#     razorpay_payment_id = request.POST.get("razorpay_payment_id")
+#     razorpay_signature = request.POST.get("razorpay_signature")
+
+#     payment = Payment.objects.select_for_update().get(
+#         razorpay_order_id=razorpay_order_id,
+#         status="initiated"
+#     )
+
+#     from apps.cart.models import Cart
+#     cart = Cart.objects.select_for_update().get(user=payment.user)
+
+#     client = razorpay.Client(
+#         auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
+#     )
+
+#     try:
+#         client.utility.verify_payment_signature({
+#             "razorpay_order_id": razorpay_order_id,
+#             "razorpay_payment_id": razorpay_payment_id,
+#             "razorpay_signature": razorpay_signature,
+#         })
+#     except SignatureVerificationError:
+#         payment.status = "failed"
+#         payment.save(update_fields=["status"])
+#         return redirect("order_failure", payment_id=payment.id)
+
+   
+#     payment.status = "success"
+#     payment.razorpay_payment_id = razorpay_payment_id
+#     payment.razorpay_signature = razorpay_signature
+#     payment.save()
+
+#     coupon_id = request.session.get("applied_coupon_id")
+
+#     try:
+#         order = create_order(
+#             user=payment.user,
+#             cart=cart,
+#             address_snapshot=payment.address_snapshot,
+#             payment_method="razorpay",
+#             is_paid=True,
+#             coupon_id=coupon_id,
+#         )
+#     except ValueError as e:
+#         payment.status = "failed"
+#         payment.save(update_fields=["status"])
+#         messages.error(request, str(e))
+#         return redirect("payment_page")
+
+#     payment.order = order
+#     payment.save(update_fields=["order"])
+
+#     credit_admin_wallet(order=order, amount=order.total_amount)
+
+    
+#     request.session.pop("applied_coupon_id", None)
+#     request.session.pop("coupon_discount", None)
+#     request.session.modified = True
+
+#     return redirect("order_success", order_uuid=order.uuid)
+
 @csrf_exempt
 @transaction.atomic
 def verify_razorpay_payment(request):
@@ -102,10 +170,14 @@ def verify_razorpay_payment(request):
     razorpay_payment_id = request.POST.get("razorpay_payment_id")
     razorpay_signature = request.POST.get("razorpay_signature")
 
-    payment = Payment.objects.select_for_update().get(
-        razorpay_order_id=razorpay_order_id,
-        status="initiated"
-    )
+    try:
+        payment = Payment.objects.select_for_update().get(
+            razorpay_order_id=razorpay_order_id,
+            status="initiated"
+        )
+    except Payment.DoesNotExist:
+        # Payment already processed or invalid callback
+        return redirect("payment_page")
 
     from apps.cart.models import Cart
     cart = Cart.objects.select_for_update().get(user=payment.user)
@@ -125,7 +197,7 @@ def verify_razorpay_payment(request):
         payment.save(update_fields=["status"])
         return redirect("order_failure", payment_id=payment.id)
 
-   
+    # ---- SUCCESS FLOW ----
     payment.status = "success"
     payment.razorpay_payment_id = razorpay_payment_id
     payment.razorpay_signature = razorpay_signature
@@ -153,13 +225,11 @@ def verify_razorpay_payment(request):
 
     credit_admin_wallet(order=order, amount=order.total_amount)
 
-    
     request.session.pop("applied_coupon_id", None)
     request.session.pop("coupon_discount", None)
     request.session.modified = True
 
-    return redirect("order_success", order_id=order.order_id)
-
+    return redirect("order_success", order_uuid=order.uuid)
 
 
 @user_required
@@ -241,7 +311,7 @@ def wallet_payment(request):
     request.session.pop("coupon_discount", None)
     request.session.modified = True
 
-    return redirect("order_success", order_id=order.order_id)
+    return redirect("order_success", order_uuid=order.uuid)
 
 @user_required
 def cod_payment(request):
@@ -271,4 +341,4 @@ def cod_payment(request):
     request.session.pop("coupon_discount", None)
     request.session.modified = True
 
-    return redirect("order_success", order_id=order.order_id)
+    return redirect("order_success", order_uuid=order.uuid)

@@ -25,7 +25,6 @@ import cloudinary.uploader
 import base64
 
 
-
 User = get_user_model()
 
 
@@ -567,11 +566,11 @@ def address_add(request):
 
             
 @user_required
-def address_edit(request,address_id):
+def address_edit(request,address_uuid):
    
     
     address = get_object_or_404(
-        UserAddress,id=address_id,user=request.user
+        UserAddress,uuid=address_uuid,user=request.user
     )
     
 
@@ -603,7 +602,7 @@ def address_edit(request,address_id):
             })
         except ValidationError as e:
             messages.error(request, str(e))
-            return redirect("account_address_edit", address_id=address.id)
+            return redirect("account_address_edit", address_uuid=address.uuid)
         
         
         try:
@@ -613,16 +612,16 @@ def address_edit(request,address_id):
             })
         except ValidationError as e:
             messages.error(request, str(e))
-            return redirect("account_address_edit", address_id=address.id)
+            return redirect("account_address_edit", address_uuid=address.uuid)
         
         
         if len(phone) != 10:
             messages.error(request, "Phone number must be exactly 10 digits.")
-            return redirect("account_address_edit", address_id=address.id)
+            return redirect("account_address_edit", address_uuid=address.uuid)
 
         if len(pincode) != 6:
             messages.error(request, "Pincode must be exactly 6 digits.")
-            return redirect("account_address_edit", address_id=address.id)
+            return redirect("account_address_edit", address_uuid=address.uuid)
 
         address.full_name = full_name
         address.street = street
@@ -665,14 +664,14 @@ def address_edit(request,address_id):
     return render(request,'account/address_edit.html',context)  
     
 @user_required
-def address_delete(request, address_id):
+def address_delete(request, address_uuid):
 
     if request.user.is_superuser  or not request.user.is_authenticated:
         return redirect("login")
 
     address = get_object_or_404(
         UserAddress,
-        id=address_id,
+        uuid=address_uuid,
         user=request.user
     )
 

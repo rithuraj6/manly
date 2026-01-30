@@ -76,8 +76,8 @@ def shop_page(request):
 
 
 
-def product_detail(request, product_id):
-    product = get_object_or_404(Product, id=product_id, is_active=True)
+def product_detail(request, uuid):
+    product = get_object_or_404(Product, uuid=uuid, is_active=True)
 
     product_images = ProductImage.objects.filter(product=product).order_by("id")
 
@@ -134,7 +134,7 @@ def product_detail(request, product_id):
    
     breadcrumbs = [
         {"label": "Home", "url": "/"},
-        {"label": product.category.name, "url": f"/category/{product.category.id}/"},
+        {"label": product.category.name, "url": f"/category/{product.category.uuid}/"},
         {"label": product.name, "url": None},
     ]
 
@@ -156,12 +156,13 @@ def product_detail(request, product_id):
 
 
 
-def product_list_by_category(request, category_id):
-    base_category = get_object_or_404(Category, id=category_id, is_active=True)
+def product_list_by_category(request, category_uuid):
+    
+    base_category = get_object_or_404(Category, uuid=category_uuid, is_active=True)
     
     
 
-    selected_category_ids = request.GET.getlist("category")
+    selected_category_ids = request.GET.getlist("category.id")
     selected_sizes = request.GET.getlist("size")
 
     min_price = request.GET.get("min_price", "").strip()

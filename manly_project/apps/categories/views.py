@@ -3,9 +3,13 @@ from django.shortcuts import render
 from django.core.paginator import Paginator
 from django.db.models import Q
 from apps.accounts.decorators import admin_required
+import uuid
+
 
 @admin_required
 def admin_category_list(request):
+    
+    
     search_query = request.GET.get("search", "").strip()
 
     categories = Category.objects.filter(is_deleted=False)

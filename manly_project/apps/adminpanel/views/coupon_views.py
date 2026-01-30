@@ -32,8 +32,8 @@ def coupon_list(request):
     return render(request,'adminpanel/coupons/coupon_list.html',context)
 
 @admin_required
-def toggle_coupon_status(request,coupon_id):
-    coupon = get_object_or_404(Coupon,id=coupon_id)
+def toggle_coupon_status(request,coupon_uuid):
+    coupon = get_object_or_404(Coupon,uuid=coupon_uuid)
     coupon.is_active = not coupon.is_active
     coupon.save()
     return redirect('admin_coupon_list')
@@ -85,8 +85,8 @@ def add_coupon(request):
 
 
 @admin_required
-def edit_coupon(request, coupon_id):
-    coupon = get_object_or_404(Coupon, id=coupon_id)
+def edit_coupon(request, coupon_uuid):
+    coupon = get_object_or_404(Coupon, uuid=coupon_uuid)
 
     if request.method == "POST":
         try:

@@ -36,14 +36,14 @@
         </p>
 
         <div class="address-actions">
-          <a href="{% url 'account_address_edit' address.id %}" class="btn btn-outline">
+          <a href="{% url 'account_address_edit' address.uuid %}" class="btn btn-outline">
             Edit
           </a>
 
          <button
             class="btn btn-danger"
             data-confirm="Are you sure you want to delete this address?"
-            data-url="{% url 'account_address_delete' address.id %}">
+            data-url="{% url 'account_address_delete' address.uuid %}">
             Delete
           </button>
         </div>

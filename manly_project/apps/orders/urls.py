@@ -24,17 +24,32 @@ urlpatterns = [
     path("checkout/", checkout_page, name="checkout_page"),
     path("payment/", payment_page, name="payment_page"),
     path("place-order/", place_order, name="place_order"),
-    path("success/<str:order_id>/", order_success, name="order_success"),
+    path("success/<uuid:order_uuid>/", order_success, name="order_success"),
+
+    
+    
+   
     path("", user_orders, name="user_orders"),
-    path("<str:order_id>/", order_detail, name="order_detail"),
+    path("orders/<uuid:order_uuid>/", order_detail, name="order_detail"),
+    
+    path("orders/<uuid:order_uuid>/invoice/", order_invoice, name="order_invoice"),
+    path("orders/<uuid:order_uuid>/print/", print_invoice, name="print_invoice"),
+
+
+   
+  
+    path("<uuid:order_uuid>/invoice/", order_invoice, name="order_invoice"),
+
     
     
-    path("<str:order_id>/invoice/print/", print_invoice, name="print_invoice"),
-    path("<str:order_id>/invoice/", order_invoice, name="order_invoice"),
-    path("item/<int:item_id>/return/",request_return,name="return_order_item"),
+   
     
-    path("item/<int:item_id>/cancel/", cancel_order_item, name="cancel_order_item"),
-    path("item/<int:item_id>/return/reason/",view_return_reason,name="view_return_reason"),
+    path("item/<int:item_id>/return/", request_return, name="return_order_item"),
+    path("item/<uuid:item_uuid>/return/reason/", view_return_reason, name="view_return_reason"),
+
+    
+    path("cancel/<uuid:item_uuid>/", cancel_order_item, name="cancel_order_item"),
+
     
     path("failure/<int:payment_id>/", order_failure, name="order_failure"),
     path("retry-payment/<int:payment_id>/", retry_payment, name="retry_payment"),

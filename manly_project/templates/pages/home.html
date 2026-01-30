@@ -181,7 +181,7 @@ body {
 
         <div class="product-grid">
             {% for product in featured_products %}
-                <a href="{% url 'product_detail' product.id %}" class="product-card">
+                <a href="{% url 'product_detail' product.uuid %}" class="product-card">
                     <div class="image-wrapper">
                         {% if product.images.first %}
                             <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}">

@@ -100,21 +100,23 @@ urlpatterns = [
     
     
     path("products/", admin_product_list, name="admin_product_list"),
-    path("products/edit/<int:product_id>/", admin_edit_product, name="admin_edit_product"),
-    path("products/<int:product_id>/variants/add/", admin_add_variant, name="admin_add_variant"),
+    path("products/edit/<uuid:product_uuid>/",admin_edit_product,name="admin_edit_product"),
+    
+    path("products/<uuid:product_uuid>/variants/add/",admin_add_variant,name="admin_add_variant"),
+
     path("variants/toggle/<int:variant_id>/", admin_toggle_variant, name="admin_toggle_variant"),
     path("products/add/", admin_add_product, name="admin_add_product"),
     path("variants/update/<int:variant_id>/", admin_update_variant, name="admin_update_variant"),
-    path("products/toggle/<int:product_id>/", admin_toggle_product, name="admin_toggle_product"),
-    path("products/<int:product_id>/images/upload/",admin_upload_product_image,name="admin_upload_product_image"),
+    path("products/toggle/<uuid:product_uuid>/", admin_toggle_product, name="admin_toggle_product"),
+    path("products/<uuid:product_uuid>/images/upload/",admin_upload_product_image,name="admin_upload_product_image"),
     
     
     
     
     path("orders/", admin_order_list, name="admin_order_list"),
     path("orders/update-success/",admin_order_update_success,name="admin_order_update_success"),
-    path("orders/<str:order_id>/", admin_order_edit, name="admin_order_edit"),
-    path("orders/<str:order_id>/update/", admin_order_update, name="admin_order_update"),
+    path("orders/<uuid:order_uuid>/", admin_order_edit, name="admin_order_edit"),
+    path("orders/<uuid:order_uuid>/update/", admin_order_update, name="admin_order_update"),
 
     
     path("wallet/", admin_wallet_dashboard, name="admin_wallet"),
@@ -137,16 +139,16 @@ urlpatterns = [
     
     path("offers/", offer_list, name="admin_offer_list"),
     path("offers/add/", offer_add, name="admin_offer_add"),
-    path("offers/<int:offer_id>/toggle/",toggle_offer_status,name="admin_offer_toggle"),
-    path("offers/<int:offer_id>/edit/",offer_edit,name="admin_offer_edit"),
+    path("offers/<uuid:offer_uuid>/toggle/",toggle_offer_status,name="admin_offer_toggle"),
+    path("offers/<uuid:offer_uuid>/edit/",offer_edit,name="admin_offer_edit"),
     
     
     
     
     path("coupons/", coupon_list, name="admin_coupon_list"),
-    path("coupons/<int:coupon_id>/toggle/", toggle_coupon_status, name="admin_coupon_toggle"),
+    path("coupons/<uuid:coupon_uuid>/toggle/", toggle_coupon_status, name="admin_coupon_toggle"),
     path("coupons/add/", add_coupon, name="admin_coupon_add"),
-    path("coupons/<int:coupon_id>/edit/",edit_coupon,name="admin_coupon_edit"),
+    path("coupons/<uuid:coupon_uuid>/edit/",edit_coupon,name="admin_coupon_edit"),
 
 
 

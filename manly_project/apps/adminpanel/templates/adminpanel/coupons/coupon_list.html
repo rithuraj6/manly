@@ -423,10 +423,10 @@
 
                     <td>
                         <div class="actions">
-                            <a href="{% url 'admin_coupon_edit' coupon.id %}" class="btn-edit">
+                            <a href="{% url 'admin_coupon_edit' coupon.uuid %}" class="btn-edit">
                                 Edit
                             </a>
-                            <a href="{% url 'admin_coupon_toggle' coupon.id %}"
+                            <a href="{% url 'admin_coupon_toggle' coupon.uuid %}"
                                class="btn-toggle {% if not coupon.is_active %}enable{% endif %}">
                                 {% if coupon.is_active %}Disable{% else %}Enable{% endif %}
                             </a>

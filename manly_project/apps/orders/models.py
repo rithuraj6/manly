@@ -1,10 +1,11 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
-
+import uuid
 from apps.products.models import Product, ProductVariant
 
 class Order(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     ORDER_STATUS_CHOICES = [
         ("pending", "Pending"),
@@ -77,6 +78,7 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     STATUS_PENDING = "pending"
     STATUS_CONFIRMED = "confirmed"
@@ -153,6 +155,7 @@ class OrderStatusHistory(models.Model):
 
 
 class ReturnRequest(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     STATUS_PENDING = "pending"
     STATUS_APPROVED = "approved"
     STATUS_REJECTED = "rejected"
@@ -218,6 +221,7 @@ class ReturnRequest(models.Model):
 
 
 class Payment(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     PAYMENT_METHODS = (
         ('razorpay','Razorpay'),
         ('wallet','Wallet'),

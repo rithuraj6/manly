@@ -597,7 +597,7 @@
             </p>
 
           {% if order.status not in "delivered cancelled refunded partially_refunded" %}
-    <form method="post" action="{% url 'admin_order_update' order.order_id %}">
+    <form method="post" action="{% url 'admin_order_update' order.uuid %}">
         {% csrf_token %}
 
         <label for="status"><strong>Next Status</strong></label>

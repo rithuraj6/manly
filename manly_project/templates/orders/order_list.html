@@ -114,11 +114,11 @@
                                         </div>
                                     {% endif %}
                                     
-                                    <a href="{% url 'order_detail' order.order_id %}" class="view-order-btn">
+                                    <a href="{% url 'order_detail' order.uuid %}" class="view-order-btn">
                                         View Orders
 
                                     </a>
-                                    <a href="{% url 'print_invoice' order.order_id %}" 
+                                    <a href="{% url 'print_invoice' order.uuid %}" 
                                         target="_blank"
                                         class="view-order-btn secondary">
                                             Print Invoice

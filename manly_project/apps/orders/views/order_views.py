@@ -32,4 +32,4 @@ def place_order(request):
         is_paid=False
     )
 
-    return redirect("order_success", order_id=order.order_id)
+    return redirect("order_success", order_uuid=order.uuid)

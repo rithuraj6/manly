@@ -453,6 +453,7 @@
 
 <div class="shop-wrapper">
     
+    
 
     <!-- SIDEBAR -->
     <aside class="filter-sidebar">
@@ -601,7 +602,7 @@
         <!-- PRODUCTS -->
         <div class="product-grid">
             {% for product in page_obj %}
-            <a href="{% url 'product_detail' product.id %}" class="product-card">
+            <a href="{% url 'product_detail' product.uuid %}" class="product-card">
                 {% if product.images.first %}
                     <img src="{{ product.images.first.image.url }}">
                     {% if product.offer_percentage %}
@@ -622,8 +623,8 @@
                         ₹{{ product.base_price }}
                     {% endif %}
                 </p>
-               <span class="wishlist {% if product.id in wishlist_product_ids %}active{% endif %}"
-                    data-product-id="{{ product.id }}">♡</span>
+               <span class="wishlist {% if product.uuid in wishlist_product_ids %}active{% endif %}"
+                    data-product-id="{{ product.uuid }}">♡</span>
             </a>
             {% endfor %}
         </div>

@@ -68,7 +68,7 @@ def admin_add_product(request):
 
 
         messages.success(request, "Product created. Add images and variants.")
-        return redirect("admin_edit_product", product_id=product.id)
+        return redirect("admin_edit_product", product_uuid=product.uuid)
 
     return render(
         request,
@@ -81,11 +81,11 @@ def admin_add_product(request):
 
 
 @admin_required
-def admin_edit_product(request, product_id):
+def admin_edit_product(request, product_uuid):
     if not request.user.is_authenticated or not request.user.is_superuser:
         return redirect("admin_login")
 
-    product = get_object_or_404(Product, id=product_id)
+    product = get_object_or_404(Product, uuid=product_uuid)
     variants = product.variants.all().order_by("size")
     categories = Category.objects.all()
     images = product.images.all()
@@ -126,13 +126,13 @@ def admin_edit_product(request, product_id):
     )
 
 @admin_required
-def admin_upload_product_image(request, product_id):
+def admin_upload_product_image(request, product_uuid):
     if not request.user.is_authenticated or not request.user.is_superuser:
         return redirect("admin_login")
 
 
     if request.method == "POST" and request.FILES.get("image"):
-        product = get_object_or_404(Product, id=product_id)
+        product = get_object_or_404(Product, uuid=product_uuid)
 
         image = ProductImage.objects.create(
             product=product,
@@ -161,11 +161,11 @@ def admin_delete_product_image(request, image_id):
     return JsonResponse({"success": False}, status=400)
 
 @admin_required
-def admin_add_variant(request, product_id):
+def admin_add_variant(request, product_uuid):
     if not request.user.is_authenticated or not request.user.is_superuser:
         return redirect("admin_login")
 
-    product = get_object_or_404(Product, id=product_id)
+    product = get_object_or_404(Product,uuid=product_uuid)
 
     if request.method == "POST":
         size = request.POST.get("size")
@@ -191,7 +191,7 @@ def admin_add_variant(request, product_id):
         messages.success(request, f"Variant {size} added successfully.")
 
     
-    return redirect("admin_edit_product", product_id=product.id)
+    return redirect("admin_edit_product", product_uuid=product.uuid)
 
 
 
@@ -207,7 +207,7 @@ def admin_update_variant(request, variant_id):
         variant.save()
         messages.success(request, "Variant stock updated")
 
-    return redirect("admin_edit_product", product_id=variant.product.id)
+    return redirect("admin_edit_product", product_uuid=variant.product.uuid)
 
 
 @admin_required
@@ -220,16 +220,16 @@ def admin_toggle_variant(request, variant_id):
     variant.save()
 
     messages.success(request, "Variant status updated")
-    return redirect("admin_edit_product", product_id=variant.product.id)
+    return redirect("admin_edit_product", product_uuid=variant.product.uuid)
 
 
 
 @admin_required
-def admin_toggle_product(request, product_id):
+def admin_toggle_product(request, product_uuid):
     if not request.user.is_authenticated or not request.user.is_superuser:
         return redirect("admin_login")
 
-    product = get_object_or_404(Product, id=product_id)
+    product = get_object_or_404(Product, uuid=product_uuid)
     product.is_active = not product.is_active
     product.save()
 
