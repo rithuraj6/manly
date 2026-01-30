@@ -7,6 +7,7 @@ from django.contrib.auth.models import (
     AbstractBaseUser,PermissionsMixin,BaseUserManager
 
     )
+import uuid
 
 
 
@@ -65,6 +66,7 @@ User = settings.AUTH_USER_MODEL
 
 
 class UserAddress(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     
     user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name='addresses')
     
