@@ -1485,6 +1485,28 @@ function getCookie(name) {
     }
     return cookieValue;
 }
+
+
+function updateUploadAvailability() {
+    const maxImages = 3;
+    const imageCards = document.querySelectorAll(".image-card").length;
+    const uploadArea = document.getElementById("uploadArea");
+    const imageInput = document.getElementById("productImage");
+
+    if (!uploadArea || !imageInput) return;
+
+    if (imageCards >= maxImages) {
+        uploadArea.classList.add("disabled-upload");
+        imageInput.disabled = true;
+        uploadArea.style.opacity = "0.5";
+        
+    } else {
+        uploadArea.classList.remove("disabled-upload");
+        imageInput.disabled = false;
+        uploadArea.style.opacity = "1";
+        uploadArea.style.pointerEvents = "auto";
+    }
+}
 document.addEventListener("DOMContentLoaded", function () {
 
     let cropper = null;
@@ -1595,9 +1617,18 @@ document.addEventListener("DOMContentLoaded", function () {
             })
             .then(res => res.json())
             .then(data => {
-                if (data.success) btn.closest(".image-card").remove();
-                else alert("Delete failed");
+
+                
+                if (data.success) {
+
+                    btn.closest(".image-card").remove();
+                    updateUploadAvailability();
+                } else {
+                    alert("Delete failed");
+                }
             });
+
+
         });
     });
 

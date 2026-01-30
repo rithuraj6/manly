@@ -127,21 +127,32 @@ def admin_edit_product(request, product_uuid):
 
 @admin_required
 def admin_upload_product_image(request, product_uuid):
-    if not request.user.is_authenticated or not request.user.is_superuser:
-        return redirect("admin_login")
 
+    # 1️⃣ Get product
+    product = get_object_or_404(Product, uuid=product_uuid)
 
-    if request.method == "POST" and request.FILES.get("image"):
-        product = get_object_or_404(Product, uuid=product_uuid)
+    # 2️⃣ Enforce max image limit
+    if product.images.count() >= 3:
+        return JsonResponse({
+            "success": False,
+            "error": "Maximum 3 images allowed per product"
+        }, status=400)
 
-        image = ProductImage.objects.create(
-            product=product,
-            image=request.FILES["image"]
-        )
+    # 3️⃣ Get image correctly
+    image = request.FILES.get("image")
+    if not image:
+        return JsonResponse({
+            "success": False,
+            "error": "No image received"
+        }, status=400)
 
-        return JsonResponse({"success": True})
+    # 4️⃣ Save image
+    ProductImage.objects.create(
+        product=product,
+        image=image
+    )
 
-    return JsonResponse({"success": False, "error": "Invalid request"}, status=400)
+    return JsonResponse({"success": True})
 
 @admin_required
 def admin_delete_product_image(request, image_id):
@@ -162,8 +173,7 @@ def admin_delete_product_image(request, image_id):
 
 @admin_required
 def admin_add_variant(request, product_uuid):
-    if not request.user.is_authenticated or not request.user.is_superuser:
-        return redirect("admin_login")
+    
 
     product = get_object_or_404(Product,uuid=product_uuid)
 
