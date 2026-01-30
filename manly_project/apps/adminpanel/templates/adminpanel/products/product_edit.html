@@ -377,14 +377,14 @@
                 <img id="cropImage">
             </div>
             <div class="modal-actions">
-                <button id="cropCancel" class="modal-btn btn-cancel">
+                <button id="cropCancel"  type = "button" class="modal-btn btn-cancel">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
                     Cancel
                 </button>
-                <button id="cropConfirm" class="modal-btn btn-confirm">
+                <button id="cropConfirm" type ="button" class="modal-btn btn-confirm">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
@@ -1470,6 +1470,21 @@
     value="{% url 'admin_upload_product_image' product.uuid %}">
 {% endif %}
 <script>
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let cookie of cookies) {
+            cookie = cookie.trim();
+            if (cookie.startsWith(name + "=")) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
 document.addEventListener("DOMContentLoaded", function () {
 
     let cropper = null;
@@ -1539,14 +1554,28 @@ document.addEventListener("DOMContentLoaded", function () {
 
             fetch(uploadUrl, {
                 method: "POST",
-                headers: { "X-CSRFToken": "{{ csrf_token }}" },
+                headers: { "X-CSRFToken": getCookie("csrftoken") },
                 body: formData
             })
             .then(res => res.json())
             .then(data => {
-                if (data.success) location.reload();
-                else alert(data.error || "Upload failed");
+
+                if (data.success) {
+                    // reset input so change event works again
+                    imageInput.value = "";
+
+                    // clean up cropper
+                    cropModal.classList.remove("show");
+                    cropper.destroy();
+                    cropper = null;
+
+                    // reload to show new image
+                    location.reload();
+                } else {
+                    alert(data.error || "Upload failed");
+                }
             })
+                    
             .catch(() => alert("Upload error"));
         }, "image/jpeg");
     });

@@ -102,20 +102,21 @@ urlpatterns = [
     path("products/", admin_product_list, name="admin_product_list"),
     path("products/edit/<uuid:product_uuid>/",admin_edit_product,name="admin_edit_product"),
     
-    path("products/<int:product_id>/variants/add/", admin_add_variant, name="admin_add_variant"),
+    path("products/<uuid:product_uuid>/variants/add/",admin_add_variant,name="admin_add_variant"),
+
     path("variants/toggle/<int:variant_id>/", admin_toggle_variant, name="admin_toggle_variant"),
     path("products/add/", admin_add_product, name="admin_add_product"),
     path("variants/update/<int:variant_id>/", admin_update_variant, name="admin_update_variant"),
-    path("products/toggle/<int:product_id>/", admin_toggle_product, name="admin_toggle_product"),
-    path("products/<int:product_id>/images/upload/",admin_upload_product_image,name="admin_upload_product_image"),
+    path("products/toggle/<uuid:product_uuid>/", admin_toggle_product, name="admin_toggle_product"),
+    path("products/<uuid:product_uuid>/images/upload/",admin_upload_product_image,name="admin_upload_product_image"),
     
     
     
     
     path("orders/", admin_order_list, name="admin_order_list"),
     path("orders/update-success/",admin_order_update_success,name="admin_order_update_success"),
-    path("orders/<str:order_id>/", admin_order_edit, name="admin_order_edit"),
-    path("orders/<str:order_id>/update/", admin_order_update, name="admin_order_update"),
+    path("orders/<uuid:order_uuid>/", admin_order_edit, name="admin_order_edit"),
+    path("orders/<uuid:order_uuid>/update/", admin_order_update, name="admin_order_update"),
 
     
     path("wallet/", admin_wallet_dashboard, name="admin_wallet"),

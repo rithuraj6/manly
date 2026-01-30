@@ -142,18 +142,17 @@ def wishlist_add_to_cart(request):
     })
 
 
-@user_required
 @require_GET
+@user_required
 def is_in_wishlist(request):
     product_uuid = request.GET.get("product_id")
-    
-    wishlist = getattr(request.user,"wishlist",None)
-    
-    exists = False
-    
-    if wishlist and product_id:
-        exists = wishlist.items.filter(product=product).exists()
-        
-    return JsonResponse({
-        "in_wishlist":exists
-    })
+
+    if not product_uuid:
+        return JsonResponse({"in_wishlist": False})
+
+    in_wishlist = Wishlist.objects.filter(
+        user=request.user,
+        items__product__uuid=product_uuid
+    ).exists()
+
+    return JsonResponse({"in_wishlist": in_wishlist})

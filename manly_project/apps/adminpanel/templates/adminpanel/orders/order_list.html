@@ -599,7 +599,7 @@
                 </div>
                 <div>{{ order.created_at|date:"d M Y" }}</div>
                 <div>
-                    <a href="{% url 'admin_order_edit' order.order_id %}"
+                    <a href="{% url 'admin_order_edit' order.uuid %}"
                        class="view-btn">
                         View
                     </a>

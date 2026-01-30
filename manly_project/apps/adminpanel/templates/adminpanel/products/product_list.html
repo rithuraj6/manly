@@ -91,7 +91,7 @@
 
                             <!-- TOGGLE PRODUCT -->
                             <form method="post"
-                                  action="{% url 'admin_toggle_product' product.id %}"
+                                  action="{% url 'admin_toggle_product' product.uuid %}"
                                   class="toggle-form"
                                   onsubmit="return confirmToggleProduct(event, '{{ product.name }}', '{{ product.is_active|yesno:'deactivate,activate' }}')">
                                 {% csrf_token %}
