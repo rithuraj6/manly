@@ -69,9 +69,15 @@ def wishlist_count(request):
     
     
 @user_required
+@user_required
 @require_POST
 def remove_from_wishlist(request):
     product_uuid = request.POST.get("product_id")
+
+    if not product_uuid:
+        return JsonResponse({"success": False}, status=400)
+
+    product = get_object_or_404(Product, uuid=product_uuid)
 
     wishlist = getattr(request.user, "wishlist", None)
     if not wishlist:
@@ -87,8 +93,6 @@ def remove_from_wishlist(request):
         "wishlist_count": wishlist.items.count()
     })
 
-
-
 @user_required
 @require_POST
 @transaction.atomic
@@ -101,7 +105,11 @@ def wishlist_add_to_cart(request):
             "success": False,
             "message": "Please select a size before adding to cart"
         }, status=400)
-
+        
+    product = get_object_or_404(
+        Product,uuid=product_uuid,is_active=True
+    )
+    
     wishlist = getattr(request.user, "wishlist", None)
     if not wishlist:
         return JsonResponse({
