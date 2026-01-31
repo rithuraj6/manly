@@ -12,7 +12,7 @@ from django.core.paginator import Paginator
 from apps.accounts.models import UserProfile, UserAddress
 from apps.sizeguide.models import SizeGuide
 from .utils import send_otp
-from .validators import only_letters_validator, only_numbers_validator 
+from .validators import only_letters_validator, only_numbers_validator ,validate_email_strict ,validate_password_strict
 from apps.accounts.validators import name_with_spaces_validator
 
 from apps.accounts.validators import validate_measurement
@@ -77,48 +77,95 @@ def forbidden_view(request):
         status=403,
     )
 
+# def user_signup(request):
+#     error = None
+
+#     if request.method == "POST":
+#         email = request.POST.get("email")
+#         password = request.POST.get("password")
+#         confirm = request.POST.get("confirm_password")
+
+#         if password != confirm:
+#             error = "Passwords do not match"
+#         else:
+#             existing_user = User.objects.filter(email=email).first()
+
+#             try:
+#                 if existing_user:
+#                     if not existing_user.is_active:
+#                         send_otp(existing_user, purpose="signup")
+#                         request.session["otp_user"] = existing_user.id
+#                     else:
+#                         error = "Email already registered"
+#                         return render(request, "pages/signup.html", {"error": error})
+#                 else:
+#                     user = User.objects.create_user(
+#                         email=email,
+#                         password=password,
+#                         is_active=False
+#                     )
+#                     send_otp(user, purpose="signup")
+#                     request.session["otp_user"] = user.id
+
+#                 request.session["otp_purpose"] = "signup"
+#                 request.session["otp_email"] = email
+#                 return redirect("verify_otp")
+
+#             except ValueError as e:
+#                 messages.error(request, str(e))
+#                 return redirect("signup")
+
+#     return render(request, "pages/signup.html", {"error": error})
+
 def user_signup(request):
-    error = None
-
-    if request.method == "POST":
-        email = request.POST.get("email")
-        password = request.POST.get("password")
+    error =None
+    
+    if request.method =="POST":
+        email = request.POST.get("email","")
+        password = request.POST.get("password","")
         confirm = request.POST.get("confirm_password")
-
-        if password != confirm:
-            error = "Passwords do not match"
-        else:
-            existing_user = User.objects.filter(email=email).first()
-
-            try:
-                if existing_user:
-                    if not existing_user.is_active:
-                        send_otp(existing_user, purpose="signup")
-                        request.session["otp_user"] = existing_user.id
-                    else:
-                        error = "Email already registered"
-                        return render(request, "pages/signup.html", {"error": error})
+        
+        try:
+            email = validate_email_strict(email)
+            
+            password = validate_password_strict(password)
+            
+            
+            if password != confirm:
+                raise ValidationError("Passwords does not match")
+            
+            existing_user = User.objects.filter(email= email).first()
+            
+            if existing_user:
+                if not existing_user.is_active:
+                    send_otp(existing_user,purpose="signup")
+                    request.session["otp_user"]= existing_user.id 
+                    
                 else:
-                    user = User.objects.create_user(
-                        email=email,
-                        password=password,
-                        is_active=False
-                    )
-                    send_otp(user, purpose="signup")
-                    request.session["otp_user"] = user.id
-
-                request.session["otp_purpose"] = "signup"
-                request.session["otp_email"] = email
-                return redirect("verify_otp")
-
-            except ValueError as e:
-                messages.error(request, str(e))
-                return redirect("signup")
-
-    return render(request, "pages/signup.html", {"error": error})
-
-
-
+                    raise ValidationError("Email already registered")
+                
+            else:
+                user = User.objects.create_user(
+                    email=email,password=password,is_active=False
+                ) 
+                
+                send_otp(user,purpose ="signup")
+                
+                request.session["otp_user"] =user.id
+                
+            request.session["otp_purpose"] ="signup"
+            request.session["otp_email"]= email
+            
+            return redirect("verify_otp")
+        
+        
+        except ValidationError as e:
+            error =e.message
+        except Exception:
+            error ="Something went wrong. please try again!"
+    return render(request,"pages/signup.html",{"error":error})
+            
+            
 def verify_otp(request):
     email = request.session.get("otp_email")
     purpose = request.session.get("otp_purpose")
@@ -174,21 +221,32 @@ User = get_user_model()
 
 def forgot_password(request):
     if request.method == "POST":
-        email = request.POST.get("email")
+        email = request.POST.get("email","")
 
         try:
+            email = validate_email_strict(email)
             user = User.objects.get(email=email)
-        except User.DoesNotExist:
-            return render(request, "pages/forgot_password.html", {
-                "error": "Account not found"
+            
+            send_otp(user,purpose ="reset")
+            
+            request.session["otp_purpose"]="reset"
+            
+            request.session["otp_email"]=email
+            
+            return redirect("verify_otp")
+        except ValidationError as e:
+            return render(request,"pages/forgot_password.html",{
+                "error":e.message
             })
-
-        send_otp(user, purpose="reset")
-
-        request.session["otp_purpose"] = "reset"
-        request.session["otp_email"] = email
-
-        return redirect("verify_otp")
+            
+        except User.DoesNotExist:
+            return render(request,"pages/forgot_password.html",{
+                "error":"Account not found"
+            })
+        except Exception :
+            return render(request,"pages/forgot_password.html",{
+                "error":"somehting went wrong.Please try again."
+            })
 
     return render(request, "pages/forgot_password.html")
 
@@ -201,21 +259,37 @@ def reset_password(request):
     email = request.session.get("otp_email")
 
     if request.method == "POST":
-        password = request.POST.get("password")
-        confirm = request.POST.get("confirm_password")
+        password = request.POST.get("password","")
+        confirm = request.POST.get("confirm_password","")
+        
+        try:
+            password = validate_password_strict(password)
+            
+            if password != confirm:
+                raise ValidationError("Password does not match")
+            
+        
+            
 
-        if password != confirm:
-            return render(request, "pages/reset_password.html", {
-                "error": "Passwords do not match"
+            user = User.objects.get(email=email)
+            user.set_password(password)
+            user.save()
+
+            request.session.flush()
+            messages.success(request, "Password updated successfully")
+            return redirect("login")
+        
+        except ValidationError as e:
+            return render(request,"pages/reset_password.html",{
+                "error":e.message
             })
-
-        user = User.objects.get(email=email)
-        user.set_password(password)
-        user.save()
-
-        request.session.flush()
-        messages.success(request, "Password updated successfully")
-        return redirect("login")
+            
+        except Exception:
+            return render(request,"pages/reset_password.html",{
+                "error" : "Something went wrong.Plese try again."
+            })
+        
+        
 
     return render(request, "pages/reset_password.html")
 
@@ -588,7 +662,7 @@ def address_edit(request,address_uuid):
         try:
             name_with_spaces_validator(full_name ,"Full name")
         except ValidationError as e:
-            message.error(request,str(e))
+            messages.error(request, str(e))
             return redirect('account_addres_edit',address_id=address.id)
    
         try:
@@ -707,6 +781,13 @@ def change_password(request):
         old_password = request.POST.get("old_password")
         new_password = request.POST.get("new_password")
         confirm_password = request.POST.get("confirm_password")
+        
+        try:
+            validate_password_strict(new_password)
+        except ValidationError as e:
+            messages.error(request, e.message)
+            return redirect("change_password")
+
 
         user = request.user
 
