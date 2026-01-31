@@ -90,20 +90,22 @@ def validate_password_strict(password:str):
 
 
 
-def name_with_spaces_max10(value: str,field_name="Field"):
+def name_with_spaces_max10(value: str, field_name="Field"):
     if not value:
         raise ValidationError(f"{field_name} is required")
-    
+
     value = value.strip()
-    if len(vlaue)>15:
+
+    if len(value) > 15:
         raise ValidationError(f"{field_name} must not exceed 15 characters")
-    
-    if not re.fullmatch(r"[A-Za-z]+(?: [A-Za-z]+)*",value):
-        raise ValidatinError(
-            f"{field_name} must contain only  alphabets and spaces"
+
+    if not re.fullmatch(r"[A-Za-z]+(?: [A-Za-z]+)*", value):
+        raise ValidationError(
+            f"{field_name} must contain only alphabets and spaces"
         )
-        
+
     return value
+
 
 def alphabets_only_field(value : str,field_name:str):
     
