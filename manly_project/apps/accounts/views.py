@@ -12,8 +12,12 @@ from django.core.paginator import Paginator
 from apps.accounts.models import UserProfile, UserAddress
 from apps.sizeguide.models import SizeGuide
 from .utils import send_otp
-from .validators import only_letters_validator, only_numbers_validator ,validate_email_strict ,validate_password_strict,validate_phone_number
-from apps.accounts.validators import name_with_spaces_validator
+from .validators import only_letters_validator, only_numbers_validator ,validate_email_strict ,validate_password_strict,validate_phone_number ,name_with_spaces_max10
+from apps.accounts.validators import (
+    name_with_spaces_max10,
+    alphabets_only_field,
+    numbers_only_field,
+)
 
 from apps.accounts.validators import validate_measurement
 from apps.accounts.services.size_mapping import calculate_user_size
@@ -546,10 +550,10 @@ def address_add(request):
         context["form"]=data
         
         try:
-            full_name=name_with_space_max_10(data["full_name"],"Name")
+            full_name=name_with_spaces_max10(data["full_name"],"Name")
             city = alphabets_only_field(data["city"],"City")
             state = alphabets_only_field(data["state"],"State")
-            country=alphabets_only_fidl(data["country"],"Country")
+            country=alphabets_only_field(data["country"],"Country")
             
             phone = numbers_only_field(data["phone"],"Phone number",10)
             pincode = numbers_only_field(data["pincode"],"Pincode",6)
@@ -560,9 +564,9 @@ def address_add(request):
         
         if data["is_default"]:
             UserAddress.objects.filter(
-                user=request.user,is_default=True).update(is_defaultFalse)
+                user=request.user,is_default=True).update(is_default=False)
             
-        UseraAddress.objects.create(
+        UserAddress.objects.create(
             user=request.user,
             full_name=full_name,
             house_name=data["house_name"].strip(),
@@ -606,38 +610,49 @@ def address_edit(request, address_uuid):
 
     if request.method == "POST":
         try:
-            address.full_name = name_with_spaces_max_10(
+            full_name = request.POST.get("full_name")
+            if full_name:
+               address.full_name = name_with_spaces_max10(
                 request.POST.get("full_name", ""), "Name"
             )
-            address.city = alphabets_only_field(
-                request.POST.get("city", ""), "City"
-            )
-            address.state = alphabets_only_field(
-                request.POST.get("state", ""), "State"
-            )
-            address.country = alphabets_only_field(
-                request.POST.get("country", ""), "Country"
-            )
 
-            address.phone = numbers_only_field(
-                request.POST.get("phone", ""), "Phone number", 10
-            )
-            address.pincode = numbers_only_field(
-                request.POST.get("pincode", ""), "Pincode", 6
-            )
+            city = request.POST.get("city")
+            if city:
+                address.city = alphabets_only_field(city, "City")
+
+            state = request.POST.get("state")
+            if state:
+                address.state = alphabets_only_field(state, "State")
+
+            country = request.POST.get("country")
+            if country:
+                address.country = alphabets_only_field(country, "Country")
+
+            phone = request.POST.get("phone")
+            if phone:
+                address.phone = numbers_only_field(phone, "Phone number", 10)
+
+            pincode = request.POST.get("pincode")
+            if pincode:
+                address.pincode = numbers_only_field(pincode, "Pincode", 6)
 
         except ValidationError as e:
-            messages.error(request, e.message)
+            messages.error(
+                request,
+                e.messages[0] if hasattr(e, "messages") else str(e)
+            )
             return render(request, "account/address_edit.html", context)
 
+   
         address.house_name = request.POST.get("house_name", "").strip()
         address.street = request.POST.get("street", "").strip()
-        address.land_mark = request.POST.get("landmark", "").strip()
+        address.land_mark = request.POST.get("land_mark", "").strip()
 
         is_default = request.POST.get("is_default") == "on"
         if is_default:
             UserAddress.objects.filter(
-                user=request.user, is_default=True
+                user=request.user,
+                is_default=True
             ).exclude(id=address.id).update(is_default=False)
 
         address.is_default = is_default
