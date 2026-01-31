@@ -653,6 +653,10 @@ def address_edit(request, address_uuid):
             UserAddress.objects.filter(
                 user=request.user,
                 is_default=True
+
+
+
+
             ).exclude(id=address.id).update(is_default=False)
 
         address.is_default = is_default
