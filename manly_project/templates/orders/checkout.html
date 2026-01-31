@@ -30,7 +30,7 @@
                                             <strong class="address-name">{{ address.full_name }}</strong>
                                         </div>
                                         <div class="address-details">
-                                            <p class="address-line">{{ address.address_line_1 }}</p>
+                                           <p class="address-line"> {{ address.house_name }}, {{ address.street }}</p>
                                             <p class="address-line">{{ address.city }}, {{ address.pincode }}</p>
                                             <p class="address-phone">Phone: {{ address.phone }}</p>
                                         </div>
@@ -59,55 +59,82 @@
                         </div>
 
                         <!-- Temporary Address Form -->
-                        <div id="temp-address-form" class="temp-address-form">
+                        <div id="temp-address-form" class="temp-address-form"
+                            {% if temp_address_form %}style="display:block"{% endif %}>
                             <div class="form-header">
                                 <h4 class="form-title">Shipping Details</h4>
                             </div>
 
                             <div class="form-grid">
                                 <div class="form-group full-width">
-                                    <input type="text" name="full_name" placeholder="Full Name" required
-                                        pattern="[A-Za-z\s]+" title="Only alphabets and spaces allowed">
+                                    <input type="text"
+                                        name="full_name"
+                                        placeholder="Full Name"
+                                        required
+                                        pattern="[A-Za-z\s]+"
+                                        value="{{ temp_address_form.full_name|default:'' }}">
                                 </div>
 
                                 <div class="form-group full-width">
-                                    <input type="tel" name="phone" placeholder="Phone Number" required
-                                        pattern="[0-9]{10}" maxlength="10" title="Enter a valid 10-digit phone number">
+                                    <input type="tel"
+                                        name="phone"
+                                        placeholder="Phone Number"
+                                        required
+                                        maxlength="10"
+                                        pattern="[0-9]{10}"
+                                        value="{{ temp_address_form.phone|default:'' }}">
                                 </div>
 
                                 <div class="form-group full-width">
-                                    <input type="text" name="house_name" placeholder="House / Flat No." required
-                                        pattern="[A-Za-z0-9\s\/\-]+" title="Only letters and numbers allowed">
+                                    <input type="text"
+                                        name="house_name"
+                                        placeholder="House / Flat No."
+                                        value="{{ temp_address_form.house_name|default:'' }}">
                                 </div>
 
                                 <div class="form-group full-width">
-                                    <input type="text" name="street" placeholder="Street Address" required
-                                        pattern="[A-Za-z0-9\s,.-]+" title="Invalid street name">
+                                    <input type="text"
+                                        name="street"
+                                        placeholder="Street Address"
+                                        value="{{ temp_address_form.street|default:'' }}">
                                 </div>
 
                                 <div class="form-group full-width">
-                                    <input type="text" name="land_mark" placeholder="Landmark (Optional)"
-                                        pattern="[A-Za-z0-9\s,.-]*" title="Invalid landmark">
+                                    <input type="text"
+                                        name="land_mark"
+                                        placeholder="Landmark (optional)"
+                                        value="{{ temp_address_form.land_mark|default:'' }}">
                                 </div>
 
                                 <div class="form-group">
-                                    <input type="text" name="city" placeholder="City" required
-                                        pattern="[A-Za-z\s]+" title="Only alphabets allowed">
+                                    <input type="text"
+                                        name="city"
+                                        placeholder="City"
+                                        value="{{ temp_address_form.city|default:'' }}">
                                 </div>
 
                                 <div class="form-group">
-                                    <input type="text" name="state" placeholder="State" required
-                                        pattern="[A-Za-z\s]+" title="Only alphabets allowed">
+                                    <input type="text"
+                                        name="state"
+                                        placeholder="State"
+                                        value="{{ temp_address_form.state|default:'' }}">
                                 </div>
 
                                 <div class="form-group">
-                                    <input type="text" name="country" placeholder="Country" required
-                                        pattern="[A-Za-z\s]+" title="Only alphabets allowed">
+                                    <input type="text"
+                                        name="country"
+                                        placeholder="Country"
+                                        value="{{ temp_address_form.country|default:'' }}">
                                 </div>
 
                                 <div class="form-group">
-                                    <input type="text" name="pincode" placeholder="Pincode" required
-                                        pattern="[0-9]{6}" maxlength="6" title="Enter a valid 6-digit pincode">
+                                    <input type="text"
+                                        name="pincode"
+                                        placeholder="Pincode"
+                                        required
+                                        maxlength="6"
+                                        pattern="[0-9]{6}"
+                                        value="{{ temp_address_form.pincode|default:'' }}">
                                 </div>
                             </div>
                         </div>
@@ -855,7 +882,19 @@
     }
 }
 </style>
-
+{% if temp_address_form %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const tempRadio = document.querySelector(
+        'input[name="address_id"][value="temporary"]'
+    );
+    if (tempRadio) {
+        tempRadio.checked = true;
+        tempRadio.dispatchEvent(new Event("change"));
+    }
+});
+</script>
+{% endif %}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const addressCards = document.querySelectorAll('.address-card');

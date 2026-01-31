@@ -1,3 +1,5 @@
+from django.core.exceptions import ValidationError
+
 from apps.accounts.decorators import user_required
 from django.shortcuts import get_object_or_404, redirect, render
 from decimal import Decimal
@@ -8,8 +10,9 @@ from apps.orders.utils.pricing import apply_offer
 from django.urls import reverse
 from apps.orders.services.get_order_preview import get_order_preview
 from django.utils.timezone import now
-
+from apps.accounts.validators import only_letters_validator, only_numbers_validator ,validate_email_strict ,validate_password_strict,validate_phone_number
 from apps.coupons.models import Coupon ,CouponUsage
+from apps.accounts.validators import name_with_spaces_validator
 from apps.coupons.utils.pricing import calculate_coupon_discount
 
 
@@ -18,6 +21,8 @@ from apps.coupons.utils.pricing import calculate_coupon_discount
 def checkout_page(request):
     user = request.user 
     cart = getattr(request.user, "cart", None)
+    
+    temp_address_form = request.session.get("temp_address_form", {})
   
 
     if not cart or not cart.items.exists():
@@ -47,26 +52,38 @@ def checkout_page(request):
 
     
         if address_id == "temporary":
-            required_fields = [
-                "full_name", "phone", "house_name",
-                "street", "city", "state", "country", "pincode"
-            ]
+            
+            
+            temp_data = {
+                "full_name": request.POST.get("full_name", "").strip(),
+                "phone": request.POST.get("phone", "").strip(),
+                "house_name": request.POST.get("house_name", "").strip(),
+                "street": request.POST.get("street", "").strip(),
+                "land_mark": request.POST.get("land_mark", "").strip(),
+                "city": request.POST.get("city", "").strip(),
+                "state": request.POST.get("state", "").strip(),
+                "country": request.POST.get("country", "").strip(),
+                "pincode": request.POST.get("pincode", "").strip(),
+            }
 
-            if not all(request.POST.get(f) for f in required_fields):
-                messages.error(request, "Please fill all address fields")
+         
+            request.session["temp_address_form"] = temp_data
+
+            try:
+                name_with_spaces_validator(temp_data["full_name"], "Full name")
+
+                only_letters_validator(temp_data["city"])
+                only_letters_validator(temp_data["state"])
+                only_letters_validator(temp_data["country"])
+
+                validate_phone_number(temp_data["phone"])
+                only_numbers_validator(temp_data["pincode"])
+
+            except ValidationError as e:
+                messages.error(request, e.message)
                 return redirect("checkout_page")
 
-            address_snapshot = {
-                "full_name": request.POST["full_name"],
-                "phone": request.POST["phone"],
-                "house_name": request.POST["house_name"],
-                "street": request.POST["street"],
-                "land_mark": request.POST.get("land_mark", ""),
-                "city": request.POST["city"],
-                "state": request.POST["state"],
-                "country": request.POST["country"],
-                "pincode": request.POST["pincode"],
-            }
+            address_snapshot = temp_data
 
       
         else:
@@ -87,6 +104,7 @@ def checkout_page(request):
             }
 
         request.session["checkout_address_snapshot"] = address_snapshot
+        request.session.pop("temp_address_form", None)
         request.session.modified = True
         return redirect("payment_page")
 
@@ -128,6 +146,7 @@ def checkout_page(request):
         "total_amount": preview["total_amount"],
          "coupon": preview.get("coupon"),
         "eligible_coupons": eligible_coupons,
+        "temp_address_form": temp_address_form, 
     }
 
     return render(request, "orders/checkout.html", context)
