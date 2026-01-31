@@ -20,3 +20,7 @@ staticfiles/
 # OS files
 .DS_Store
 
+# Django media (ignore uploads but allow README screenshots)
+media/*
+!media/screenshots/
+!media/screenshots/**
