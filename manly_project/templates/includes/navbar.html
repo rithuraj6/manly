@@ -59,8 +59,11 @@
                 <line x1="3" y1="6" x2="21" y2="6"></line>
                 <path d="M16 10a4 4 0 0 1-8 0"></path>
             </svg>
+            
 
-            <span class="cart-count">{{ cart_count }}</span>
+            <span class="cart-count"
+            {% if cart_count == 0 %}style ="display:none"{% endif%}> 
+                {{ cart_count }}</span>
 
         </a>
 

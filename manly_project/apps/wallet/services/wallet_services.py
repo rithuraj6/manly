@@ -104,8 +104,7 @@ def pay_order_using_wallet(*, user, order):
 def refund_to_wallet(*, user, order_item, amount, reason):
     order = order_item.order
 
-    if not should_refund_wallet(order):
-        return
+  
 
     wallet, _ = Wallet.objects.get_or_create(user=user)
 

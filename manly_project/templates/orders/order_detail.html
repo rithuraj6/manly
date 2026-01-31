@@ -117,6 +117,13 @@
                                     Fully refunded
                                 </p>
                             {% endif %}
+
+                            {% if order.status == "cancelled" %}
+                                <p class="order-note">
+                                    This order was cancelled by the seller. Any eligible refund has been credited to your wallet.
+                                </p>
+                            {% endif %}
+
                         </div>
 
 

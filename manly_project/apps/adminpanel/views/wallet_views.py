@@ -27,7 +27,7 @@ def admin_wallet_dashboard(request):
         transaction_type="debit"
     ).order_by("-created_at")
     
-    income_paginator = Paginator(income_qs, 10)   
+    income_paginator = Paginator(income_qs, 10)    
     refund_paginator = Paginator(refund_qs, 10)
 
     income_page_number = request.GET.get("income_page")

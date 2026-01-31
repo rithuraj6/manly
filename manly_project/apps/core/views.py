@@ -34,3 +34,15 @@ def contact_page(request):
     return render(request, "pages/contact.html")
 
 
+from django.shortcuts import render
+
+def forbidden_view(request, exception=None):
+    return render(
+        request,
+        "errors/403.html",
+        {
+            "title": "Access Denied",
+            "message": "Your account has been temporarily blocked. Please contact admin@manly.com"
+        },
+        status=403
+    )

@@ -12,7 +12,7 @@ from django.core.paginator import Paginator
 from apps.accounts.models import UserProfile, UserAddress
 from apps.sizeguide.models import SizeGuide
 from .utils import send_otp
-from .validators import only_letters_validator, only_numbers_validator 
+from .validators import only_letters_validator, only_numbers_validator ,validate_email_strict ,validate_password_strict,validate_phone_number
 from apps.accounts.validators import name_with_spaces_validator
 
 from apps.accounts.validators import validate_measurement
@@ -77,48 +77,57 @@ def forbidden_view(request):
         status=403,
     )
 
+
+
 def user_signup(request):
-    error = None
-
-    if request.method == "POST":
-        email = request.POST.get("email")
-        password = request.POST.get("password")
+    error =None
+    
+    if request.method =="POST":
+        email = request.POST.get("email","")
+        password = request.POST.get("password","")
         confirm = request.POST.get("confirm_password")
-
-        if password != confirm:
-            error = "Passwords do not match"
-        else:
-            existing_user = User.objects.filter(email=email).first()
-
-            try:
-                if existing_user:
-                    if not existing_user.is_active:
-                        send_otp(existing_user, purpose="signup")
-                        request.session["otp_user"] = existing_user.id
-                    else:
-                        error = "Email already registered"
-                        return render(request, "pages/signup.html", {"error": error})
+        
+        try:
+            email = validate_email_strict(email)
+            
+            password = validate_password_strict(password)
+            
+            
+            if password != confirm:
+                raise ValidationError("Passwords does not match")
+            
+            existing_user = User.objects.filter(email= email).first()
+            
+            if existing_user:
+                if not existing_user.is_active:
+                    send_otp(existing_user,purpose="signup")
+                    request.session["otp_user"]= existing_user.id 
+                    
                 else:
-                    user = User.objects.create_user(
-                        email=email,
-                        password=password,
-                        is_active=False
-                    )
-                    send_otp(user, purpose="signup")
-                    request.session["otp_user"] = user.id
-
-                request.session["otp_purpose"] = "signup"
-                request.session["otp_email"] = email
-                return redirect("verify_otp")
-
-            except ValueError as e:
-                messages.error(request, str(e))
-                return redirect("signup")
-
-    return render(request, "pages/signup.html", {"error": error})
-
-
-
+                    raise ValidationError("Email already registered")
+                
+            else:
+                user = User.objects.create_user(
+                    email=email,password=password,is_active=False
+                ) 
+                
+                send_otp(user,purpose ="signup")
+                
+                request.session["otp_user"] =user.id
+                
+            request.session["otp_purpose"] ="signup"
+            request.session["otp_email"]= email
+            
+            return redirect("verify_otp")
+        
+        
+        except ValidationError as e:
+            error =e.message
+        except Exception:
+            error ="Something went wrong. please try again!"
+    return render(request,"pages/signup.html",{"error":error})
+            
+            
 def verify_otp(request):
     email = request.session.get("otp_email")
     purpose = request.session.get("otp_purpose")
@@ -174,21 +183,32 @@ User = get_user_model()
 
 def forgot_password(request):
     if request.method == "POST":
-        email = request.POST.get("email")
+        email = request.POST.get("email","")
 
         try:
+            email = validate_email_strict(email)
             user = User.objects.get(email=email)
-        except User.DoesNotExist:
-            return render(request, "pages/forgot_password.html", {
-                "error": "Account not found"
+            
+            send_otp(user,purpose ="reset")
+            
+            request.session["otp_purpose"]="reset"
+            
+            request.session["otp_email"]=email
+            
+            return redirect("verify_otp")
+        except ValidationError as e:
+            return render(request,"pages/forgot_password.html",{
+                "error":e.message
             })
-
-        send_otp(user, purpose="reset")
-
-        request.session["otp_purpose"] = "reset"
-        request.session["otp_email"] = email
-
-        return redirect("verify_otp")
+            
+        except User.DoesNotExist:
+            return render(request,"pages/forgot_password.html",{
+                "error":"Account not found"
+            })
+        except Exception :
+            return render(request,"pages/forgot_password.html",{
+                "error":"somehting went wrong.Please try again."
+            })
 
     return render(request, "pages/forgot_password.html")
 
@@ -201,21 +221,37 @@ def reset_password(request):
     email = request.session.get("otp_email")
 
     if request.method == "POST":
-        password = request.POST.get("password")
-        confirm = request.POST.get("confirm_password")
+        password = request.POST.get("password","")
+        confirm = request.POST.get("confirm_password","")
+        
+        try:
+            password = validate_password_strict(password)
+            
+            if password != confirm:
+                raise ValidationError("Password does not match")
+            
+        
+            
 
-        if password != confirm:
-            return render(request, "pages/reset_password.html", {
-                "error": "Passwords do not match"
+            user = User.objects.get(email=email)
+            user.set_password(password)
+            user.save()
+
+            request.session.flush()
+            messages.success(request, "Password updated successfully")
+            return redirect("login")
+        
+        except ValidationError as e:
+            return render(request,"pages/reset_password.html",{
+                "error":e.message
             })
-
-        user = User.objects.get(email=email)
-        user.set_password(password)
-        user.save()
-
-        request.session.flush()
-        messages.success(request, "Password updated successfully")
-        return redirect("login")
+            
+        except Exception:
+            return render(request,"pages/reset_password.html",{
+                "error" : "Something went wrong.Plese try again."
+            })
+        
+        
 
     return render(request, "pages/reset_password.html")
 
@@ -249,29 +285,32 @@ def get_client_ip(request):
 
 @user_required
 def profile_edit(request):
-  
     profile = request.user.profile
 
+   
     if request.user.socialaccount_set.filter(provider="google").exists():
         if request.user.auth_provider != "google":
             request.user.auth_provider = "google"
             request.user.save(update_fields=["auth_provider"])
 
     if request.method == "POST":
- 
-        new_email = request.POST.get("email")
-        if new_email is not None:
-            new_email = new_email.strip()
-            current_email = request.user.email
 
-            if request.user.auth_provider == "google" and new_email != current_email:
+        new_email = request.POST.get("email", "").strip()
+        current_email = request.user.email
+
+        if new_email and new_email != current_email:
+            if request.user.auth_provider == "google":
                 messages.error(
                     request,
                     "Email change is not allowed for Google authenticated accounts"
                 )
                 return redirect("account_profile_edit")
 
-        if new_email and new_email != current_email:
+            try:
+                new_email = validate_email_strict(new_email)
+            except ValidationError as e:
+                messages.error(request, e.message)
+                return redirect("account_profile_edit")
 
             if User.objects.filter(email=new_email).exists():
                 messages.error(request, "Email already in use")
@@ -298,14 +337,24 @@ def profile_edit(request):
         except ValidationError:
             messages.error(
                 request,
-                "First name and Last name should contain only alphabets."
+                "First name and last name must contain only alphabets"
             )
+            return redirect("account_profile_edit")
+
+     
+        phone = request.POST.get("phone", "").strip()
+
+        try:
+            phone = validate_phone_number(phone)
+        except ValidationError as e:
+            messages.error(request, e.message)
             return redirect("account_profile_edit")
 
         profile.first_name = first_name
         profile.last_name = last_name
-        profile.phone = request.POST.get("phone", "").strip()
+        profile.phone = phone
 
+        
         image_data = request.POST.get("cropped_image")
         if image_data:
             format, imgstr = image_data.split(";base64,")
@@ -322,20 +371,18 @@ def profile_edit(request):
 
         chest = request.POST.get("chest")
         shoulder = request.POST.get("shoulder")
-        
-        try :
-            profile.chest =(
-                validate_measurement(chest,"chest") if chest else None
+
+        try:
+            profile.chest = (
+                validate_measurement(chest, "chest") if chest else None
             )
             profile.shoulder = (
-                validate_measurement(shoulder,"shoulder") if shoulder else None
+                validate_measurement(shoulder, "shoulder") if shoulder else None
             )
-            
         except ValidationError as e:
-            messages.error(request,str(e))
-            return redirect('account_profile_edit')
+            messages.error(request, str(e))
+            return redirect("account_profile_edit")
 
-      
         profile.size = calculate_user_size(
             chest=profile.chest,
             shoulder=profile.shoulder,
@@ -343,19 +390,19 @@ def profile_edit(request):
 
         profile.save()
         messages.success(request, "Profile updated successfully")
-    
-    
         return redirect("account_profile")
+
     breadcrumbs = [
         {"label": "Home", "url": "/"},
         {"label": "Account", "url": "/account/profile/"},
         {"label": "Edit Profile", "url": None},
-        ]
-       
+    ]
 
-    return render(request, "account/profile_edit.html",  {"profile": profile,"breadcrumbs": breadcrumbs,})
-
-
+    return render(
+        request,
+        "account/profile_edit.html",
+        {"profile": profile, "breadcrumbs": breadcrumbs},
+    )
 
 
 def verify_email_change(request):
@@ -475,193 +522,132 @@ def address_add(request):
         {"label": "Address", "url": "/account/addresses/"},
         {"label": "Add Address", "url": None},
     ]
+    
+    context = {"breadcrumbs": breadcrumbs}
+
 
 
   
     if request.method == 'POST':
-        full_name = request.POST.get('full_name', '').strip()
-        phone = request.POST.get('phone', '').strip()
-        house_name = request.POST.get('house_name', '').strip()
-        street = request.POST.get('street', '').strip()
-        landmark = request.POST.get('landmark', '').strip()
-        city = request.POST.get('city', '').strip()
-        state = request.POST.get('state', '').strip()
-        country = request.POST.get('country', '').strip()
-        pincode = request.POST.get('pincode', '').strip()
-        is_default = request.POST.get('is_default') == 'on'
+        data ={
+            
+            "full_name": request.POST.get("full_name", ""),
+            "house_name": request.POST.get("house_name", ""),
+            "street": request.POST.get("street", ""),
+            "landmark": request.POST.get("landmark", ""),
+            "city": request.POST.get("city", ""),
+            "state": request.POST.get("state", ""),
+            "country": request.POST.get("country", ""),
+            "phone": request.POST.get("phone", ""),
+            "pincode": request.POST.get("pincode", ""),
+            "is_default": request.POST.get("is_default") == "on",
         
-        
-        
-        
-
-        
-        if not all([full_name, phone, house_name, street, city, state, country, pincode]):
-            messages.error(request, 'Please fill all required fields')
-            return render(request, 'account/address_add.html', {"breadcrumbs": breadcrumbs})
+        }
+        context["form"]=data
         
         try:
-            name_with_spaces_validator(full_name, "Full name")
+            full_name=name_with_space_max_10(data["full_name"],"Name")
+            city = alphabets_only_field(data["city"],"City")
+            state = alphabets_only_field(data["state"],"State")
+            country=alphabets_only_fidl(data["country"],"Country")
+            
+            phone = numbers_only_field(data["phone"],"Phone number",10)
+            pincode = numbers_only_field(data["pincode"],"Pincode",6)
             
         except ValidationError as e:
-            message.error(request,str(e))
-            return render(request,'account/address_add.html',{'breadcrumbs':breadcrumbs})   
-           
-        try:
-            validate_only_letters({
-                "street": street,
-                "city": city,
-                "state": state,
-                "country": country,
-            })
-        except ValidationError as e:
-            messages.error(request, str(e))
-            return render(request, 'account/address_add.html', {"breadcrumbs": breadcrumbs})
+            messages.error(request,e.message)
+            return render(request,"account/address_add.html",context)
         
-        try:
-            validate_only_numbers({
-                "phone": phone,
-                "pincode": pincode,
-            })
-        except ValidationError as e:
-            messages.error(request, str(e))
-            return render(request, 'account/address_add.html', {"breadcrumbs": breadcrumbs})
-        if len(phone) != 10:
-            messages.error(request, "Phone number must be exactly 10 digits.")
-            return render(request, 'account/address_add.html', {"breadcrumbs": breadcrumbs})
-
-        if len(pincode) != 6:
-            messages.error(request, "Pincode must be exactly 6 digits.")
-            return render(request, 'account/address_add.html', {"breadcrumbs": breadcrumbs})
-
-       
-        if is_default:
+        if data["is_default"]:
             UserAddress.objects.filter(
-                user=request.user,
-                is_default=True
-            ).update(is_default=False)
-
-        UserAddress.objects.create(
+                user=request.user,is_default=True).update(is_defaultFalse)
+            
+        UseraAddress.objects.create(
             user=request.user,
             full_name=full_name,
-            phone=phone,
-            house_name=house_name,
-            street=street,
-            land_mark=landmark,
+            house_name=data["house_name"].strip(),
+            street= data["street"].strip(),
+            land_mark=data['landmark'].strip(),
             city=city,
             state=state,
             country=country,
+            phone=phone,
             pincode=pincode,
-            is_default=is_default,
+            is_default=data["is_default"],
         )
-
-        messages.success(request, 'Address added successfully')
-        return redirect('account_addresses')
-            
         
+        messages.success(request,"Address added successfully")
+    return render(request,"account/address_add.html",context)
+                 
 
-    return render(request,'account/address_add.html',{'breadcrumbs': breadcrumbs})
+    
 
 
 
 
             
 @user_required
-def address_edit(request,address_uuid):
-   
-    
+def address_edit(request, address_uuid):
     address = get_object_or_404(
-        UserAddress,uuid=address_uuid,user=request.user
+        UserAddress, uuid=address_uuid, user=request.user
     )
-    
 
-     
-    if request.method == "POST":
-        full_name = request.POST.get("full_name", "").strip()
-        street = request.POST.get("street", "").strip()
-        landmark = request.POST.get("landmark", "").strip()
-        city = request.POST.get("city", "").strip()
-        state = request.POST.get("state", "").strip()
-        country = request.POST.get("country", "").strip()
-        phone = request.POST.get("phone", "").strip()
-        pincode = request.POST.get("pincode", "").strip()
-        
-        try:
-            name_with_spaces_validator(full_name ,"Full name")
-        except ValidationError as e:
-            message.error(request,str(e))
-            return redirect('account_addres_edit',address_id=address.id)
-   
-        try:
-            validate_only_letters({
-               
-                "street": street,
-               
-                "city": city,
-                "state": state,
-                "country": country,
-            })
-        except ValidationError as e:
-            messages.error(request, str(e))
-            return redirect("account_address_edit", address_uuid=address.uuid)
-        
-        
-        try:
-            validate_only_numbers({
-                 "phone": phone,
-                    "pincode": pincode,
-            })
-        except ValidationError as e:
-            messages.error(request, str(e))
-            return redirect("account_address_edit", address_uuid=address.uuid)
-        
-        
-        if len(phone) != 10:
-            messages.error(request, "Phone number must be exactly 10 digits.")
-            return redirect("account_address_edit", address_uuid=address.uuid)
-
-        if len(pincode) != 6:
-            messages.error(request, "Pincode must be exactly 6 digits.")
-            return redirect("account_address_edit", address_uuid=address.uuid)
-
-        address.full_name = full_name
-        address.street = street
-        address.land_mark = landmark
-        address.city = city
-        address.phone=phone
-        address.state = state
-        address.country = country
-        address.pincode = pincode
-    
-        is_default = request.POST.get('is_default') == 'on'
-        
-        
-        if is_default :
-            UserAddress.objects.filter(
-                user = request.user,is_default=True
-            ).exclude(id=address.id).update(is_default=False) 
-            
-            
-        address.is_default = is_default 
-        address.save()
-        
-        
-        messages.success(request,'Address updated successfully')
-        return redirect('account_addresses')
-
-    
     breadcrumbs = [
         {"label": "Home", "url": "/"},
         {"label": "Account", "url": "/account/profile/"},
         {"label": "Address", "url": "/account/addresses/"},
         {"label": "Edit Address", "url": None},
     ]
+
     context = {
-        'address': address,
-        'breadcrumbs': breadcrumbs,
+        "address": address,
+        "breadcrumbs": breadcrumbs,
     }
-    
-    
-    return render(request,'account/address_edit.html',context)  
+
+    if request.method == "POST":
+        try:
+            address.full_name = name_with_spaces_max_10(
+                request.POST.get("full_name", ""), "Name"
+            )
+            address.city = alphabets_only_field(
+                request.POST.get("city", ""), "City"
+            )
+            address.state = alphabets_only_field(
+                request.POST.get("state", ""), "State"
+            )
+            address.country = alphabets_only_field(
+                request.POST.get("country", ""), "Country"
+            )
+
+            address.phone = numbers_only_field(
+                request.POST.get("phone", ""), "Phone number", 10
+            )
+            address.pincode = numbers_only_field(
+                request.POST.get("pincode", ""), "Pincode", 6
+            )
+
+        except ValidationError as e:
+            messages.error(request, e.message)
+            return render(request, "account/address_edit.html", context)
+
+        address.house_name = request.POST.get("house_name", "").strip()
+        address.street = request.POST.get("street", "").strip()
+        address.land_mark = request.POST.get("landmark", "").strip()
+
+        is_default = request.POST.get("is_default") == "on"
+        if is_default:
+            UserAddress.objects.filter(
+                user=request.user, is_default=True
+            ).exclude(id=address.id).update(is_default=False)
+
+        address.is_default = is_default
+        address.save()
+
+        messages.success(request, "Address updated successfully")
+        return redirect("account_addresses")
+
+    return render(request, "account/address_edit.html", context)
+
     
 @user_required
 def address_delete(request, address_uuid):
@@ -707,6 +693,13 @@ def change_password(request):
         old_password = request.POST.get("old_password")
         new_password = request.POST.get("new_password")
         confirm_password = request.POST.get("confirm_password")
+        
+        try:
+            validate_password_strict(new_password)
+        except ValidationError as e:
+            messages.error(request, e.message)
+            return redirect("change_password")
+
 
         user = request.user
 

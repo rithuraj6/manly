@@ -55,6 +55,7 @@ urlpatterns = [
     path("admin-panel/", include("apps.adminpanel.urls")),
     
 ]
+handler403 = "apps.core.views.forbidden_view"
 
 
 if settings.DEBUG:

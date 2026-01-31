@@ -62,9 +62,9 @@ def admin_users(request):
 
 
 @admin_required
-def toggle_user_status(request,user_id):
+def toggle_user_status(request,user_uuid):
     
-    user = get_object_or_404(User,id=user_id)
+    user = get_object_or_404(User,uuid=user_uuid)
     
     if user.is_superuser or user.is_staff:
         return redirect("admin_users")

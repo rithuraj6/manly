@@ -9,7 +9,8 @@
         <form method="post">
             {% csrf_token %}
 
-            <input type="email" name="email" placeholder="Email" required>
+            <input type="email" name="email"placeholder="Email"autocomplete="off"autocapitalize="none"spellcheck="false">
+
             <input type="password" name="password" placeholder="Password" required>
             <input type="password" name="confirm_password" placeholder="Confirm Password" required>
 
@@ -27,6 +28,13 @@
         </div>
     </div>
 </div>
+{% if messages %}
+    {% for message in messages %}
+        <p style="color:#d32f2f; font-size:14px; margin-top:10px;">
+            {{ message }}
+        </p>
+    {% endfor %}
+{% endif %}
 
 <style>
 /* Page-specific animation */
