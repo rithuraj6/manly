@@ -101,7 +101,7 @@ MIDDLEWARE = [
     
     
     
-    'apps.accounts.middleware.BlockedUserMiddleware',
+    "apps.accounts.middleware.BlockedUserMiddleware",
     'apps.core.middleware.DisableBackButtonMiddleware',
   
     

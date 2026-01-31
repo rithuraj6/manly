@@ -90,7 +90,7 @@ urlpatterns = [
     path("sales-report/excel/",admin_sales_report_excel,name="admin_sales_report_excel",),
 
     path("users/", admin_users, name="admin_users"),
-    path("users/toggle/<int:user_id>/", toggle_user_status, name="toggle_user"),
+    path("users/toggle/<uuid:user_uuid>/", toggle_user_status, name="toggle_user"),
 
     
     path("categories/", admin_category_list, name="admin_category_list"),
