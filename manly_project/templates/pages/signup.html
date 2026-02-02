@@ -1,4 +1,42 @@
-style>
+{% extends "base.html" %}
+{% block title %}Signup | MANLY{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <h2>Signup</h2>
+
+        <form method="post">
+            {% csrf_token %}
+
+            <input type="email" name="email" placeholder="Email" autocomplete="off" autocapitalize="none" spellcheck="false" required>
+
+            <input type="password" name="password" placeholder="Password" required>
+            <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+
+            {% if error %}
+                <p class="error-message">{{ error }}</p>
+            {% endif %}
+
+            <div class="auth-links-inline" style="justify-content: flex-end;">
+                <a href="{% url 'login' %}">Already have an account? Login</a>
+            </div>
+
+            <button type="submit">Signup</button>
+        </form>
+
+    </div>
+</div>
+
+{% if messages %}
+    <div class="messages-container">
+        {% for message in messages %}
+            <p class="error-message">{{ message }}</p>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<style>
 /* Page-specific styles */
 .auth-wrapper {
     min-height: calc(100vh - 200px);
@@ -47,6 +85,7 @@ style>
 
 .auth-card input:nth-of-type(1) { animation-delay: 0.1s; }
 .auth-card input:nth-of-type(2) { animation-delay: 0.2s; }
+.auth-card input:nth-of-type(3) { animation-delay: 0.3s; }
 
 .auth-card input::placeholder {
     color: #666;
@@ -56,11 +95,19 @@ style>
     background: #c9c9c9;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    outline: none;
+}
+
+.error-message {
+    color: #d32f2f;
+    font-size: 14px;
+    margin: -10px 0 0;
+    animation: slideInFromLeft 0.5s ease forwards;
 }
 
 .auth-links-inline {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     margin: -10px 0 10px;
 }
 
@@ -82,10 +129,11 @@ style>
     color: #fff;
     font-size: 15px;
     font-weight: 600;
+    border: none;
     border-radius: 30px;
     cursor: pointer;
     transition: all 0.3s ease;
-    animation: slideInFromLeft 0.5s ease 0.3s forwards;
+    animation: slideInFromLeft 0.5s ease 0.4s forwards;
     opacity: 0;
 }
 
@@ -99,54 +147,14 @@ style>
     transform: translateY(0);
 }
 
-.divider {
-    text-align: center;
-    margin: 30px 0 25px;
-    font-size: 14px;
-    color: #666;
-    position: relative;
-}
-
-.divider::before,
-.divider::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    width: 35%;
-    height: 1px;
-    background: #ddd;
-}
-
-.divider::before {
-    left: 0;
-}
-
-.divider::after {
-    right: 0;
-}
-
-.google-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    padding: 14px;
-    background: #fff;
-    border: 2px solid #ddd;
-    border-radius: 30px;
-    cursor: pointer;
-    font-size: 14px;
-    color: #333;
-    transition: all 0.3s ease;
-    animation: slideInFromLeft 0.5s ease 0.4s forwards;
-    opacity: 0;
-}
-
-.google-btn:hover {
-    background: #f8f8f8;
-    border-color: #bbb;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+.messages-container {
+    position: fixed;
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    max-width: 500px;
+    width: 90%;
 }
 
 @keyframes fadeInScale {
@@ -179,6 +187,19 @@ style>
 
     .auth-card h2 {
         font-size: 24px;
+        margin-bottom: 30px;
+    }
+
+    .auth-card input {
+        padding: 14px 18px;
+        font-size: 14px;
+    }
+
+    .auth-card button[type="submit"] {
+        padding: 14px;
+        font-size: 14px;
     }
 }
 </style>
+
+{% endblock %}
