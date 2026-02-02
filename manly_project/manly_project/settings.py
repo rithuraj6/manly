@@ -31,10 +31,13 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    '51.21.201.6',
-    'localhost',
-    '127.0.0.1',
+    "rithuraj.in",
+    "www.rithuraj.in",
+    "51.21.201.6",
+    "localhost",
+    "127.0.0.1",
 ]
+
 
 
 CSRF_TRUSTED_ORIGINS = [
