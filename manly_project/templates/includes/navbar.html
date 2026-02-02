@@ -3,7 +3,14 @@
 <nav class="navbar">
     
     <a href="{% url 'home' %}" class="navbar-logo">
-        <img src="{% static 'images/M (1).png' %}" alt="MANLY Logo">
+        <svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- M letter -->
+            <path d="M15 90V30H25L45 65L65 30H75V90H65V50L45 85L25 50V90H15Z" fill="currentColor"/>
+            
+            <!-- A letter with triangle cutout -->
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M80 90L95 30H105L120 90H110L107 78H88L85 90H80ZM90 68H105L97.5 42L90 68Z" fill="currentColor"/>
+            <polygon points="97.5,50 92,65 103,65" fill="white"/>
+        </svg>
         <span class="logo-subtitle">MANLY APPAREL STORE</span>
     </a>
 
