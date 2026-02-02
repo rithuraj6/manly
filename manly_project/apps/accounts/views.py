@@ -581,7 +581,7 @@ def address_add(request):
         )
         
         messages.success(request,"Address added successfully")
-    return redirect("account_addresses")
+    return render(request, "account/address_add.html", context)
                  
 
     
