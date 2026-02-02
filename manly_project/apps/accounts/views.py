@@ -581,7 +581,7 @@ def address_add(request):
         )
         
         messages.success(request,"Address added successfully")
-    return redirect("address")
+    return redirect("account_addresses")
                  
 
     
