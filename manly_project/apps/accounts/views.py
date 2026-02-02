@@ -553,6 +553,7 @@ def address_add(request):
             full_name=name_with_spaces_max10(data["full_name"],"Name")
             city = alphabets_only_field(data["city"],"City")
             state = alphabets_only_field(data["state"],"State")
+            street = alphabets_only_field(data["street"],"Street")
             country=alphabets_only_field(data["country"],"Country")
             
             phone = numbers_only_field(data["phone"],"Phone number",10)
