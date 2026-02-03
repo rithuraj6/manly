@@ -3,68 +3,73 @@
 <nav class="navbar">
     <div class="navbar-inner container">
     
-    <a href="{% url 'home' %}" class="navbar-logo">
-        <svg width="80" height="80" viewBox="0 0 120 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- M letter -->
-            <path d="M15 90V30H25L45 65L65 30H75V90H65V50L45 85L25 50V90H15Z" fill="black"/>
-            
-            <!-- A letter with triangle cutout -->
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M80 90L95 30H105L120 90H110L107 78H88L85 90H80ZM90 68H105L97.5 42L90 68Z" fill="black"/>
-            <polygon points="97.5,50 92,65 103,65" fill="white"/>
-        </svg>
-        <span class="logo-subtitle">MANLY APPAREL STORE</span>
-    </a>
-
-
-    <div class="navbar-menu">
-        <a href="{% url 'home' %}" class="nav-link">Home</a>
-        <a href="{% url 'shop' %}" class="nav-link">Shop</a>
-        <a href="{% url 'contact' %}" class="nav-link">Contact Us</a>
-        <a href="{% url 'about' %}" class="nav-link">About Us</a>
-    </div>
-    <div class ="navbar-toggle" aria-label="Toggle navigation"> 
-        <div class="navbar-icons">
-
-            
-
-            <a href="{% url 'account_profile' %}" class="nav-icon" title="Profile">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-            </a>
-            <a href="{% url 'wishlist_page' %}" class="nav-icon" title="Wishlist">
+        <a href="{% url 'home' %}" class="navbar-logo">
+            <svg width="80" height="80" viewBox="0 0 120 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- M letter -->
+                <path d="M15 90V30H25L45 65L65 30H75V90H65V50L45 85L25 50V90H15Z" fill="black"/>
                 
-                    <svg width="24" height="24" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                        <line x1="3" y1="6" x2="21" y2="6"></line>
-                        <path d="M16 10a4 4 0 0 1-8 0"></path>
-                    </svg>
+                <!-- A letter with triangle cutout -->
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M80 90L95 30H105L120 90H110L107 78H88L85 90H80ZM90 68H105L97.5 42L90 68Z" fill="black"/>
+                <polygon points="97.5,50 92,65 103,65" fill="white"/>
+            </svg>
+            <span class="logo-subtitle">MANLY APPAREL STORE</span>
+        </a>
 
-                <span class="wishlist-count"
-                    {% if wishlist_count == 0 %}style="display:none"{% endif %}>
-                    {{ wishlist_count }}
-                </span>
-            </a>
-            <a href="{% url 'cart_page' %}" class="nav-icon" title="Cart">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2">
-                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                    <line x1="3" y1="6" x2="21" y2="6"></line>
-                    <path d="M16 10a4 4 0 0 1-8 0"></path>
-                </svg>
-                
 
-                <span class="cart-count"
-                {% if cart_count == 0 %}style ="display:none"{% endif%}> 
-                    {{ cart_count }}</span>
-
-            </a>
-
+        <div class="navbar-menu">
+            <a href="{% url 'home' %}" class="nav-link">Home</a>
+            <a href="{% url 'shop' %}" class="nav-link">Shop</a>
+            <a href="{% url 'contact' %}" class="nav-link">Contact Us</a>
+            <a href="{% url 'about' %}" class="nav-link">About Us</a>
         </div>
+
+
+  
+                    <div class="navbar-icons">
+
+                
+
+                        <a href="{% url 'account_profile' %}" class="nav-icon" title="Profile">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </a>
+                        <a href="{% url 'wishlist_page' %}" class="nav-icon" title="Wishlist">
+                            
+                                <svg width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                                    <path d="M16 10a4 4 0 0 1-8 0"></path>
+                                </svg>
+
+                            <span class="wishlist-count"
+                                {% if wishlist_count == 0 %}style="display:none"{% endif %}>
+                                {{ wishlist_count }}
+                            </span>
+                        </a>
+                        <a href="{% url 'cart_page' %}" class="nav-icon" title="Cart">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="2">
+                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                                <line x1="3" y1="6" x2="21" y2="6"></line>
+                                <path d="M16 10a4 4 0 0 1-8 0"></path>
+                            </svg>
+                            
+
+                            <span class="cart-count"
+                            {% if cart_count == 0 %}style ="display:none"{% endif%}> 
+                                {{ cart_count }}</span>
+
+                                
+
+                        </a>
+                    </div>
+
+            
+ 
     </div> 
-</div> 
 </nav>
             {% if breadcrumbs %}
                 <div class="breadcrumbs-wrapper">
@@ -85,6 +90,23 @@
 
 
 <style>
+
+    @media (max-width: 768px) {
+    .navbar-menu {
+        display: none;
+    }
+
+    .navbar-menu.active {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .navbar-toggle {
+        display: flex;
+    }
+}
+
     .breadcrumbs-wrapper {
     padding: 8px 0;
     background: #fff;
@@ -217,23 +239,27 @@
         order: 1;
     }
 
-    .navbar-toggle {
+    .navbar-icons {
         order: 2;
+        margin-left: auto;
     }
 
-    .navbar-icons {
+    .navbar-toggle {
         order: 3;
+        margin-left: 12px;
     }
 
     .navbar-menu {
         order: 4;
     }
 }
-@media (max-width: 768px) {
-    .navbar {
-        padding: 12px 0;
-    }
+.hero-banner {
+    margin-top: 0;
 }
+.breadcrumbs-wrapper {
+    padding: 4px 0;
+}
+
 
 
 
@@ -242,7 +268,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 35px 60px;
+    padding: 20px 0;
+
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
