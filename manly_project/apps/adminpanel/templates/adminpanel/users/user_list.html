@@ -61,7 +61,7 @@
                         {% endif %}
                     </td>
 
-                    <!-- ✅ ADDRESS COLUMN -->
+                    <!-- ADDRESS COLUMN -->
                     <td>
                         {% if user.latest_addresses %}
                             {{ user.latest_addresses.0.city }},
@@ -71,22 +71,22 @@
                         {% endif %}
                     </td>
 
-                    <!-- ✅ ACTION COLUMN -->
+                    <!-- ACTION COLUMN -->
                     <td>
                         <div class="action-buttons">
                             {% if user.is_blocked %}
                                 <a
-                                    href="{% url 'toggle_user' user.id %}"
+                                    href="{% url 'toggle_user' user.user_uuid %}"
                                     class="btn-unblock"
-                                    onclick="return confirmUnblock(event, '{{ user.email }}', '{% url 'toggle_user' user.id %}')"
+                                    onclick="return confirmUnblock(event, '{{ user.email }}', '{% url 'toggle_user' user.user_uuid %}')"
                                 >
                                     Unblock
                                 </a>
                             {% else %}
                                 <a
-                                    href="{% url 'toggle_user' user.id %}"
+                                    href="{% url 'toggle_user' user.user_uuid %}"
                                     class="btn-block"
-                                    onclick="return confirmBlock(event, '{{ user.email }}', '{% url 'toggle_user' user.id %}')"
+                                    onclick="return confirmBlock(event, '{{ user.email }}', '{% url 'toggle_user' user.user_uuiid %}')"
                                 >
                                     Block
                                 </a>
