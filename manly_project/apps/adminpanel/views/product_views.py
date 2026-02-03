@@ -107,7 +107,7 @@ def admin_edit_product(request, product_uuid):
 
     if request.method == "POST":
         product.is_featured = request.POST.get("is_featured") == "on"
-        product.name = request.POST.get("name")
+        name = request.POST.get("name", "").strip()
         product.description = request.POST.get("description")
        
         product.category_id = request.POST.get("category")
