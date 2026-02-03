@@ -487,7 +487,7 @@ def address(request):
 
     context = {
         'addresses': addresses,  
-        'can_add_addresses': can_add_address,
+        'can_add_address': can_add_address,
         'breadcrumbs': breadcrumbs,   
     }
 
