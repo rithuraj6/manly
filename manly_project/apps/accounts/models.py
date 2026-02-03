@@ -97,6 +97,7 @@ class UserAddress(models.Model):
 
     
 class User(AbstractBaseUser ,PermissionsMixin):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False,  unique=True)
     
     
     

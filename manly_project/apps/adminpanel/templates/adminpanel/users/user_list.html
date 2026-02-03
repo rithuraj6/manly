@@ -73,26 +73,38 @@
 
                     <!-- ACTION COLUMN -->
                     <td>
-                        <div class="action-buttons">
+                    <div class="action-buttons">
+                        {% if user.uuid %}
                             {% if user.is_blocked %}
                                 <a
-                                    href="{% url 'toggle_user' user.user_uuid %}"
+                                    href="{% url 'toggle_user' user.uuid %}"
                                     class="btn-unblock"
-                                    onclick="return confirmUnblock(event, '{{ user.email }}', '{% url 'toggle_user' user.user_uuid %}')"
+                                    onclick="return confirmUnblock(
+                                        event,
+                                        '{{ user.email }}',
+                                        '{% url 'toggle_user' user.uuid %}'
+                                    )"
                                 >
                                     Unblock
                                 </a>
                             {% else %}
                                 <a
-                                    href="{% url 'toggle_user' user.user_uuid %}"
+                                    href="{% url 'toggle_user' user.uuid %}"
                                     class="btn-block"
-                                    onclick="return confirmBlock(event, '{{ user.email }}', '{% url 'toggle_user' user.user_uuiid %}')"
+                                    onclick="return confirmBlock(
+                                        event,
+                                        '{{ user.email }}',
+                                        '{% url 'toggle_user' user.uuid %}'
+                                    )"
                                 >
                                     Block
                                 </a>
                             {% endif %}
-                        </div>
-                    </td>
+                        {% else %}
+                            <span style="color:#999;">UUID missing</span>
+                        {% endif %}
+                    </div>
+                </td>
                 </tr>
                                 {% empty %}
                 <tr>
