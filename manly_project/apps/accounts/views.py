@@ -471,7 +471,7 @@ def address(request):
         user=request.user
     ).order_by('-is_default','-created_at')
     
-    MAX_ADDRESSESS =3
+    MAX_ADDRESSES=3
     can_add_address = addresses.count() < MAX_ADDRESSES
     
     
