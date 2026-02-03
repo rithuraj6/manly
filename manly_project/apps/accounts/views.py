@@ -470,6 +470,11 @@ def address(request):
     addresses = UserAddress.objects.filter(
         user=request.user
     ).order_by('-is_default','-created_at')
+    
+    MAX_ADDRESSESS =3
+    can_add_address = addresses.count() < MAX_ADDRESSES
+    
+    
 
 
 
@@ -481,6 +486,7 @@ def address(request):
 
     context = {
         'addresses': addresses,  
+        'can_add_addresses': can_add_address,
         'breadcrumbs': breadcrumbs,   
     }
 
@@ -553,8 +559,12 @@ def address_add(request):
             full_name=name_with_spaces_max10(data["full_name"],"Name")
             city = alphabets_only_field(data["city"],"City")
             state = alphabets_only_field(data["state"],"State")
-            street = alphabets_only_field(data["street"],"Street")
+           
             country=alphabets_only_field(data["country"],"Country")
+            
+            street = data["street"].strip()
+            if not street:
+                raise ValidationError("street  is required")
             
             phone = numbers_only_field(data["phone"],"Phone number",10)
             pincode = numbers_only_field(data["pincode"],"Pincode",6)
@@ -629,6 +639,13 @@ def address_edit(request, address_uuid):
             country = request.POST.get("country")
             if country:
                 address.country = alphabets_only_field(country, "Country")
+                
+            street = request.POST.get("street", "").strip()
+            if not street:
+                raise ValidationError("Street is required")
+            address.street = street
+
+
 
             phone = request.POST.get("phone")
             if phone:

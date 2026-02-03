@@ -54,10 +54,18 @@
     {% endfor %}
 
   </div>
-  <a href= "{% url 'account_address_add'%}"
-  class="btn btn-dark">
-    + Add New ddress
-  </a>
+  {% if can_add_address %}
+    <a href="{% url 'account_address_add' %}" class="btn btn-dark">
+        + Add New Address
+    </a>
+  {% else %}
+    <button class="btn btn-dark"
+            disabled
+            style="opacity: 0.6; cursor: not-allowed;"
+            title="Maximum 3 addresses allowed">
+        + Add New Address
+    </button>
+  {% endif %}
 
 <style>
 /* ============================================
