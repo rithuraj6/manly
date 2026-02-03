@@ -39,10 +39,10 @@ def admin_add_category(request):
         try:
             name_with_spaces_validator(name,field_name="Category name")
         except ValidationError as e :
-            return render(request,"adminpanel/categories/category_form.html",{
-                "error":e.message,
-                "value":name,
-            })
+            messages.error(request, e.message)
+            return render(request,"adminpanel/categories/category_form.html",
+                          {"category":category}
+                          )
 
         if Category.objects.filter(name__iexact=name).exists():
             return render(request, "adminpanel/categories/category_form.html", {
@@ -67,11 +67,10 @@ def admin_edit_category(request, category_uuid):
         try:
             name_with_spaces_validator(name,field_name="Category_name")
         except ValidationError as e :
-            return render(request,"adminpanel/categories/category_form.html",{
-                "error":e.message,
-                "category":category ,
-                
-            })
+            messages.error(request, e.message)
+            return render(request,"adminpanel/categories/category_form.html",
+                          {"category":category}
+                          )
             
         if Category.objects.filter(name__iexact=name).exclude(uuid=category.uuid).exists():
             return render(request, "adminpanel/categories/category_form.html", {
