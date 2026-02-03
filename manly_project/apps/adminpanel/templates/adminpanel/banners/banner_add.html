@@ -471,57 +471,24 @@
     }
 }
 </style>
-<script src="https://unpkg.com/cropperjs/dist/cropper.js"> </script>
+
 <script>
-let cropper;
-document.querySelector('.banner-form').addEventListener('submit', function (e) {
-    if (!cropper) return;
-
-    e.preventDefault();
-
-    cropper.getCroppedCanvas({
-        width: 1920,
-        height: 550
-    }).toBlob(blob => {
-        const fileInput = document.getElementById('bannerImage');
-        const croppedFile = new File([blob], "banner.jpg", { type: "image/jpeg" });
-
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(croppedFile);
-        fileInput.files = dataTransfer.files;
-
-        e.target.submit();
-    });
-});
-
-document.getElementById('bannerImage').addEventListener('change', function (e) {
+document.getElementById("bannerImage").addEventListener("change", function (e) {
     const file = e.target.files[0];
     if (!file) return;
 
-    const image = document.getElementById('cropperImage');
-    const preview = document.getElementById('imagePreview');
+    const preview = document.getElementById("imagePreview");
+    const img = document.getElementById("cropperImage");
+
     const reader = new FileReader();
-
     reader.onload = function (event) {
-        image.src = event.target.result;
-        image.style.display = 'block';
-        preview.classList.add('show');
-
-        if (cropper) cropper.destroy();
-
-        cropper = new Cropper(image, {
-            aspectRatio: 1920 / 550,
-            viewMode: 2,
-            autoCropArea: 1,
-        });
+        img.src = event.target.result;
+        img.style.display = "block";
+        preview.classList.add("show");
     };
 
     reader.readAsDataURL(file);
 });
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
 </script>
 
 {% endblock %}
