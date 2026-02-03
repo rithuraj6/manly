@@ -12,7 +12,7 @@ from django.core.paginator import Paginator
 from apps.accounts.models import UserProfile, UserAddress
 from apps.sizeguide.models import SizeGuide
 from .utils import send_otp
-from .validators import only_letters_validator, only_numbers_validator ,validate_email_strict ,validate_password_strict,validate_phone_number ,name_with_spaces_max10
+from .validators import only_letters_validator, only_numbers_validator ,validate_email_strict ,validate_password_strict,validate_phone_number ,name_with_spaces_max10,street_field_validator
 from apps.accounts.validators import (
     name_with_spaces_max10,
     alphabets_only_field,
@@ -473,6 +473,7 @@ def address(request):
     
     MAX_ADDRESSES=3
     can_add_address = addresses.count() < MAX_ADDRESSES
+   
     
     
 
@@ -524,6 +525,11 @@ def validate_only_numbers(fields_dict):
 
 @user_required
 def address_add(request):
+    
+    MAX_ADDRESSES = 3
+    if UserAddress.objects.filter(user=request.user).count() >= MAX_ADDRESSES:
+        messages.error(request, "You can add only up to 3 addresses.")
+        return redirect("account_addresses")
   
     
     breadcrumbs = [
@@ -562,9 +568,7 @@ def address_add(request):
            
             country=alphabets_only_field(data["country"],"Country")
             
-            street = data["street"].strip()
-            if not street:
-                raise ValidationError("street  is required")
+            street = street_field_validator(data["street"])
             
             phone = numbers_only_field(data["phone"],"Phone number",10)
             pincode = numbers_only_field(data["pincode"],"Pincode",6)
@@ -581,7 +585,7 @@ def address_add(request):
             user=request.user,
             full_name=full_name,
             house_name=data["house_name"].strip(),
-            street= data["street"].strip(),
+            street=street,  
             land_mark=data['landmark'].strip(),
             city=city,
             state=state,
@@ -643,9 +647,9 @@ def address_edit(request, address_uuid):
             street = request.POST.get("street", "").strip()
             if not street:
                 raise ValidationError("Street is required")
-            address.street = street
-
-
+            
+            address.street = street_field_validator(street)
+            
 
             phone = request.POST.get("phone")
             if phone:

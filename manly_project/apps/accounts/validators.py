@@ -150,3 +150,22 @@ def validate_phone_number(value : str):
         raise ValidationError("Phone number must be exactly 10")
     
     return value  
+
+def street_field_validator(value :str):
+    value = value.strip()
+    
+    if not value:
+        raise ValidationError("Street is required")
+    if len(value)<3:
+        raise ValidationError("Street is  too short")
+    
+    if len(value)>225:
+        raise ValidationError("Street is too long")
+    
+    pattern =  r'^[A-Za-z0-9\s,./#-]+$'
+    if not re.match(patter,value):
+        raise ValidationError(
+            "Street contain invalid characters"
+        )
+        
+    return value
