@@ -41,12 +41,13 @@ def admin_add_category(request):
         except ValidationError as e :
             messages.error(request, e.message)
             return render(request,"adminpanel/categories/category_form.html",
-                          {"category":category}
+                          {"name":name}
                           )
 
         if Category.objects.filter(name__iexact=name).exists():
+            messages.error(request, "Category already exists")
             return render(request, "adminpanel/categories/category_form.html",
-                          {"category":category}
+                          {"name":name}
                           
                           
                           )
