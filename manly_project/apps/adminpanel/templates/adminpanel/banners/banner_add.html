@@ -89,8 +89,10 @@
                             <span class="upload-text">Click to upload or drag and drop</span>
                             <span class="upload-hint">PNG, JPG, JPEG (Max 5MB)</span>
                         </label>
-                        <div class="image-preview" id="imagePreview"></div>
-                    </div>
+                      <div class="image-preview" id="imagePreview">
+                            <img id="cropperImage" style="max-width:100%; display:none;">
+                        </div>
+                      </div>
                     <small class="form-hint">Recommended size: 1920x550px for best results</small>
                 </div>
             </div>
@@ -469,40 +471,53 @@
     }
 }
 </style>
-
+<script src="https://unpkg.com/cropperjs/dist/cropper.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const fileInput = document.getElementById('bannerImage');
-    const imagePreview = document.getElementById('imagePreview');
-    const uploadLabel = document.querySelector('.file-upload-label');
-    
-    fileInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                imagePreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
-                imagePreview.classList.add('show');
-                uploadLabel.style.display = 'none';
-            };
-            reader.readAsDataURL(file);
-        }
-    });
+let cropper;
+document.querySelector('.banner-form').addEventListener('submit', function (e) {
+    if (!cropper) return;
 
-    // Form validation
-    const form = document.querySelector('.banner-form');
-    form.addEventListener('submit', function(e) {
-        const submitBtn = form.querySelector('.btn-primary');
-        submitBtn.innerHTML = `
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation: spin 1s linear infinite;">
-                <circle cx="12" cy="12" r="10"></circle>
-            </svg>
-            Saving...
-        `;
-        submitBtn.disabled = true;
+    e.preventDefault();
+
+    cropper.getCroppedCanvas({
+        width: 1920,
+        height: 550
+    }).toBlob(blob => {
+        const fileInput = document.getElementById('bannerImage');
+        const croppedFile = new File([blob], "banner.jpg", { type: "image/jpeg" });
+
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(croppedFile);
+        fileInput.files = dataTransfer.files;
+
+        e.target.submit();
     });
 });
 
+document.getElementById('bannerImage').addEventListener('change', function (e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const image = document.getElementById('cropperImage');
+    const preview = document.getElementById('imagePreview');
+    const reader = new FileReader();
+
+    reader.onload = function (event) {
+        image.src = event.target.result;
+        image.style.display = 'block';
+        preview.classList.add('show');
+
+        if (cropper) cropper.destroy();
+
+        cropper = new Cropper(image, {
+            aspectRatio: 1920 / 550,
+            viewMode: 2,
+            autoCropArea: 1,
+        });
+    };
+
+    reader.readAsDataURL(file);
+});
 @keyframes spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
