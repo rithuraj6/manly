@@ -1,3 +1,5 @@
+from django.core.exceptions import ValidationError
+from apps.accounts.validators import name_with_spaces_validator
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.core.paginator import Paginator
@@ -49,6 +51,19 @@ def admin_add_product(request):
     if request.method == "POST":
         is_featured = request.POST.get("is_featured") == "on"
         
+        name = request.POST.get("name", "").strip()
+        description = request.POST.get("description","")
+        categroy_id = request.POST.get("category")
+        
+        try:
+            name_with_spaces_validator(name,field_name="Product_name")
+        except ValidationError as e:
+            messages.error(request, e.message)
+            return render(request,"adminpanel/products/product_edit.html",{
+                "categories":categories,
+                'value':request.POST,
+            },
+                          )        
         try:
             price = validate_product_price(request.POST.get('price'))
             
@@ -96,6 +111,20 @@ def admin_edit_product(request, product_uuid):
         product.description = request.POST.get("description")
        
         product.category_id = request.POST.get("category")
+        
+        try:
+            name_with_spaces_validator(name,field_name="Product name")
+        except ValidationError as e:
+            messages.error(request,e.message)
+            return render(request,"adminpanle/products/product_edit.html",
+                          {
+                              "Product":product,
+                              "variants":variants,
+                              "categores":categories,
+                              "images":images,
+                    
+                          },
+                          )
         
         
         try:
