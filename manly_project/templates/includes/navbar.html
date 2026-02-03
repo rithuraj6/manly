@@ -15,6 +15,11 @@
             <span class="logo-subtitle">MANLY APPAREL STORE</span>
         </a>
 
+        <button class="navbar-toggle" aria-label="Toggle menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
 
         <div class="navbar-menu">
             <a href="{% url 'home' %}" class="nav-link">Home</a>
@@ -23,414 +28,764 @@
             <a href="{% url 'about' %}" class="nav-link">About Us</a>
         </div>
 
-
-  
-                    <div class="navbar-icons">
-
-                
-
-                        <a href="{% url 'account_profile' %}" class="nav-icon" title="Profile">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="12" cy="7" r="4"></circle>
-                            </svg>
-                        </a>
-                        <a href="{% url 'wishlist_page' %}" class="nav-icon" title="Wishlist">
-                            
-                                <svg width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                                    <line x1="3" y1="6" x2="21" y2="6"></line>
-                                    <path d="M16 10a4 4 0 0 1-8 0"></path>
-                                </svg>
-
-                            <span class="wishlist-count"
-                                {% if wishlist_count == 0 %}style="display:none"{% endif %}>
-                                {{ wishlist_count }}
-                            </span>
-                        </a>
-                        <a href="{% url 'cart_page' %}" class="nav-icon" title="Cart">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2">
-                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                                <line x1="3" y1="6" x2="21" y2="6"></line>
-                                <path d="M16 10a4 4 0 0 1-8 0"></path>
-                            </svg>
-                            
-
-                            <span class="cart-count"
-                            {% if cart_count == 0 %}style ="display:none"{% endif%}> 
-                                {{ cart_count }}</span>
-
-                                
-
-                        </a>
-                    </div>
-
+        <div class="navbar-icons">
+            <a href="{% url 'account_profile' %}" class="nav-icon" title="Profile">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+            </a>
             
- 
+            <a href="{% url 'wishlist_page' %}" class="nav-icon" title="Wishlist">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+                <span class="wishlist-count" {% if wishlist_count == 0 %}style="display:none"{% endif %}>
+                    {{ wishlist_count }}
+                </span>
+            </a>
+            
+            <a href="{% url 'cart_page' %}" class="nav-icon" title="Cart">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <path d="M16 10a4 4 0 0 1-8 0"></path>
+                </svg>
+                <span class="cart-count" {% if cart_count == 0 %}style="display:none"{% endif %}> 
+                    {{ cart_count }}
+                </span>
+            </a>
+        </div>
     </div> 
 </nav>
-            {% if breadcrumbs %}
-                <div class="breadcrumbs-wrapper">
-                    <nav class="breadcrumbs">
-                        {% for crumb in breadcrumbs %}
-                            {% if crumb.url %}
-                                <a href="{{ crumb.url }}">{{ crumb.label }}</a>
-                                <span>/</span>
-                            {% else %}
-                                <span class="current">{{ crumb.label }}</span>
-                            {% endif %}
-                        {% endfor %}
-                    </nav>
-                </div>
-            {% endif %}
 
-
-
+{% if breadcrumbs %}
+<div class="breadcrumbs-wrapper">
+    <div class="container">
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+            {% for crumb in breadcrumbs %}
+                {% if crumb.url %}
+                    <a href="{{ crumb.url }}">{{ crumb.label }}</a>
+                    {% if not forloop.last %}<span class="breadcrumb-separator">/</span>{% endif %}
+                {% else %}
+                    <span class="current">{{ crumb.label }}</span>
+                {% endif %}
+            {% endfor %}
+        </nav>
+    </div>
+</div>
+{% endif %}
 
 <style>
 /* ==========================================
-   RESPONSIVE NAVBAR STYLES
+   RESET & BASE STYLES
    ========================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-/* Base Navbar Styles */
-.navbar {
+/* ==========================================
+   CONTAINER
+   ========================================== */
+.container {
     width: 100%;
-    background-color: #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 clamp(16px, 4vw, 40px);
+}
+
+/* ==========================================
+   NAVBAR STYLES
+   ========================================== */
+.navbar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: clamp(12px, 2vh, 20px) 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(8, 7, 7, 0.1);
     position: sticky;
     top: 0;
     z-index: 1000;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0);
+    animation: fadeInDown 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.navbar-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0.75rem 1.5rem;
+.navbar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #ff6b6b, transparent);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.navbar.scrolled {
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.08);
+}
+
+.navbar.scrolled::before {
+    opacity: 1;
+}
+
+/* Navbar Inner Container */
+.navbar-inner {
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
+    gap: clamp(12px, 3vw, 32px);
 }
 
-/* Brand/Logo */
-.navbar-brand {
-    font-size: clamp(1.1rem, 2.5vw, 1.5rem);
-    font-weight: 700;
-    color: #1a1a1a;
-    text-decoration: none;
-    white-space: nowrap;
-    letter-spacing: 0.5px;
-}
-
-.navbar-brand:hover {
-    color: #333;
-}
-
-/* Navigation Links */
-.navbar-nav {
+/* ==========================================
+   LOGO SECTION
+   ========================================== */
+.navbar-logo {
     display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-decoration: none;
+    gap: 2px;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.navbar-logo::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,107,107,0.1), transparent);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+}
+
+.navbar-logo:hover::after {
+    width: 120%;
+    height: 120%;
+}
+
+.navbar-logo svg {
+    width: clamp(56px, 10vw, 80px);
+    height: clamp(56px, 10vw, 80px);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(0 0 0 transparent);
+    position: relative;
+    z-index: 1;
+}
+
+.navbar-logo:hover svg {
+    transform: scale(1.08) rotate(2deg);
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+}
+
+.logo-subtitle {
+    font-size: clamp(7px, 1.2vw, 10px);
+    letter-spacing: clamp(1px, 0.3vw, 2px);
+    color: #666;
+    font-weight: 500;
+    margin-top: -5px;
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.navbar-logo:hover .logo-subtitle {
+    letter-spacing: clamp(1.5px, 0.4vw, 2.5px);
+    color: #ff6b6b;
+}
+
+/* ==========================================
+   MOBILE MENU TOGGLE
+   ========================================== */
+.navbar-toggle {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    padding: 10px;
+    background: none;
+    border: none;
+    position: relative;
+    z-index: 10;
+    order: 2;
+}
+
+.navbar-toggle span {
+    width: 25px;
+    height: 2px;
+    background: #1a1a1a;
+    transition: all 0.3s ease;
+    transform-origin: center;
+    display: block;
+}
+
+.navbar-toggle:hover span {
+    background: #ff6b6b;
+}
+
+.navbar-toggle.active span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+
+.navbar-toggle.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.navbar-toggle.active span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+}
+
+/* ==========================================
+   NAVIGATION MENU
+   ========================================== */
+.navbar-menu {
+    display: flex;
+    gap: clamp(20px, 4vw, 40px);
     align-items: center;
-    gap: clamp(1rem, 3vw, 2.5rem);
-    list-style: none;
-    margin: 0;
-    padding: 0;
+    flex: 1;
+    justify-content: center;
 }
 
 .nav-link {
-    color: #333;
-    text-decoration: none;
-    font-size: clamp(0.875rem, 1.5vw, 1rem);
+    font-size: clamp(14px, 1.8vw, 16px);
     font-weight: 500;
-    padding: 0.5rem 0.75rem;
-    transition: color 0.3s ease;
+    color: #1a1a1a;
+    text-decoration: none;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 8px 0;
+    overflow: hidden;
     white-space: nowrap;
 }
 
-.nav-link:hover {
-    color: #000;
+.nav-link::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #ff6b6b, #eb1e1bff);
+    transform: translateX(-50%);
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Icons Section */
+.nav-link::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,107,107,0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.nav-link:hover {
+    color: #ff6b6b;
+    transform: translateY(-2px);
+}
+
+.nav-link:hover::before {
+    width: 100%;
+}
+
+.nav-link:hover::after {
+    left: 100%;
+}
+
+.nav-link.active {
+    font-weight: 600;
+    color: #ff6b6b;
+}
+
+.nav-link.active::before {
+    width: 100%;
+}
+
+/* ==========================================
+   NAVBAR ICONS
+   ========================================== */
 .navbar-icons {
     display: flex;
+    gap: clamp(14px, 2.5vw, 24px);
     align-items: center;
-    gap: clamp(0.75rem, 2vw, 1.5rem);
+    flex-shrink: 0;
 }
 
-.icon-link {
-    position: relative;
-    color: #333;
-    text-decoration: none;
+.nav-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.5rem;
-    transition: color 0.3s ease;
+    color: #1a1a1a;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+    position: relative;
+    padding: clamp(6px, 1.2vw, 10px);
+    border-radius: 50%;
 }
 
-.icon-link:hover {
-    color: #000;
-}
-
-.icon-link i {
-    font-size: clamp(1.1rem, 2.5vw, 1.4rem);
-}
-
-/* Icon Badge/Count */
-.icon-badge {
+.nav-icon::before {
+    content: '';
     position: absolute;
-    top: 0;
-    right: 0;
-    background-color: #e74c3c;
-    color: white;
-    font-size: clamp(0.625rem, 1.2vw, 0.75rem);
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,107,107,0.15), transparent);
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.4s ease;
+}
+
+.nav-icon:hover::before {
+    transform: translate(-50%, -50%) scale(1.5);
+}
+
+.nav-icon:hover {
+    transform: translateY(-3px) scale(1.1);
+    color: #ff6b6b;
+}
+
+.nav-icon:active {
+    transform: translateY(-1px) scale(0.95);
+}
+
+.nav-icon svg {
+    width: clamp(20px, 3vw, 24px);
+    height: clamp(20px, 3vw, 24px);
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+
+.nav-icon:hover svg {
+    stroke-width: 2.5;
+    filter: drop-shadow(0 2px 4px rgba(255,107,107,0.3));
+}
+
+/* Icon Animations */
+.nav-icon[title="Wishlist"]:hover svg path {
+    animation: heartbeat 0.6s ease;
+}
+
+.nav-icon[title="Cart"]:hover svg {
+    animation: shake 0.5s ease;
+}
+
+/* ==========================================
+   BADGES (Wishlist & Cart Count)
+   ========================================== */
+.wishlist-count,
+.cart-count {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    min-width: clamp(16px, 2.5vw, 20px);
+    height: clamp(16px, 2.5vw, 20px);
+    background: linear-gradient(135deg, #ff6b6b, #eb1e1bff);
+    color: #fff;
+    font-size: clamp(9px, 1.5vw, 12px);
     font-weight: 600;
-    padding: 0.15rem 0.35rem;
-    border-radius: 10px;
-    min-width: 18px;
-    height: 18px;
+    border-radius: 50%;
+    padding: 0 clamp(3px, 0.6vw, 5px);
     display: flex;
     align-items: center;
     justify-content: center;
     line-height: 1;
+    animation: pulse 2s infinite;
+    box-shadow: 0 0 0 0 rgba(235, 30, 27, 0.7);
 }
 
-/* Breadcrumbs */
-.breadcrumb-container {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #e0e0e0;
-    padding: 0.75rem 1.5rem;
+.cart-count:empty,
+.cart-count[data-count="0"],
+.wishlist-count:empty,
+.wishlist-count[data-count="0"] {
+    display: none !important;
 }
 
-.breadcrumb {
-    max-width: 1400px;
-    margin: 0 auto;
+/* ==========================================
+   BREADCRUMBS
+   ========================================== */
+.breadcrumbs-wrapper {
+    background: linear-gradient(to bottom, #fafafa, #ffffff);
+    border-bottom: 1px solid #e8e8e8;
+    padding: clamp(8px, 1.5vh, 12px) 0;
+}
+
+.breadcrumbs {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.5rem;
-    list-style: none;
-    padding: 0;
-    font-size: clamp(0.8rem, 1.5vw, 0.9rem);
+    gap: clamp(6px, 1vw, 10px);
+    color: #777;
+    font-size: clamp(11px, 1.6vw, 14px);
 }
 
-.breadcrumb-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.breadcrumb-item a {
-    color: #666;
+.breadcrumbs a {
+    color: #777;
     text-decoration: none;
-    transition: color 0.3s ease;
+    transition: all 0.3s ease;
+    position: relative;
+    padding: 2px 0;
 }
 
-.breadcrumb-item a:hover {
-    color: #000;
-    text-decoration: underline;
+.breadcrumbs a:hover {
+    color: #ff6b6b;
 }
 
-.breadcrumb-item.active {
-    color: #333;
-    font-weight: 500;
+.breadcrumbs a::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: linear-gradient(90deg, #ff6b6b, #eb1e1bff);
+    transition: width 0.3s ease;
+}
+
+.breadcrumbs a:hover::before {
+    width: 100%;
 }
 
 .breadcrumb-separator {
-    color: #999;
+    color: #ccc;
     user-select: none;
+    margin: 0 clamp(2px, 0.5vw, 4px);
 }
 
-/* Mobile Menu Toggle (Hidden by default, shown on mobile) */
-.mobile-menu-toggle {
-    display: none;
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: #333;
-    cursor: pointer;
-    padding: 0.5rem;
+.breadcrumbs .current {
+    color: #ff6b6b;
+    font-weight: 500;
+    text-shadow: 0 0 8px rgba(255,107,107,0.35);
+    animation: glow 2s ease-in-out infinite;
 }
 
-.mobile-menu-toggle:hover {
-    color: #000;
+/* ==========================================
+   ANIMATIONS
+   ========================================== */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(235, 30, 27, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 8px rgba(235, 30, 27, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(235, 30, 27, 0);
+    }
+}
+
+@keyframes glow {
+    0%, 100% {
+        text-shadow: 0 0 8px rgba(255,107,107,0.35);
+    }
+    50% {
+        text-shadow: 0 0 12px rgba(255,107,107,0.6);
+    }
+}
+
+@keyframes heartbeat {
+    0%, 100% {
+        transform: scale(1);
+    }
+    25% {
+        transform: scale(1.2);
+    }
+    50% {
+        transform: scale(1);
+    }
+    75% {
+        transform: scale(1.15);
+    }
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-3px);
+    }
+    75% {
+        transform: translateX(3px);
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        max-height: 500px;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pop {
+    0% {
+        transform: scale(0.8);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 /* ==========================================
    RESPONSIVE BREAKPOINTS
    ========================================== */
 
-/* Tablets and below (1024px) */
-@media screen and (max-width: 1024px) {
-    .navbar-container {
-        padding: 0.75rem 1rem;
+/* Tablets (1024px and below) */
+@media (max-width: 1024px) {
+    .navbar-menu {
+        gap: 28px;
     }
     
-    .navbar-nav {
-        gap: clamp(0.75rem, 2vw, 1.5rem);
-    }
-    
-    .breadcrumb-container {
-        padding: 0.5rem 1rem;
+    .nav-link {
+        font-size: 15px;
     }
 }
 
-/* Small Tablets (768px) */
-@media screen and (max-width: 768px) {
-    .navbar-container {
-        flex-wrap: wrap;
-        padding: 0.5rem 1rem;
+/* Small Tablets & Large Phones (768px and below) */
+@media (max-width: 768px) {
+    .navbar-toggle {
+        display: flex;
     }
     
-    .navbar-nav {
+    .navbar-inner {
+        flex-wrap: wrap;
+        position: relative;
+    }
+    
+    .navbar-logo {
+        order: 1;
+    }
+    
+    .navbar-toggle {
+        order: 2;
+        margin-left: auto;
+    }
+    
+    .navbar-icons {
         order: 3;
+    }
+    
+    .navbar-menu {
+        order: 4;
         width: 100%;
         flex-direction: column;
         gap: 0;
-        display: none; /* Hidden by default on mobile */
+        display: none;
         background-color: #fff;
-        padding: 1rem 0;
-        border-top: 1px solid #e0e0e0;
-        margin-top: 0.5rem;
+        padding: 0;
+        margin-top: 16px;
+        border-top: 1px solid #f0f0f0;
+        border-radius: 8px;
+        overflow: hidden;
     }
     
-    .navbar-nav.active {
-        display: flex; /* Show when mobile menu is active */
+    .navbar-menu.active {
+        display: flex;
+        animation: slideDown 0.4s ease;
     }
     
     .nav-link {
         width: 100%;
-        padding: 0.75rem 1rem;
-        border-bottom: 1px solid #f0f0f0;
+        padding: 16px 20px;
+        font-size: 16px;
+        border-bottom: 1px solid #f5f5f5;
+        text-align: left;
     }
     
-    .navbar-icons {
-        order: 2;
+    .nav-link:last-child {
+        border-bottom: none;
     }
     
-    .navbar-brand {
-        order: 1;
-        flex: 1;
+    .nav-link::before,
+    .nav-link::after {
+        display: none;
     }
     
-    .mobile-menu-toggle {
-        display: block;
-        order: 2;
+    .nav-link:hover {
+        background-color: #fff5f5;
+        transform: translateY(0);
+        padding-left: 24px;
     }
     
-    .breadcrumb-container {
-        padding: 0.5rem 0.75rem;
-    }
-    
-    .breadcrumb {
-        font-size: 0.75rem;
+    .breadcrumbs {
+        font-size: 12px;
     }
 }
 
-/* Mobile Phones (480px) */
-@media screen and (max-width: 480px) {
-    .navbar-container {
-        padding: 0.5rem 0.75rem;
-        gap: 0.5rem;
+/* Mobile Phones (480px and below) */
+@media (max-width: 480px) {
+    .navbar {
+        padding: 12px 0;
     }
     
-    .navbar-brand {
-        font-size: 1rem;
+    .navbar-logo svg {
+        width: 56px;
+        height: 56px;
+    }
+    
+    .logo-subtitle {
+        font-size: 7px;
+        letter-spacing: 1px;
     }
     
     .navbar-icons {
-        gap: 0.5rem;
+        gap: 10px;
     }
     
-    .icon-link {
-        padding: 0.25rem;
+    .nav-icon {
+        padding: 8px;
     }
     
-    .icon-link i {
-        font-size: 1.1rem;
+    .nav-icon svg {
+        width: 20px;
+        height: 20px;
     }
     
-    .icon-badge {
-        font-size: 0.6rem;
+    .wishlist-count,
+    .cart-count {
         min-width: 16px;
         height: 16px;
-        padding: 0.1rem 0.25rem;
+        font-size: 9px;
+        top: -4px;
+        right: -4px;
     }
     
-    .breadcrumb-container {
-        padding: 0.4rem 0.75rem;
+    .nav-link {
+        font-size: 15px;
+        padding: 14px 16px;
     }
     
-    .breadcrumb {
-        font-size: 0.7rem;
-        gap: 0.35rem;
+    .breadcrumbs {
+        font-size: 11px;
+        gap: 6px;
+    }
+    
+    .breadcrumb-separator {
+        margin: 0 2px;
     }
 }
 
-/* Very Small Screens (360px) */
-@media screen and (max-width: 360px) {
-    .navbar-container {
-        padding: 0.4rem 0.5rem;
+/* Very Small Phones (360px and below) */
+@media (max-width: 360px) {
+    .navbar-logo svg {
+        width: 50px;
+        height: 50px;
     }
     
-    .navbar-brand {
-        font-size: 0.9rem;
+    .logo-subtitle {
+        font-size: 6px;
     }
     
-    .icon-link i {
-        font-size: 1rem;
+    .navbar-icons {
+        gap: 8px;
     }
     
-    .breadcrumb {
-        font-size: 0.65rem;
+    .nav-icon {
+        padding: 6px;
+    }
+    
+    .breadcrumbs {
+        font-size: 10px;
     }
 }
 
-/* ==========================================
-   UTILITY CLASSES
-   ========================================== */
-
-.text-truncate {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+/* Landscape Mobile Optimization */
+@media (max-height: 500px) and (orientation: landscape) {
+    .navbar {
+        padding: 8px 0;
+    }
+    
+    .navbar-logo svg {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .nav-link {
+        padding: 10px 16px;
+    }
 }
 
-.sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border-width: 0;
-}
-
-/* Smooth transitions for responsive changes */
-* {
-    box-sizing: border-box;
-}
-
-.navbar-container,
-.navbar-nav,
-.navbar-icons {
-    transition: all 0.3s ease;
+/* Print Styles */
+@media print {
+    .navbar {
+        position: relative;
+        box-shadow: none;
+    }
+    
+    .navbar-toggle,
+    .navbar-icons {
+        display: none;
+    }
+    
+    .navbar-menu {
+        display: flex !important;
+    }
 }
 </style>
 
 <script>
+// Update navbar wishlist count
 window.updateNavbarWishlistCount = function (count) {
     const badge = document.querySelector(".wishlist-count");
     if (!badge) return;
-
     badge.innerText = count;
     badge.style.display = count > 0 ? "flex" : "none";
 };
-// Add scroll effect to navbar
+
+// Update navbar cart count
+window.updateNavbarCartCount = function (count) {
+    const badge = document.querySelector(".cart-count");
+    if (!badge) return;
+    badge.innerText = count;
+    badge.style.display = count > 0 ? "flex" : "none";
+    
+    if (count > 0) {
+        badge.style.animation = 'none';
+        setTimeout(() => {
+            badge.style.animation = 'pulse 2s infinite, pop 0.3s ease';
+        }, 10);
+    }
+};
+
+// Navbar scroll effect
 window.addEventListener('scroll', function() {
     const navbar = document.querySelector('.navbar');
     if (window.scrollY > 50) {
@@ -440,18 +795,39 @@ window.addEventListener('scroll', function() {
     }
 });
 
-// Mobile menu toggle
+// DOM Ready
 document.addEventListener('DOMContentLoaded', function() {
+    // Mobile menu toggle
     const toggle = document.querySelector('.navbar-toggle');
     const menu = document.querySelector('.navbar-menu');
     
-    if (toggle) {
-        toggle.addEventListener('click', function() {
+    if (toggle && menu) {
+        toggle.addEventListener('click', function(e) {
+            e.stopPropagation();
             menu.classList.toggle('active');
             toggle.classList.toggle('active');
         });
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!menu.contains(event.target) && !toggle.contains(event.target)) {
+                menu.classList.remove('active');
+                toggle.classList.remove('active');
+            }
+        });
+        
+        // Close menu on link click (mobile)
+        const navLinks = menu.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                if (window.innerWidth <= 768) {
+                    menu.classList.remove('active');
+                    toggle.classList.remove('active');
+                }
+            });
+        });
     }
-
+    
     // Set active link based on current page
     const currentPath = window.location.pathname;
     const navLinks = document.querySelectorAll('.nav-link');
@@ -461,50 +837,16 @@ document.addEventListener('DOMContentLoaded', function() {
             link.classList.add('active');
         }
     });
-
-    // Add stagger animation to nav links
+    
+    // Stagger animation for nav links
     navLinks.forEach((link, index) => {
         link.style.animation = `fadeInDown 0.5s ease ${index * 0.1}s backwards`;
     });
-
+    
     // Icon entrance animation
     const icons = document.querySelectorAll('.nav-icon');
     icons.forEach((icon, index) => {
         icon.style.animation = `fadeInDown 0.5s ease ${0.3 + index * 0.1}s backwards`;
     });
 });
-
-// ✅ FIX: Function in same script block
-window.updateNavbarCartCount = function (count) {
-    const badge = document.querySelector(".cart-count");
-    if (!badge) return;
-
-    badge.innerText = count;
-    badge.style.display = count > 0 ? "flex" : "none";
-    
-    // Add pop animation when count updates
-    if (count > 0) {
-        badge.style.animation = 'none';
-        setTimeout(() => {
-            badge.style.animation = 'pulse 2s infinite, pop 0.3s ease';
-        }, 10);
-    }
-};
-
-// Pop animation for cart badge
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes pop {
-        0% {
-            transform: scale(0.8);
-        }
-        50% {
-            transform: scale(1.2);
-        }
-        100% {
-            transform: scale(1);
-        }
-    }
-`;
-document.head.appendChild(style);
 </script>
