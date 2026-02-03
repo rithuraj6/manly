@@ -13,8 +13,8 @@
             <input type="password" name="password" placeholder="Password" required>
 
             <div class="auth-links-inline">
-                <a href="{% url 'signup' %}">Signup</a>
-                <a href="{% url 'forgot_password' %}">Forget Password?</a>
+                <a href="{% url 'signup' %}" class="signup-btn" >Signup</a>
+                <a href="{% url 'forgot_password' %}" class="forgot-link">Forget Password?</a>
             </div>
 
             <button type="submit">Login</button>
@@ -38,20 +38,37 @@
 </div>
 
 <style>
+.auth-links-inline {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-.signup-btn {
-    padding: 6px 14px;
-    font-size: 12px;
-    border: 1.5px solid #1a1a1a;
+.auth-links-inline .signup-btn {
+    padding: 6px 10px;
+    font-size: 11px;
+    background: #333333cb;
     border-radius: 20px;
-    color: #1a1a1a;
+    color: #ffffff !important;
     text-decoration: none;
+    font-weight: 505;
     transition: all 0.3s ease;
 }
 
-.signup-btn:hover {
-    background: #1a1a1a;
-    color: #fff;
+.auth-links-inline .signup-btn:hover {
+    background: #d60101;
+    color: #ffffff !important;
+}
+
+.auth-links-inline .forgot-link {
+    font-size: 13px;
+    color: #0131b6 !important;
+    text-decoration: underline;
+    transition: all 0.3s ease;
+}
+
+.auth-links-inline .forgot-link:hover {
+    color: #0d34e4 !important;
 }
 
 /* Page-specific styles */
@@ -104,7 +121,7 @@
 .auth-card input:nth-of-type(2) { animation-delay: 0.2s; }
 
 .auth-card input::placeholder {
-    color: #666;
+    color: #575757;
 }
 
 .auth-card input:focus {
@@ -113,22 +130,8 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
-.auth-links-inline {
-    display: flex;
-    justify-content: space-between;
-    margin: -10px 0 10px;
-}
 
-.auth-links-inline a {
-    font-size: 13px;
-    color: #1a1a1a;
-    text-decoration: underline;
-    transition: opacity 0.3s ease;
-}
 
-.auth-links-inline a:hover {
-    opacity: 0.7;
-}
 
 .auth-card button[type="submit"] {
     margin-top: 10px;
