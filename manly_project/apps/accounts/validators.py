@@ -163,7 +163,7 @@ def street_field_validator(value :str):
         raise ValidationError("Street is too long")
     
     pattern =  r'^[A-Za-z0-9\s,./#-]+$'
-    if not re.match(patter,value):
+    if not re.match(pattern,value):
         raise ValidationError(
             "Street contain invalid characters"
         )
