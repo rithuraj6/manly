@@ -1,3 +1,4 @@
+from apps.accounts.validators import coupon_code_validator
 from django.shortcuts import render, redirect, get_object_or_404
 from apps.accounts.decorators import admin_required
 
@@ -43,6 +44,8 @@ def toggle_coupon_status(request,coupon_uuid):
 @admin_required
 def add_coupon(request):
     if request.method == "POST":
+        
+        
         try:
             valid_from_str = request.POST.get("valid_from")
             valid_to_str = request.POST.get("valid_to")
@@ -50,9 +53,12 @@ def add_coupon(request):
             if not valid_from_str or not valid_to_str:
                 messages.error(request, "Valid From and Valid To dates are required")
                 return render(request, "adminpanel/coupons/coupon_add.html")
+            
+            code = request.POST.get("code","").strip().upper()
+            coupon_code_validator(code)
 
             coupon = Coupon(
-                code=request.POST.get("code").strip().upper(),
+                code=code,
                 discount_type=request.POST.get("discount_type"),
                 discount_value=request.POST.get("discount_value"),
                 min_purchase_amount=request.POST.get("min_purchase_amount") or 0,
@@ -69,7 +75,7 @@ def add_coupon(request):
             return redirect("admin_coupon_list")
 
         except ValidationError as e:
-            messages.error(request, e.messages[0])
+            messages.error(request, e.message)
 
         except Exception as e:
             messages.error(request, f"Error: {e}")

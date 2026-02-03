@@ -1,3 +1,4 @@
+from apps.accounts.validators import offer_name_validator
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.utils import timezone
@@ -20,16 +21,6 @@ def make_aware_date(date_str):
 
 
 
-@admin_required
-def offer_list(request):
-    
-    offers = Offer.objects.select_related(
-        "product","category"
-        
-    ).order_by('-created_at')
-    
-    
-    return render(request,'adminpanel/offers/offer_list.html',{'offers':offers},)
 
 
 
@@ -47,6 +38,15 @@ def offer_add(request):
         start_date = request.POST.get("start_date")
         end_date = request.POST.get("end_date")
         is_active = bool(request.POST.get("is_active"))
+        
+        try:
+            offer_name_validator(name)
+        except ValidationError as e:
+            message.error(request,e.message)
+            return redirect("admin_offer_add")
+        
+        
+        
 
        
         if not discount_raw:
@@ -150,6 +150,13 @@ def offer_edit(request, offer_uuid):
         start_date = request.POST.get("start_date")
         end_date = request.POST.get("end_date")
         is_active = bool(request.POST.get("is_active"))
+        
+        
+        try:
+            offer_name_validator(name)
+        except ValidationError as e:
+            messages.error(request,e.message)
+            return redirect("admin_offer_edit",offer_uuid=offer.uuid)
 
        
         if product_id and category_id:
@@ -166,7 +173,7 @@ def offer_edit(request, offer_uuid):
             offer.save()
         except ValidationError as e:
             messages.error(request, e.message_dict or e.messages)
-            return redirect("admin_offer_edit", offer_id=offer.id)
+            return redirect("admin_offer_edit", offer_uuid=offer.uuid)
         offer.is_active = is_active
         offer.product_id = product_id or None
         offer.category_id = category_id or None

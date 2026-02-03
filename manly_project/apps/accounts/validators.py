@@ -169,3 +169,29 @@ def street_field_validator(value :str):
         )
         
     return value
+
+
+
+def offer_name_validatior(value : str,field_name="Offer name"):
+    if not value:
+        raise ValidationError(f"{field_name} is required")
+    
+    value = value.strip()
+    
+    pattern = r'^[A-Za-z0-9]+(?: [A-Za-z0-9]+)*$'
+    
+    if not re.match(pattern,value):
+        raise ValidationError(f"{field_name} can only contain letter and number!")
+    
+
+
+def coupon_code_validator(value: str,field_name= "Coupon code"):
+    if not value:
+        raise ValidationError(f"{field_name} is required")
+    
+    value = value.strip()
+    
+    pattern = r'^[A-Za-z0-9]+(?: [A-Za-z0-9]+)*$'
+    
+    if not re.match(pattern,value):
+        raise ValidationError(f"{field_name} can contain  only letters,numbers, and single  spaces.")
