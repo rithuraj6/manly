@@ -583,6 +583,13 @@
 @media (max-width: 768px) {
     .navbar-toggle {
         display: flex;
+        padding: 14px;
+        margin-right: 8px;
+    }
+    
+    .navbar-toggle span {
+        width: 28px;
+        height: 3px;
     }
     
     .navbar-inner {
@@ -601,6 +608,19 @@
     
     .navbar-icons {
         order: 3;
+        gap: 6px;
+    }
+    
+    /* Larger touch targets for icons */
+    .nav-icon {
+        padding: 14px;
+        min-width: 48px;
+        min-height: 48px;
+    }
+    
+    .nav-icon svg {
+        width: 26px !important;
+        height: 26px !important;
     }
     
     .navbar-menu {
@@ -615,6 +635,7 @@
         border-top: 1px solid #f0f0f0;
         border-radius: 8px;
         overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
     
     .navbar-menu.active {
@@ -622,12 +643,16 @@
         animation: slideDown 0.4s ease;
     }
     
+    /* Much larger touch targets for nav links */
     .nav-link {
         width: 100%;
-        padding: 16px 20px;
-        font-size: 16px;
+        padding: 20px 24px;
+        font-size: 17px;
         border-bottom: 1px solid #f5f5f5;
         text-align: left;
+        min-height: 56px;
+        display: flex;
+        align-items: center;
     }
     
     .nav-link:last-child {
@@ -639,10 +664,38 @@
         display: none;
     }
     
-    .nav-link:hover {
+    .nav-link:hover,
+    .nav-link:active {
         background-color: #fff5f5;
         transform: translateY(0);
-        padding-left: 24px;
+        padding-left: 28px;
+    }
+    
+    /* Active/tap state for better mobile feedback */
+    .nav-link:active {
+        background-color: #ffe5e5;
+    }
+    
+    .nav-icon:active {
+        transform: scale(0.92);
+        background-color: rgba(255, 107, 107, 0.1);
+    }
+    
+    .navbar-toggle:active {
+        background-color: rgba(255, 107, 107, 0.1);
+    }
+    
+    /* Bigger tap area for breadcrumbs */
+    .breadcrumbs a {
+        padding: 8px 4px;
+        min-height: 36px;
+        display: inline-flex;
+        align-items: center;
+    }
+    
+    .breadcrumbs a:active {
+        background-color: rgba(255, 107, 107, 0.1);
+        border-radius: 4px;
     }
     
     .breadcrumbs {
@@ -653,9 +706,82 @@
 /* Mobile Phones (480px and below) */
 @media (max-width: 480px) {
     .navbar {
-        padding: 12px 0;
+        padding: 14px 0;
     }
     
+    .navbar-logo svg {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .logo-subtitle {
+        font-size: 8px;
+        letter-spacing: 1px;
+    }
+    
+    .navbar-icons {
+        gap: 4px;
+    }
+    
+    /* Extra large touch targets for small phones */
+    .nav-icon {
+        padding: 16px 12px;
+        min-width: 52px;
+        min-height: 52px;
+    }
+    
+    .nav-icon svg {
+        width: 28px !important;
+        height: 28px !important;
+    }
+    
+    .wishlist-count,
+    .cart-count {
+        min-width: 18px;
+        height: 18px;
+        font-size: 10px;
+        top: 2px;
+        right: 0;
+    }
+    
+    /* Larger nav links for easier tapping */
+    .nav-link {
+        font-size: 18px;
+        padding: 22px 20px;
+        min-height: 60px;
+    }
+    
+    .navbar-toggle {
+        padding: 16px 12px;
+        min-width: 52px;
+        min-height: 52px;
+    }
+    
+    .navbar-toggle span {
+        width: 30px;
+        height: 3px;
+    }
+    
+    .breadcrumbs {
+        font-size: 12px;
+        gap: 8px;
+    }
+    
+    .breadcrumb-separator {
+        margin: 0 3px;
+    }
+    
+    .breadcrumbs a,
+    .breadcrumbs .current {
+        padding: 6px 0;
+        min-height: 32px;
+        display: inline-flex;
+        align-items: center;
+    }
+}
+
+/* Very Small Phones (360px and below) */
+@media (max-width: 360px) {
     .navbar-logo svg {
         width: 56px;
         height: 56px;
@@ -663,67 +789,38 @@
     
     .logo-subtitle {
         font-size: 7px;
-        letter-spacing: 1px;
     }
     
     .navbar-icons {
-        gap: 10px;
+        gap: 2px;
     }
     
+    /* Maintain large touch targets even on tiny screens */
     .nav-icon {
-        padding: 8px;
+        padding: 14px 10px;
+        min-width: 50px;
+        min-height: 50px;
     }
     
     .nav-icon svg {
-        width: 20px;
-        height: 20px;
-    }
-    
-    .wishlist-count,
-    .cart-count {
-        min-width: 16px;
-        height: 16px;
-        font-size: 9px;
-        top: -4px;
-        right: -4px;
+        width: 26px !important;
+        height: 26px !important;
     }
     
     .nav-link {
-        font-size: 15px;
-        padding: 14px 16px;
+        font-size: 17px;
+        padding: 20px 18px;
+        min-height: 58px;
+    }
+    
+    .navbar-toggle {
+        padding: 14px 10px;
+        min-width: 50px;
+        min-height: 50px;
     }
     
     .breadcrumbs {
         font-size: 11px;
-        gap: 6px;
-    }
-    
-    .breadcrumb-separator {
-        margin: 0 2px;
-    }
-}
-
-/* Very Small Phones (360px and below) */
-@media (max-width: 360px) {
-    .navbar-logo svg {
-        width: 50px;
-        height: 50px;
-    }
-    
-    .logo-subtitle {
-        font-size: 6px;
-    }
-    
-    .navbar-icons {
-        gap: 8px;
-    }
-    
-    .nav-icon {
-        padding: 6px;
-    }
-    
-    .breadcrumbs {
-        font-size: 10px;
     }
 }
 
