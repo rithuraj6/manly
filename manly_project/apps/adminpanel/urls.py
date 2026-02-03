@@ -95,8 +95,8 @@ urlpatterns = [
     
     path("categories/", admin_category_list, name="admin_category_list"),
     path("categories/add/", admin_add_category, name="admin_add_category"),
-    path("categories/edit/<int:category_id>/", admin_edit_category, name="admin_edit_category"),
-    path("categories/toggle/<int:category_id>/", admin_toggle_category_status, name="admin_toggle_category"),
+    path("categories/edit/<uuid:category_uuid>/", admin_edit_category, name="admin_edit_category"),
+    path("categories/toggle/<uuid:category_uuid>/", admin_toggle_category_status, name="admin_toggle_category"),
     
     
     path("products/", admin_product_list, name="admin_product_list"),

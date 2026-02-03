@@ -1,8 +1,11 @@
+from django.core.exceptions import ValidationError
+from apps.accounts.validators import name_with_spaces_validator
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from django.contrib import messages
 from apps.categories.models import Category
 from apps.accounts.decorators import admin_required
+
 
 
 
@@ -32,6 +35,14 @@ def admin_category_list(request):
 def admin_add_category(request):
     if request.method == "POST":
         name = request.POST.get("name", "").strip()
+        
+        try:
+            name_with_spaces_validator(name,field_name="Category name")
+        except ValidationError as e :
+            return render(request,"adminpanel/categories/category_form.html",{
+                "error":e.message,
+                "value":name,
+            })
 
         if Category.objects.filter(name__iexact=name).exists():
             return render(request, "adminpanel/categories/category_form.html", {
@@ -47,13 +58,22 @@ def admin_add_category(request):
 
 
 @admin_required
-def admin_edit_category(request, category_id):
-    category = get_object_or_404(Category, id=category_id)
+def admin_edit_category(request, category_uuid):
+    category = get_object_or_404(Category, uuid=category_uuid)
 
     if request.method == "POST":
         name = request.POST.get("name", "").strip()
-
-        if Category.objects.filter(name__iexact=name).exclude(id=category.id).exists():
+        
+        try:
+            name_with_spaces_validator(name,field_name="Category_name")
+        except ValidationError as e :
+            return render(request,"adminpanel/categories/category_form.html",{
+                "error":e.message,
+                "category":category ,
+                
+            })
+            
+        if Category.objects.filter(name__iexact=name).exclude(uuid=category.uuid).exists():
             return render(request, "adminpanel/categories/category_form.html", {
                 "error": "Category already exists",
                 "category": category,
@@ -68,8 +88,8 @@ def admin_edit_category(request, category_id):
         "category": category
     })
 @admin_required
-def admin_toggle_category_status(request, category_id):
-    category = get_object_or_404(Category, id=category_id)
+def admin_toggle_category_status(request, category_uuid):
+    category = get_object_or_404(Category, uuid=category_uuid)
     category.is_active = not category.is_active
     category.save()
 
