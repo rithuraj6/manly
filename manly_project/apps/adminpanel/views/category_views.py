@@ -45,10 +45,11 @@ def admin_add_category(request):
                           )
 
         if Category.objects.filter(name__iexact=name).exists():
-            return render(request, "adminpanel/categories/category_form.html", {
-                "error": "Category already exists",
-                "value": name,
-            })
+            return render(request, "adminpanel/categories/category_form.html",
+                          {"category":category}
+                          
+                          
+                          )
 
         Category.objects.create(name=name)
         messages.success(request, "Category added successfully")
