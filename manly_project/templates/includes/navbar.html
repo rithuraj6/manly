@@ -1,6 +1,7 @@
 {% load static %}
 
 <nav class="navbar">
+    <div class="navbar-inner container">
     
     <a href="{% url 'home' %}" class="navbar-logo">
         <svg width="80" height="80" viewBox="0 0 120 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -21,66 +22,81 @@
         <a href="{% url 'contact' %}" class="nav-link">Contact Us</a>
         <a href="{% url 'about' %}" class="nav-link">About Us</a>
     </div>
+    <div class ="navbar-toggle" aria-label="Toggle navigation"> 
+        <div class="navbar-icons">
 
-    <div class="navbar-icons">
+            
 
-        {% if breadcrumbs %}
-            <div class="breadcrumbs-wrapper">
-                <nav class="breadcrumbs">
-                    {% for crumb in breadcrumbs %}
-                        {% if crumb.url %}
-                            <a href="{{ crumb.url }}">{{ crumb.label }}</a>
-                            <span>/</span>
-                        {% else %}
-                            <span class="current">{{ crumb.label }}</span>
-                        {% endif %}
-                    {% endfor %}
-                </nav>
-            </div>
-        {% endif %}
+            <a href="{% url 'account_profile' %}" class="nav-icon" title="Profile">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+            </a>
+            <a href="{% url 'wishlist_page' %}" class="nav-icon" title="Wishlist">
+                
+                    <svg width="24" height="24" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <path d="M16 10a4 4 0 0 1-8 0"></path>
+                    </svg>
 
-        <a href="{% url 'account_profile' %}" class="nav-icon" title="Profile">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-        </a>
-        <a href="{% url 'wishlist_page' %}" class="nav-icon" title="Wishlist">
-              
-                  <svg width="24" height="24" viewBox="0 0 24 24"
-                    fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                <span class="wishlist-count"
+                    {% if wishlist_count == 0 %}style="display:none"{% endif %}>
+                    {{ wishlist_count }}
+                </span>
+            </a>
+            <a href="{% url 'cart_page' %}" class="nav-icon" title="Cart">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
                     <line x1="3" y1="6" x2="21" y2="6"></line>
                     <path d="M16 10a4 4 0 0 1-8 0"></path>
                 </svg>
+                
 
-             <span class="wishlist-count"
-                {% if wishlist_count == 0 %}style="display:none"{% endif %}>
-                {{ wishlist_count }}
-             </span>
-        </a>
-        <a href="{% url 'cart_page' %}" class="nav-icon" title="Cart">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2">
-                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                <line x1="3" y1="6" x2="21" y2="6"></line>
-                <path d="M16 10a4 4 0 0 1-8 0"></path>
-            </svg>
-            
+                <span class="cart-count"
+                {% if cart_count == 0 %}style ="display:none"{% endif%}> 
+                    {{ cart_count }}</span>
 
-            <span class="cart-count"
-            {% if cart_count == 0 %}style ="display:none"{% endif%}> 
-                {{ cart_count }}</span>
+            </a>
 
-        </a>
-
-    </div>
-    
+        </div>
+    </div> 
+</div> 
 </nav>
+            {% if breadcrumbs %}
+                <div class="breadcrumbs-wrapper">
+                    <nav class="breadcrumbs">
+                        {% for crumb in breadcrumbs %}
+                            {% if crumb.url %}
+                                <a href="{{ crumb.url }}">{{ crumb.label }}</a>
+                                <span>/</span>
+                            {% else %}
+                                <span class="current">{{ crumb.label }}</span>
+                            {% endif %}
+                        {% endfor %}
+                    </nav>
+                </div>
+            {% endif %}
+
 
 
 
 <style>
+    .breadcrumbs-wrapper {
+    padding: 8px 0;
+    background: #fff;
+}
+
+    .navbar-inner {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
 .wishlist-count {
     position: absolute;
     top: -6px;
@@ -192,6 +208,34 @@
         text-shadow: 0 0 12px rgba(255,107,107,0.6);
     }
 }
+@media (max-width: 768px) {
+    .navbar-inner {
+        flex-wrap: wrap;
+    }
+
+    .navbar-logo {
+        order: 1;
+    }
+
+    .navbar-toggle {
+        order: 2;
+    }
+
+    .navbar-icons {
+        order: 3;
+    }
+
+    .navbar-menu {
+        order: 4;
+    }
+}
+@media (max-width: 768px) {
+    .navbar {
+        padding: 12px 0;
+    }
+}
+
+
 
 /* Navbar Container with glassmorphism */
 .navbar {
