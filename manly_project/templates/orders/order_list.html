@@ -7,61 +7,69 @@
         <!-- Page Header -->
         <div class="orders-header">
             <h2 class="orders-title">My Orders</h2>
-            <form method="get" class="order-search-form">
-                <input
-                    type="text"
-                    name="q"
-                    placeholder="Search orders by product name..."
-                    value="{{ search_query }}"
-                    class="order-search-input"
-                >
-
-                <!-- Preserve filter -->
-                <input type="hidden" name="filter" value="{{ filter_value }}">
-
-                <button type="submit" class="order-search-btn">
-                    Search
-                </button>
-
-                {% if search_query %}
-                    <a href="{% url 'user_orders' %}?filter={{ filter_value }}"
-                    class="order-clear-btn">
-                        Clear
-                    </a>
-                {% endif %}
-            </form>
-
             
-            <!-- Filter Dropdown -->
-            <form method="get" class="filter-form">
-                <div class="filter-dropdown">
-                    <label for="filter-select" class="filter-label">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-                        </svg>
-                    </label>
-                    <select name="filter" id="filter-select" onchange="this.form.submit()" class="filter-select">
-                        <option value="7d" {% if filter_value == "7d" %}selected{% endif %}>Last 7 Days</option>
-                        <option value="1m" {% if filter_value == "1m" %}selected{% endif %}>Last 1 Month</option>
-                        <option value="3m" {% if filter_value == "3m" %}selected{% endif %}>Last 3 Months</option>
-                        <option value="6m" {% if filter_value == "6m" %}selected{% endif %}>Last 6 Months</option>
+            <div class="header-controls">
+                <form method="get" class="order-search-form">
+                    <input
+                        type="text"
+                        name="q"
+                        placeholder="Search orders..."
+                        value="{{ search_query }}"
+                        class="order-search-input"
+                    >
 
-                        {% for year in years %}
-                            <option value="{{ year }}" {% if filter_value == year|stringformat:"s" %}selected{% endif %}>
-                                {{ year }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                    <svg class="dropdown-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="6 9 12 15 18 9"></polyline>
-                    </svg>
-                </div>
-            </form>
+                    <!-- Preserve filter -->
+                    <input type="hidden" name="filter" value="{{ filter_value }}">
+
+                    <button type="submit" class="order-search-btn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                        <span class="btn-text">Search</span>
+                    </button>
+
+                    {% if search_query %}
+                        <a href="{% url 'user_orders' %}?filter={{ filter_value }}"
+                        class="order-clear-btn">
+                            Clear
+                        </a>
+                    {% endif %}
+                </form>
+
+                
+                <!-- Filter Dropdown -->
+                <form method="get" class="filter-form">
+                    <div class="filter-dropdown">
+                        <label for="filter-select" class="filter-label">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                            </svg>
+                        </label>
+                        <select name="filter" id="filter-select" onchange="this.form.submit()" class="filter-select">
+                            <option value="7d" {% if filter_value == "7d" %}selected{% endif %}>Last 7 Days</option>
+                            <option value="1m" {% if filter_value == "1m" %}selected{% endif %}>Last 1 Month</option>
+                            <option value="3m" {% if filter_value == "3m" %}selected{% endif %}>Last 3 Months</option>
+                            <option value="6m" {% if filter_value == "6m" %}selected{% endif %}>Last 6 Months</option>
+
+                            {% for year in years %}
+                                <option value="{{ year }}" {% if filter_value == year|stringformat:"s" %}selected{% endif %}>
+                                    {{ year }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <svg class="dropdown-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </div>
+                </form>
+            </div>
         </div>
 
-        <!-- Orders Table -->
+        <!-- Orders Table / Cards -->
         <div class="orders-table-wrapper">
-            <table class="orders-table">
+            <!-- Desktop Table View -->
+            <table class="orders-table desktop-view">
                 <thead>
                     <tr>
                         <th>Order ID</th>
@@ -116,7 +124,6 @@
                                     
                                     <a href="{% url 'order_detail' order.uuid %}" class="view-order-btn">
                                         View Orders
-
                                     </a>
                                     <a href="{% url 'print_invoice' order.uuid %}" 
                                         target="_blank"
@@ -145,8 +152,6 @@
                                 </div>
                             </td>
                         </tr>
-
-                        
                     {% empty %}
                         <tr>
                             <td colspan="4" class="empty-state">
@@ -163,39 +168,120 @@
                                 </div>
                             </td>
                         </tr>
-                        <tr class="order-items-row" id="items-{{ order.id }}">
-                            <td colspan="4">
-                                <div class="order-items-dropdown">
-                                    {% for item in order.items.all %}
-                                        {% with image=item.product.images.first %}
-                                            <div class="order-item-thumb">
-                                                {% if image %}
-                                                    <img src="{{ image.image.url }}" alt="{{ item.product.name }}">
-                                                {% else %}
-                                                    <img src="{% static 'images/placeholder.png' %}">
-                                                {% endif %}
-                                                <span class="thumb-name">{{ item.product.name }}</span>
-                                            </div>
-                                        {% endwith %}
-                                    {% endfor %}
-                                </div>
-                            </td>
-                        </tr>
-
                     {% endfor %}
                 </tbody>
             </table>
+
+            <!-- Mobile Card View -->
+            <div class="orders-mobile-view mobile-view">
+                {% for order in orders %}
+                    <div class="order-card">
+                        <div class="order-card-header">
+                            <div class="order-card-id">
+                                <span class="label">Order ID</span>
+                                <span class="value toggle-items-mobile" data-order-id="{{ order.id }}">#{{ order.order_id }}</span>
+                            </div>
+                            <div class="order-card-items">
+                                <span class="items-badge">{{ order.items.count }} item{{ order.items.count|pluralize }}</span>
+                            </div>
+                        </div>
+
+                        <div class="order-card-body">
+                            <div class="order-card-row">
+                                <span class="card-label">Total Amount</span>
+                                <span class="card-value amount">₹ {{ order.total_amount }}</span>
+                            </div>
+
+                            <div class="order-card-row">
+                                <span class="card-label">Status</span>
+                                <div class="card-status">
+                                    {% if order.status == "delivered" %}
+                                        <div class="status-indicator delivered"></div>
+                                        <span class="status-text-mobile">Delivered</span>
+                                    {% elif order.status == "cancelled" %}
+                                        <div class="status-indicator cancelled"></div>
+                                        <span class="status-text-mobile">Cancelled</span>
+                                    {% elif order.status == "shipped" %}
+                                        <div class="status-indicator shipped"></div>
+                                        <span class="status-text-mobile">Shipped</span>
+                                    {% else %}
+                                        <div class="status-indicator pending"></div>
+                                        <span class="status-text-mobile">{{ order.status|title }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="order-card-date">
+                                {% if order.status == "delivered" %}
+                                    Delivered on {{ order.updated_at|date:"M d, Y" }}
+                                {% elif order.status == "cancelled" %}
+                                    Cancelled on {{ order.updated_at|date:"M d, Y" }}
+                                {% elif order.status == "shipped" %}
+                                    Expected by {{ order.expected_delivery|date:"M d, Y" }}
+                                {% else %}
+                                    Processing your order
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="order-card-actions">
+                            <a href="{% url 'order_detail' order.uuid %}" class="card-btn primary">
+                                View Order
+                            </a>
+                            <a href="{% url 'print_invoice' order.uuid %}" target="_blank" class="card-btn secondary">
+                                Invoice
+                            </a>
+                        </div>
+
+                        <!-- Mobile Items Dropdown -->
+                        <div class="order-items-mobile-dropdown" id="items-mobile-{{ order.id }}">
+                            {% for item in order.items.all %}
+                                {% with image=item.product.images.first %}
+                                    <div class="order-item-thumb-mobile">
+                                        {% if image %}
+                                            <img src="{{ image.image.url }}" alt="{{ item.product.name }}">
+                                        {% else %}
+                                            <img src="{% static 'images/placeholder.png' %}">
+                                        {% endif %}
+                                        <span class="thumb-name-mobile">{{ item.product.name }}</span>
+                                    </div>
+                                {% endwith %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="empty-orders mobile">
+                        <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        <h3>No orders found</h3>
+                        <p>You haven't placed any orders yet</p>
+                        <a href="{% url 'shop' %}" class="shop-now-btn">
+                            Start Shopping
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
         </div>
 
         <!-- Pagination -->
         {% if orders.has_previous or orders.has_next %}
             <div class="pagination-wrapper">
                 {% if orders.has_previous %}
-                    <a href="?page={{ orders.previous_page_number }}&filter={{ filter_value }}" class="pagination-btn prev">
-                        Previous
+                    <a href="?page={{ orders.previous_page_number }}&filter={{ filter_value }}{% if search_query %}&q={{ search_query }}{% endif %}" class="pagination-btn prev">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                        <span>Previous</span>
                     </a>
                 {% else %}
-                    <span class="pagination-btn prev disabled">Previous</span>
+                    <span class="pagination-btn prev disabled">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                        <span>Previous</span>
+                    </span>
                 {% endif %}
 
                 <div class="page-numbers">
@@ -203,17 +289,25 @@
                         {% if num == orders.number %}
                             <span class="page-num active">{{ num }}</span>
                         {% elif num > orders.number|add:'-3' and num < orders.number|add:'3' %}
-                            <a href="?page={{ num }}&filter={{ filter_value }}" class="page-num">{{ num }}</a>
+                            <a href="?page={{ num }}&filter={{ filter_value }}{% if search_query %}&q={{ search_query }}{% endif %}" class="page-num">{{ num }}</a>
                         {% endif %}
                     {% endfor %}
                 </div>
                 {% if orders.has_next %}
                     <a href="?page={{ orders.next_page_number }}&filter={{ filter_value }}{% if search_query %}&q={{ search_query }}{% endif %}"
                     class="pagination-btn next">
-                        Next
+                        <span>Next</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
                     </a>
                 {% else %}
-                    <span class="pagination-btn next disabled">Next</span>
+                    <span class="pagination-btn next disabled">
+                        <span>Next</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </span>
                 {% endif %}
             </div>
         {% endif %}
@@ -221,89 +315,12 @@
 </div>
 
 <style>
-/* Order items dropdown */
-.order-items-row {
-    display: none;
-}
-
-.order-items-dropdown {
-    padding: 20px;
-    background: #fafafa;
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-
-.order-item-thumb {
-    width: 90px;
-    text-align: center;
-}
-
-.order-item-thumb img {
-    width: 90px;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-
-.thumb-name {
-    display: block;
-    margin-top: 6px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #333;
-}
-
-.toggle-items {
-    cursor: pointer;
-    position: relative;
-}
-
-.toggle-items::after {
-    content: "▾";
-    margin-left: 6px;
-    font-size: 12px;
-}
-
-
-    .order-search-form {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-.order-search-input {
-    padding: 10px 16px;
-    border-radius: 30px;
-    border: 2px solid #1a1a1a;
-    font-size: 14px;
-    min-width: 260px;
-}
-
-.order-search-btn {
-    padding: 10px 20px;
-    border-radius: 30px;
-    background: #1a1a1a;
-    color: #fff;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-}
-
-.order-clear-btn {
-    padding: 10px 18px;
-    border-radius: 30px;
-    border: 2px solid #f44336;
-    color: #f44336;
-    text-decoration: none;
-    font-weight: 600;
-}
-
-/* Orders Page Wrapper */
+/* ==========================================
+   BASE STYLES
+   ========================================== */
 .orders-page-wrapper {
     min-height: calc(100vh - 200px);
-    padding: 40px 20px;
+    padding: clamp(20px, 4vw, 40px) clamp(12px, 3vw, 20px);
     background: #fafafa;
 }
 
@@ -313,23 +330,111 @@
     animation: fadeIn 0.5s ease;
 }
 
-/* Orders Header */
+/* ==========================================
+   ORDERS HEADER
+   ========================================== */
 .orders-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 35px;
+    align-items: flex-start;
+    margin-bottom: clamp(24px, 4vw, 35px);
+    gap: 20px;
     animation: slideInDown 0.5s ease;
+    flex-wrap: wrap;
 }
 
 .orders-title {
-    font-size: 32px;
+    font-size: clamp(24px, 4vw, 32px);
     font-weight: 700;
     color: #1a1a1a;
     margin: 0;
+    line-height: 1.2;
 }
 
-/* Filter Dropdown */
+.header-controls {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* ==========================================
+   SEARCH FORM
+   ========================================== */
+.order-search-form {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.order-search-input {
+    padding: clamp(10px, 2vw, 12px) clamp(14px, 2.5vw, 16px);
+    border-radius: 30px;
+    border: 2px solid #1a1a1a;
+    font-size: clamp(13px, 2vw, 14px);
+    min-width: clamp(180px, 30vw, 260px);
+    transition: all 0.3s ease;
+}
+
+.order-search-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.1);
+}
+
+.order-search-btn {
+    padding: clamp(10px, 2vw, 12px) clamp(16px, 3vw, 20px);
+    border-radius: 30px;
+    background: #1a1a1a;
+    color: #fff;
+    font-weight: 600;
+    font-size: clamp(13px, 2vw, 14px);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    transition: all 0.3s ease;
+}
+
+.order-search-btn:hover {
+    background: #333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.order-search-btn:active {
+    transform: translateY(0);
+}
+
+.order-clear-btn {
+    padding: clamp(10px, 2vw, 12px) clamp(14px, 2.5vw, 18px);
+    border-radius: 30px;
+    border: 2px solid #f44336;
+    color: #f44336;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: clamp(13px, 2vw, 14px);
+    transition: all 0.3s ease;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.order-clear-btn:hover {
+    background: #f44336;
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.order-clear-btn:active {
+    transform: translateY(0);
+}
+
+/* ==========================================
+   FILTER DROPDOWN
+   ========================================== */
 .filter-form {
     position: relative;
 }
@@ -339,12 +444,13 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 10px 20px;
+    padding: clamp(10px, 2vw, 12px) clamp(16px, 3vw, 20px);
     background: #fff;
     border: 2px solid #1a1a1a;
     border-radius: 30px;
     cursor: pointer;
     transition: all 0.3s ease;
+    min-height: 44px;
 }
 
 .filter-dropdown:hover {
@@ -356,18 +462,20 @@
     align-items: center;
     color: #1a1a1a;
     cursor: pointer;
+    flex-shrink: 0;
 }
 
 .filter-select {
     border: none;
     background: transparent;
-    font-size: 14px;
+    font-size: clamp(13px, 2vw, 14px);
     font-weight: 600;
     color: #1a1a1a;
     cursor: pointer;
     outline: none;
     appearance: none;
     padding-right: 25px;
+    min-width: 100px;
 }
 
 .dropdown-arrow {
@@ -377,7 +485,9 @@
     color: #1a1a1a;
 }
 
-/* Orders Table */
+/* ==========================================
+   DESKTOP TABLE VIEW
+   ========================================== */
 .orders-table-wrapper {
     background: #fff;
     border-radius: 16px;
@@ -397,9 +507,9 @@
 }
 
 .orders-table th {
-    padding: 20px 25px;
+    padding: clamp(16px, 2.5vw, 20px) clamp(18px, 3vw, 25px);
     text-align: left;
-    font-size: 14px;
+    font-size: clamp(12px, 1.8vw, 14px);
     font-weight: 700;
     color: #1a1a1a;
     text-transform: uppercase;
@@ -416,7 +526,8 @@
 }
 
 .orders-table td {
-    padding: 25px;
+    padding: clamp(18px, 3vw, 25px);
+    font-size: clamp(13px, 2vw, 15px);
 }
 
 /* Table Cells */
@@ -426,7 +537,7 @@
 
 .order-id {
     color: #1a1a1a;
-    font-size: 15px;
+    font-size: clamp(14px, 2vw, 15px);
 }
 
 .items-cell {
@@ -440,13 +551,13 @@
     background: #f8f8f8;
     border-radius: 20px;
     font-weight: 600;
-    font-size: 14px;
+    font-size: clamp(13px, 2vw, 14px);
     color: #1a1a1a;
 }
 
 .amount-cell {
     font-weight: 700;
-    font-size: 16px;
+    font-size: clamp(15px, 2.2vw, 16px);
     color: #1a1a1a;
 }
 
@@ -455,6 +566,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    flex-wrap: wrap;
 }
 
 .status-indicator {
@@ -489,29 +601,36 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
+    min-width: 150px;
 }
 
 .status-text {
-    font-size: 14px;
+    font-size: clamp(13px, 2vw, 14px);
     font-weight: 600;
     color: #1a1a1a;
 }
 
 .status-subtext {
-    font-size: 12px;
+    font-size: clamp(11px, 1.8vw, 12px);
     color: #666;
 }
 
 .view-order-btn {
-    padding: 10px 24px;
+    padding: clamp(8px, 1.5vw, 10px) clamp(18px, 3vw, 24px);
     background: #1a1a1a;
     color: #fff;
     border-radius: 30px;
-    font-size: 13px;
+    font-size: clamp(12px, 1.8vw, 13px);
     font-weight: 600;
     text-decoration: none;
     transition: all 0.3s ease;
     white-space: nowrap;
+    display: inline-block;
+    margin-right: 8px;
+    margin-top: 4px;
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
 }
 
 .view-order-btn:hover {
@@ -520,14 +639,279 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
-/* Empty State */
+.view-order-btn.secondary {
+    background: #fff;
+    color: #1a1a1a;
+    border: 2px solid #1a1a1a;
+}
+
+.view-order-btn.secondary:hover {
+    background: #f8f8f8;
+}
+
+/* Order items dropdown */
+.order-items-row {
+    display: none;
+}
+
+.order-items-dropdown {
+    padding: clamp(16px, 3vw, 20px);
+    background: #fafafa;
+    display: flex;
+    gap: clamp(12px, 2vw, 15px);
+    flex-wrap: wrap;
+}
+
+.order-item-thumb {
+    width: clamp(80px, 12vw, 90px);
+    text-align: center;
+}
+
+.order-item-thumb img {
+    width: 100%;
+    height: clamp(100px, 15vw, 120px);
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.thumb-name {
+    display: block;
+    margin-top: 6px;
+    font-size: clamp(11px, 1.6vw, 12px);
+    font-weight: 600;
+    color: #333;
+}
+
+.toggle-items {
+    cursor: pointer;
+    position: relative;
+}
+
+.toggle-items::after {
+    content: "▾";
+    margin-left: 6px;
+    font-size: clamp(11px, 1.8vw, 12px);
+}
+
+.toggle-items.open::after {
+    content: "▴";
+}
+
+/* ==========================================
+   MOBILE CARD VIEW
+   ========================================== */
+.mobile-view {
+    display: none;
+}
+
+.order-card {
+    background: #fff;
+    border: 2px solid #e5e5e5;
+    border-radius: 12px;
+    padding: clamp(16px, 3vw, 20px);
+    margin-bottom: 16px;
+    transition: all 0.3s ease;
+}
+
+.order-card:hover {
+    border-color: #1a1a1a;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.order-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.order-card-id .label {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.order-card-id .value {
+    display: block;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a1a;
+    cursor: pointer;
+}
+
+.items-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    background: #f0f0f0;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.order-card-body {
+    margin-bottom: 16px;
+}
+
+.order-card-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #f8f8f8;
+}
+
+.card-label {
+    font-size: 14px;
+    color: #666;
+    font-weight: 500;
+}
+
+.card-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.card-value.amount {
+    font-size: 18px;
+    color: #1a1a1a;
+}
+
+.card-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.status-text-mobile {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+.order-card-date {
+    font-size: 13px;
+    color: #666;
+    margin-top: 12px;
+    padding: 10px;
+    background: #f8f8f8;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.order-card-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.card-btn {
+    flex: 1;
+    padding: 14px 20px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.3s ease;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-btn.primary {
+    background: #1a1a1a;
+    color: #fff;
+}
+
+.card-btn.primary:hover {
+    background: #333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.card-btn.secondary {
+    background: #fff;
+    color: #1a1a1a;
+    border: 2px solid #1a1a1a;
+}
+
+.card-btn.secondary:hover {
+    background: #f8f8f8;
+}
+
+.card-btn:active {
+    transform: translateY(0);
+}
+
+/* Mobile Items Dropdown */
+.order-items-mobile-dropdown {
+    display: none;
+    padding: 16px;
+    margin-top: 16px;
+    background: #fafafa;
+    border-radius: 8px;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.order-items-mobile-dropdown.show {
+    display: flex;
+}
+
+.order-item-thumb-mobile {
+    width: 80px;
+    text-align: center;
+}
+
+.order-item-thumb-mobile img {
+    width: 80px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.thumb-name-mobile {
+    display: block;
+    margin-top: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #333;
+}
+
+.toggle-items-mobile {
+    position: relative;
+}
+
+.toggle-items-mobile::after {
+    content: "▾";
+    margin-left: 6px;
+    font-size: 12px;
+}
+
+.toggle-items-mobile.open::after {
+    content: "▴";
+}
+
+/* ==========================================
+   EMPTY STATE
+   ========================================== */
 .empty-state {
     padding: 0 !important;
 }
 
 .empty-orders {
     text-align: center;
-    padding: 80px 20px;
+    padding: clamp(60px, 10vw, 80px) 20px;
 }
 
 .empty-orders svg {
@@ -536,27 +920,31 @@
 }
 
 .empty-orders h3 {
-    font-size: 20px;
+    font-size: clamp(18px, 3vw, 20px);
     font-weight: 700;
     color: #1a1a1a;
     margin: 0 0 8px 0;
 }
 
 .empty-orders p {
-    font-size: 15px;
+    font-size: clamp(14px, 2.2vw, 15px);
     color: #666;
     margin: 0 0 25px 0;
 }
 
 .shop-now-btn {
     display: inline-block;
-    padding: 12px 32px;
+    padding: clamp(12px, 2vw, 14px) clamp(24px, 4vw, 32px);
     background: #1a1a1a;
     color: #fff;
     border-radius: 30px;
     font-weight: 600;
+    font-size: clamp(14px, 2vw, 15px);
     text-decoration: none;
     transition: all 0.3s ease;
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
 }
 
 .shop-now-btn:hover {
@@ -565,26 +953,38 @@
     box-shadow: 0 6px 20px rgba(0,0,0,0.2);
 }
 
-/* Pagination */
+.shop-now-btn:active {
+    transform: translateY(0);
+}
+
+/* ==========================================
+   PAGINATION
+   ========================================== */
 .pagination-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 15px;
-    margin-top: 40px;
+    gap: clamp(10px, 2vw, 15px);
+    margin-top: clamp(30px, 5vw, 40px);
     animation: fadeIn 0.5s ease 0.4s forwards;
     opacity: 0;
+    flex-wrap: wrap;
 }
 
 .pagination-btn {
-    padding: 10px 24px;
+    padding: clamp(10px, 2vw, 12px) clamp(18px, 3vw, 24px);
     background: #fff;
     color: #1a1a1a;
     border: 2px solid #1a1a1a;
     border-radius: 30px;
     font-weight: 600;
+    font-size: clamp(13px, 2vw, 14px);
     text-decoration: none;
     transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
 }
 
 .pagination-btn:hover:not(.disabled) {
@@ -592,6 +992,10 @@
     color: #fff;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.pagination-btn:active:not(.disabled) {
+    transform: translateY(0);
 }
 
 .pagination-btn.disabled {
@@ -603,12 +1007,12 @@
 
 .page-numbers {
     display: flex;
-    gap: 8px;
+    gap: clamp(6px, 1.2vw, 8px);
 }
 
 .page-num {
-    width: 40px;
-    height: 40px;
+    width: clamp(36px, 6vw, 40px);
+    height: clamp(36px, 6vw, 40px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -616,6 +1020,7 @@
     border: 2px solid #e5e5e5;
     border-radius: 50%;
     font-weight: 600;
+    font-size: clamp(13px, 2vw, 14px);
     text-decoration: none;
     color: #1a1a1a;
     transition: all 0.3s ease;
@@ -626,13 +1031,19 @@
     transform: scale(1.1);
 }
 
+.page-num:active {
+    transform: scale(0.95);
+}
+
 .page-num.active {
     background: #1a1a1a;
     color: #fff;
     border-color: #1a1a1a;
 }
 
-/* Animations */
+/* ==========================================
+   ANIMATIONS
+   ========================================== */
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -660,56 +1071,144 @@
     }
 }
 
-/* Responsive */
+/* ==========================================
+   RESPONSIVE BREAKPOINTS
+   ========================================== */
+
+/* Tablets (1024px and below) */
 @media (max-width: 1024px) {
     .orders-table {
-        display: block;
-        overflow-x: auto;
+        font-size: 13px;
+    }
+
+    .view-order-btn {
+        padding: 8px 16px;
+        font-size: 12px;
     }
 }
 
+/* Small Tablets (768px and below) */
 @media (max-width: 768px) {
     .orders-header {
         flex-direction: column;
-        gap: 20px;
         align-items: stretch;
     }
 
-    .orders-title {
-        font-size: 24px;
+    .header-controls {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .order-search-form,
+    .filter-form {
+        width: 100%;
+    }
+
+    .order-search-input {
+        flex: 1;
+        min-width: 100%;
     }
 
     .filter-dropdown {
-        justify-content: center;
+        justify-content: space-between;
+        width: 100%;
     }
 
-    .orders-table-wrapper {
-        overflow-x: auto;
+    /* Switch to mobile card view */
+    .desktop-view {
+        display: none;
     }
 
-    .orders-table {
-        min-width: 900px;
+    .mobile-view {
+        display: block;
     }
 
-    .pagination-wrapper {
-        flex-direction: column;
-        gap: 15px;
+    .btn-text {
+        display: inline;
+    }
+}
+
+/* Mobile Phones (480px and below) */
+@media (max-width: 480px) {
+    .orders-page-wrapper {
+        padding: 16px 12px;
+    }
+
+    .orders-title {
+        font-size: 22px;
+    }
+
+    .order-search-btn .btn-text {
+        display: none;
+    }
+
+    .order-search-btn {
+        min-width: 44px;
+        padding: 12px;
+    }
+
+    .order-card {
+        padding: 16px;
+    }
+
+    .order-card-id .value {
+        font-size: 15px;
+    }
+
+    .card-btn {
+        font-size: 13px;
+        padding: 12px 16px;
+    }
+
+    .pagination-btn span {
+        display: none;
     }
 
     .pagination-btn {
-        width: 100%;
-        text-align: center;
+        min-width: 44px;
+        padding: 12px;
+    }
+
+    .page-numbers {
+        flex-wrap: wrap;
+        justify-content: center;
     }
 }
-.toggle-items.open::after {
-    content: "▴";
+
+/* Very Small Mobile (360px and below) */
+@media (max-width: 360px) {
+    .orders-title {
+        font-size: 20px;
+    }
+
+    .order-card-actions {
+        flex-direction: column;
+    }
+
+    .card-btn {
+        width: 100%;
+    }
 }
 
+/* Print Styles */
+@media print {
+    .orders-header,
+    .pagination-wrapper,
+    .order-card-actions,
+    .view-order-btn {
+        display: none !important;
+    }
+
+    .orders-table {
+        border: 1px solid #ddd;
+    }
+}
 </style>
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+    // Desktop toggle
     const toggles = document.querySelectorAll(".toggle-items");
-
     toggles.forEach(toggle => {
         toggle.addEventListener("click", function () {
             const orderId = this.dataset.orderId;
@@ -717,12 +1216,30 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (!row) return;
 
-            // Toggle visibility
             if (row.style.display === "table-row") {
                 row.style.display = "none";
                 this.classList.remove("open");
             } else {
                 row.style.display = "table-row";
+                this.classList.add("open");
+            }
+        });
+    });
+
+    // Mobile toggle
+    const mobileToggles = document.querySelectorAll(".toggle-items-mobile");
+    mobileToggles.forEach(toggle => {
+        toggle.addEventListener("click", function () {
+            const orderId = this.dataset.orderId;
+            const dropdown = document.getElementById(`items-mobile-${orderId}`);
+
+            if (!dropdown) return;
+
+            if (dropdown.classList.contains("show")) {
+                dropdown.classList.remove("show");
+                this.classList.remove("open");
+            } else {
+                dropdown.classList.add("show");
                 this.classList.add("open");
             }
         });
