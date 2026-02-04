@@ -56,11 +56,20 @@ def add_coupon(request):
             
             code = request.POST.get("code","").strip().upper()
             coupon_code_validator(code)
+            
+            discount_type = request.POST.get("discount_type")
+            discount_value = request.POST.get("discount_value")
+            
+            max_discount = request.POST.get("max_discount_amount")
+            
+            if discount_type == "FLAT":
+                discount_value = max_discount  
+
 
             coupon = Coupon(
                 code=code,
-                discount_type=request.POST.get("discount_type"),
-                discount_value=request.POST.get("discount_value"),
+                discount_type=discount_type,         
+                discount_value=discount_value,
                 min_purchase_amount=request.POST.get("min_purchase_amount") or 0,
                 max_discount_amount=request.POST.get("max_discount_amount") or None,
                 valid_from=datetime.strptime(valid_from_str, "%Y-%m-%d").date(),
@@ -96,11 +105,23 @@ def edit_coupon(request, coupon_uuid):
 
     if request.method == "POST":
         try:
-            coupon.discount_type = request.POST.get("discount_type")
-            coupon.discount_value = request.POST.get("discount_value")
+           
+          
             coupon.min_purchase_amount = request.POST.get("min_purchase_amount") or 0
-            coupon.max_discount_amount = request.POST.get("max_discount_amount") or None
+    
             coupon.is_active = True if request.POST.get("is_active") else False
+            
+            discount_type = request.POST.get("discount_type")
+            discount_value = request.POST.get("discount_value")
+            max_discount = request.POST.get("max_discount_amount")
+            
+            if discount_type == "FLAT":
+                discount_value = max_discount
+                
+            coupon.discount_type = discount_type
+            coupon.discount_value = discount_value
+            coupon.max_discount_amount = max_discount or None
+            coupon.min_purchase_amount = request.POST.get("min_purchase_amount") or 0
 
           
             valid_from_str = request.POST.get("valid_from")
