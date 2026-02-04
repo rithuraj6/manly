@@ -427,7 +427,7 @@
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    {% comment %} border-bottom: 1px solid rgba(8, 7, 7, 0.1); {% endcomment %}
+ 
     padding: 6px 0;
     position: static;
     
@@ -448,7 +448,7 @@
     padding: 3px 10px;
     background: #fff;
     border-radius: 16px;
-    {% comment %} border: 1px solid #e5e5e5; {% endcomment %}
+
     white-space: nowrap;
 }
 
@@ -636,11 +636,76 @@
 
 /* Small Tablets & Large Phones (768px and below) */
 @media (max-width: 768px) {
-    .navbar-toggle {
-        display: flex;
-        padding: 14px;
-        margin-right: 8px;
+    .navbar-inner {
+        flex-wrap: wrap;
     }
+    
+    .navbar-logo svg {
+        width: 60px;
+        height: 60px;
+    }
+
+    .logo-subtitle {
+        font-size: 9px;
+        letter-spacing: 1.5px;
+    }
+
+    .navbar-toggle {
+        display: flex; /* Show toggle button */
+        margin-left: auto;
+        order: 2;
+    }
+    
+    .navbar-menu {
+        display: none; /* Hide menu by default */
+        width: 100%;
+        order: 4;
+        flex-direction: column;
+        gap: 0;
+        background-color: #fff;
+        padding: 10px 0;
+        border-radius: 0 0 16px 16px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        margin-top: 10px;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        z-index: 999;
+    }
+
+    .navbar-menu.active {
+        display: flex; /* Show menu when active */
+    }
+
+    .nav-link {
+        font-size: 18px;
+        padding: 16px 24px;
+        width: 100%;
+        border-bottom: 1px solid #f0f0f0;
+        text-align: left; 
+    }
+    
+    .nav-link:last-child {
+        border-bottom: none;
+    }
+
+    .navbar-icons {
+        order: 3;
+        margin-left: 10px;
+    }
+
+    .nav-icon {
+        padding: 12px;
+        min-width: 48px;
+        min-height: 48px;
+    }
+
+    .nav-icon svg {
+        width: 26px !important;
+        height: 26px !important;
+    }
+}
+
     
     .navbar-toggle span {
         width: 28px;
