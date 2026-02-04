@@ -425,6 +425,169 @@
 /* ==========================================
    BREADCRUMBS
    ========================================== */
+   /* Breadcrumb Container */
+.breadcrumb-container {
+    width: 100%;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.breadcrumb {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 0 20px;
+    margin: 0;
+    list-style: none;
+    font-size: 13px;
+    min-height: 32px;
+}
+
+/* Breadcrumb Items */
+.breadcrumb-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    max-width: fit-content;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Links in breadcrumbs */
+.breadcrumb-item a {
+    color: #b8b8b8;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.breadcrumb-item a:hover {
+    color: #ffffff;
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
+/* Current/Active page (no link) */
+.breadcrumb-item.active,
+.breadcrumb-item:last-child {
+    background: transparent;
+    border: none;
+    padding: 4px 8px;
+}
+
+.breadcrumb-item.active,
+.breadcrumb-item:not(:has(a)) {
+    color: #ffffff;
+    font-weight: 600;
+    text-shadow: 0 0 12px rgba(255, 255, 255, 0.8),
+                 0 0 20px rgba(255, 255, 255, 0.4);
+    animation: glow-pulse 2s ease-in-out infinite;
+}
+
+/* Glow animation for current page */
+@keyframes glow-pulse {
+    0%, 100% {
+        text-shadow: 0 0 12px rgba(255, 255, 255, 0.8),
+                     0 0 20px rgba(255, 255, 255, 0.4);
+    }
+    50% {
+        text-shadow: 0 0 16px rgba(255, 255, 255, 1),
+                     0 0 28px rgba(255, 255, 255, 0.6),
+                     0 0 36px rgba(255, 255, 255, 0.3);
+    }
+}
+
+/* Separator */
+.breadcrumb-item + .breadcrumb-item::before {
+    content: "/";
+    color: rgba(255, 255, 255, 0.3);
+    margin-right: 6px;
+    font-weight: 300;
+}
+
+/* Hover effects for non-active items */
+.breadcrumb-item:not(.active):not(:last-child):hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .breadcrumb {
+        justify-content: flex-start;
+        padding: 0 15px;
+        font-size: 12px;
+        gap: 4px;
+    }
+    
+    .breadcrumb-item {
+        padding: 3px 10px;
+        font-size: 11px;
+    }
+    
+    .breadcrumb-item.active,
+    .breadcrumb-item:last-child {
+        padding: 3px 6px;
+    }
+    
+    /* Truncate long text on mobile */
+    .breadcrumb-item a,
+    .breadcrumb-item {
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+@media (max-width: 480px) {
+    .breadcrumb {
+        font-size: 11px;
+        padding: 0 10px;
+    }
+    
+    .breadcrumb-item {
+        padding: 2px 8px;
+        font-size: 10px;
+    }
+    
+    .breadcrumb-item a,
+    .breadcrumb-item {
+        max-width: 120px;
+    }
+    
+    /* Stack breadcrumbs on very small screens if needed */
+    .breadcrumb-item + .breadcrumb-item::before {
+        margin-right: 4px;
+    }
+}
+
+/* Optional: Auto-hide overflow on very small screens */
+@media (max-width: 360px) {
+    .breadcrumb {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+    }
+    
+    .breadcrumb::-webkit-scrollbar {
+        height: 3px;
+    }
+    
+    .breadcrumb::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 3px;
+    }
+}
 .breadcrumbs-wrapper {
     background: rgba(255, 255, 255, 0.95); /* Slight transparency for blur */
     border-bottom: 1px solid #e8e8e8;
