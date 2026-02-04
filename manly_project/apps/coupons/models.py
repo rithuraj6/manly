@@ -54,54 +54,69 @@ class Coupon(models.Model):
         discount_value = self.discount_value or Decimal("0")
         max_discount = self.max_discount_amount or Decimal("0")
 
-        
+       
+
+        if min_purchase <= 0:
+            raise ValidationError(
+                "Minimum purchase amount is required for all coupons"
+            )
+
         if self.valid_from and self.valid_to:
             if self.valid_to < self.valid_from:
-                raise ValidationError("Valid To date cannot be earlier than Valid From date")
-            if self.valid_to < timezone.now().date():
-                raise ValidationError("Valid To date cannot be in the past")
-
-        
-        if min_purchase <= 0:
-            raise ValidationError("Minimum purchase amount must be greater than zero")
-
-        max_allowed_by_rule = min_purchase * Decimal("0.25")
-
-       
-        if self.discount_type == "FLAT":
-            if max_discount <= 0:
-                raise ValidationError("Max discount amount is required for flat coupons")
-
-            if max_discount > max_allowed_by_rule:
                 raise ValidationError(
-                    "Max discount amount cannot exceed 25% of minimum purchase amount"
+                    "Valid To date cannot be earlier than Valid From date"
                 )
+
+            if self.valid_to < timezone.now().date():
+                raise ValidationError(
+                    "Valid To date cannot be in the past"
+                )
+
+    
+
+        if self.discount_type == "FLAT":
+
+            
+            if discount_value > min_purchase:
+                raise ValidationError(
+                    "Flat discount cannot be greater than minimum purchase amount"
+                )
+
+            max_allowed = min_purchase * Decimal("0.25")
+
+            if discount_value > max_allowed:
+                raise ValidationError(
+                    "Flat discount cannot exceed 25% of the minimum purchase amount"
+                )
+
+
+
+        elif self.discount_type == "PERCENT":
 
       
-            self.discount_value = Decimal("0.00")
-
-       
-        if self.discount_type == "PERCENT":
             if discount_value <= 0 or discount_value > 90:
-                raise ValidationError("Percentage discount must be between 1 and 90")
-
-            if max_discount <= 0:
-                raise ValidationError("Max discount amount is required for percentage coupons")
-
-        
-            if max_discount > max_allowed_by_rule:
                 raise ValidationError(
-                    "Max discount amount cannot exceed 25% of minimum purchase amount"
+                    "Percentage discount must be between 1% and 90%"
                 )
 
-          
-            max_possible_percent_discount = (
+            if max_discount <= 0:
+                raise ValidationError(
+                    "Max discount amount is required for percentage coupons"
+                )
+
+       
+            percent_discount_amount = (
                 min_purchase * discount_value / Decimal("100")
             )
 
-            if max_discount > max_possible_percent_discount:
+          
+            
+           
+            max_allowed = min(percent_discount_amount)
+
+            if max_discount > max_allowed:
                 raise ValidationError(
-                    "Max discount amount cannot exceed calculated percentage discount"
+                    f"Max discount amount cannot exceed ₹{max_allowed:.2f}"
                 )
                     
 
