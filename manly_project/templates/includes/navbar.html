@@ -58,22 +58,22 @@
         </div>
     </div> 
 
-{% if breadcrumbs %}
-<div class="breadcrumbs-wrapper">
-    <div class="container">
-        <nav class="breadcrumbs" aria-label="Breadcrumb">
-            {% for crumb in breadcrumbs %}
-                {% if crumb.url %}
-                    <a href="{{ crumb.url }}">{{ crumb.label }}</a>
-                    {% if not forloop.last %}<span class="breadcrumb-separator">/</span>{% endif %}
-                {% else %}
-                    <span class="current">{{ crumb.label }}</span>
-                {% endif %}
-            {% endfor %}
-        </nav>
+    {% if breadcrumbs %}
+    <div class="breadcrumbs-wrapper">
+        <div class="container">
+            <nav class="breadcrumbs" aria-label="Breadcrumb">
+                {% for crumb in breadcrumbs %}
+                    {% if crumb.url %}
+                        <a href="{{ crumb.url }}">{{ crumb.label }}</a>
+                        {% if not forloop.last %}<span class="breadcrumb-separator">/</span>{% endif %}
+                    {% else %}
+                        <span class="current">{{ crumb.label }}</span>
+                    {% endif %}
+                {% endfor %}
+            </nav>
+        </div>
     </div>
-</div>
-{% endif %}
+    {% endif %}
 </nav>
 
 
@@ -102,9 +102,7 @@
    ========================================== */
 .navbar {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: clamp(12px, 2vh, 20px) 0;
+    flex-direction: column;
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
@@ -145,6 +143,7 @@
     align-items: center;
     justify-content: space-between;
     gap: clamp(12px, 3vw, 32px);
+    padding: clamp(12px, 2vh, 20px) 0;
 }
 
 /* ==========================================
@@ -223,7 +222,6 @@
     border: none;
     position: relative;
     z-index: 10;
-    order: 2;
 }
 
 .navbar-toggle span {
@@ -427,10 +425,9 @@
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
- 
+    border-top: 1px solid rgba(8, 7, 7, 0.05);
     padding: 6px 0;
-    position: static;
-    
+}
 
 .breadcrumbs-wrapper .container {
     display: flex;
@@ -448,7 +445,6 @@
     padding: 3px 10px;
     background: #fff;
     border-radius: 16px;
-
     white-space: nowrap;
 }
 
@@ -483,64 +479,6 @@
     font-size: 11px;
 }
 
-/* Mobile Responsive */
-@media (max-width: 768px) {
-    .breadcrumbs-wrapper {
-        padding: 5px 0;
-    }
-    
-    .breadcrumbs-wrapper .container {
-        justify-content: center;
-        padding: 0 clamp(12px, 3vw, 16px);
-    }
-    
-    .breadcrumbs {
-        font-size: 10px;
-        padding: 3px 8px;
-        gap: 3px;
-    }
-    
-    .breadcrumbs a,
-    .breadcrumbs .current {
-        font-size: 10px;
-        padding: 2px 5px;
-    }
-}
-
-@media (max-width: 480px) {
-    .breadcrumbs-wrapper {
-        padding: 4px 0;
-    }
-    
-    .breadcrumbs {
-        font-size: 9px;
-        gap: 2px;
-        padding: 2px 7px;
-    }
-    
-    .breadcrumbs a,
-    .breadcrumbs .current {
-        font-size: 9px;
-        padding: 2px 4px;
-    }
-    
-    .breadcrumb-separator {
-        font-size: 9px;
-    }
-}
-
-@media (max-width: 360px) {
-    .breadcrumbs {
-        font-size: 8px;
-        padding: 2px 6px;
-    }
-    
-    .breadcrumbs a,
-    .breadcrumbs .current {
-        font-size: 8px;
-        padding: 1px 3px;
-    }
-}
 /* ==========================================
    ANIMATIONS
    ========================================== */
@@ -598,7 +536,7 @@
     from {
         opacity: 0;
         max-height: 0;
-        transform: translateY(-20px);
+        transform: translateY(-10px);
     }
     to {
         opacity: 1;
@@ -637,140 +575,50 @@
 /* Small Tablets & Large Phones (768px and below) */
 @media (max-width: 768px) {
     .navbar-inner {
-        flex-wrap: wrap;
-    }
-    
-    .navbar-logo svg {
-        width: 60px;
-        height: 60px;
-    }
-
-    .logo-subtitle {
-        font-size: 9px;
-        letter-spacing: 1.5px;
-    }
-
-    .navbar-toggle {
-        display: flex; /* Show toggle button */
-        margin-left: auto;
-        order: 2;
-    }
-    
-    .navbar-menu {
-        display: none; /* Hide menu by default */
-        width: 100%;
-        order: 4;
-        flex-direction: column;
-        gap: 0;
-        background-color: #fff;
-        padding: 10px 0;
-        border-radius: 0 0 16px 16px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-        margin-top: 10px;
-        position: absolute;
-        top: 100%;
-        left: 0;
-        z-index: 999;
-    }
-
-    .navbar-menu.active {
-        display: flex; /* Show menu when active */
-    }
-
-    .nav-link {
-        font-size: 18px;
-        padding: 16px 24px;
-        width: 100%;
-        border-bottom: 1px solid #f0f0f0;
-        text-align: left; 
-    }
-    
-    .nav-link:last-child {
-        border-bottom: none;
-    }
-
-    .navbar-icons {
-        order: 3;
-        margin-left: 10px;
-    }
-
-    .nav-icon {
-        padding: 12px;
-        min-width: 48px;
-        min-height: 48px;
-    }
-
-    .nav-icon svg {
-        width: 26px !important;
-        height: 26px !important;
-    }
-}
-
-    
-    .navbar-toggle span {
-        width: 28px;
-        height: 3px;
-    }
-    
-    .navbar-inner {
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         position: relative;
     }
     
-    .navbar-logo {
-        order: 1;
-    }
-    
     .navbar-toggle {
-        order: 2;
+        display: flex;
+        padding: 12px;
         margin-left: auto;
     }
     
-    .navbar-icons {
-        order: 3;
-        gap: 6px;
-    }
-    
-    /* Larger touch targets for icons */
-    .nav-icon {
-        padding: 14px;
-        min-width: 48px;
-        min-height: 48px;
-    }
-    
-    .nav-icon svg {
-        width: 26px !important;
-        height: 26px !important;
+    .navbar-toggle span {
+        width: 26px;
+        height: 2.5px;
     }
     
     .navbar-menu {
-        order: 4;
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
         width: 100%;
         flex-direction: column;
         gap: 0;
-        display: none;
-        background-color: #fff;
+        background-color: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(10px);
         padding: 0;
-        margin-top: 16px;
-        border-top: 1px solid #f0f0f0;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        margin: 0;
+        border-top: 1px solid rgba(8, 7, 7, 0.1);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        z-index: 999;
     }
     
     .navbar-menu.active {
         display: flex;
-        animation: slideDown 0.4s ease;
+        animation: slideDown 0.3s ease;
     }
     
-    /* Much larger touch targets for nav links */
     .nav-link {
         width: 100%;
-        padding: 20px 24px;
-        font-size: 17px;
-        border-bottom: 1px solid #f5f5f5;
+        padding: 18px 24px;
+        font-size: 16px;
+        border-bottom: 1px solid rgba(8, 7, 7, 0.05);
         text-align: left;
-        min-height: 56px;
         display: flex;
         align-items: center;
     }
@@ -786,123 +634,161 @@
     
     .nav-link:hover,
     .nav-link:active {
-        background-color: #fff5f5;
+        background-color: rgba(255, 107, 107, 0.05);
         transform: translateY(0);
         padding-left: 28px;
     }
     
-    /* Active/tap state for better mobile feedback */
-    .nav-link:active {
-        background-color: #ffe5e5;
+    .nav-link.active {
+        background-color: rgba(255, 107, 107, 0.08);
     }
     
-    .nav-icon:active {
-        transform: scale(0.92);
-        background-color: rgba(255, 107, 107, 0.1);
+    .navbar-icons {
+        gap: 8px;
     }
     
-    .navbar-toggle:active {
-        background-color: rgba(255, 107, 107, 0.1);
+    .nav-icon {
+        padding: 10px;
+    }
+    
+    .nav-icon svg {
+        width: 22px !important;
+        height: 22px !important;
+    }
+    
+    /* Breadcrumbs on mobile */
+    .breadcrumbs-wrapper .container {
+        justify-content: center;
+    }
+    
+    .breadcrumbs {
+        font-size: 10px;
+        padding: 3px 8px;
+        gap: 3px;
+    }
+    
+    .breadcrumbs a,
+    .breadcrumbs .current {
+        font-size: 10px;
+        padding: 2px 5px;
     }
 }
 
 /* Mobile Phones (480px and below) */
 @media (max-width: 480px) {
-    .navbar {
-        padding: 14px 0;
+    .navbar-inner {
+        padding: 10px 0;
     }
     
     .navbar-logo svg {
-        width: 60px;
-        height: 60px;
+        width: 52px;
+        height: 52px;
     }
     
     .logo-subtitle {
-        font-size: 8px;
+        font-size: 7px;
         letter-spacing: 1px;
+    }
+    
+    .navbar-toggle {
+        padding: 10px;
+    }
+    
+    .navbar-toggle span {
+        width: 24px;
+        height: 2.5px;
     }
     
     .navbar-icons {
         gap: 4px;
     }
     
-    /* Extra large touch targets for small phones */
     .nav-icon {
-        padding: 16px 12px;
-        min-width: 52px;
-        min-height: 52px;
+        padding: 8px;
     }
     
     .nav-icon svg {
-        width: 28px !important;
-        height: 28px !important;
+        width: 20px !important;
+        height: 20px !important;
     }
     
     .wishlist-count,
     .cart-count {
-        min-width: 18px;
-        height: 18px;
-        font-size: 10px;
-        top: 2px;
-        right: 0;
+        min-width: 16px;
+        height: 16px;
+        font-size: 9px;
+        top: -1px;
+        right: -1px;
     }
     
-    /* Larger nav links for easier tapping */
     .nav-link {
-        font-size: 18px;
-        padding: 22px 20px;
-        min-height: 60px;
+        font-size: 15px;
+        padding: 16px 20px;
     }
     
-    .navbar-toggle {
-        padding: 16px 12px;
-        min-width: 52px;
-        min-height: 52px;
+    .breadcrumbs {
+        font-size: 9px;
+        gap: 2px;
+        padding: 2px 7px;
     }
     
-    .navbar-toggle span {
-        width: 30px;
-        height: 3px;
+    .breadcrumbs a,
+    .breadcrumbs .current {
+        font-size: 9px;
+        padding: 2px 4px;
+    }
+    
+    .breadcrumb-separator {
+        font-size: 9px;
     }
 }
 
 /* Very Small Phones (360px and below) */
 @media (max-width: 360px) {
     .navbar-logo svg {
-        width: 56px;
-        height: 56px;
+        width: 48px;
+        height: 48px;
     }
     
     .logo-subtitle {
-        font-size: 7px;
+        font-size: 6.5px;
+        letter-spacing: 0.8px;
     }
     
     .navbar-icons {
         gap: 2px;
     }
     
-    /* Maintain large touch targets even on tiny screens */
     .nav-icon {
-        padding: 14px 10px;
-        min-width: 50px;
-        min-height: 50px;
+        padding: 6px;
     }
     
     .nav-icon svg {
-        width: 26px !important;
-        height: 26px !important;
+        width: 18px !important;
+        height: 18px !important;
+    }
+    
+    .wishlist-count,
+    .cart-count {
+        min-width: 14px;
+        height: 14px;
+        font-size: 8px;
     }
     
     .nav-link {
-        font-size: 17px;
-        padding: 20px 18px;
-        min-height: 58px;
+        font-size: 14px;
+        padding: 14px 16px;
     }
     
-    .navbar-toggle {
-        padding: 14px 10px;
-        min-width: 50px;
-        min-height: 50px;
+    .breadcrumbs {
+        font-size: 8px;
+        padding: 2px 6px;
+    }
+    
+    .breadcrumbs a,
+    .breadcrumbs .current {
+        font-size: 8px;
+        padding: 1px 3px;
     }
 }
 
