@@ -420,22 +420,31 @@
 }
 
 /* ==========================================
-   BREADCRUMBS - COMPACT & RIGHT-ALIGNED
+   BREADCRUMBS - COMPACT & DYNAMIC WIDTH
    ========================================== */
 .breadcrumbs-wrapper {
     background: #f9f9f9;
     border-bottom: 1px solid #e5e5e5;
     padding: 6px 0;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.breadcrumbs-wrapper .container {
+    padding: 0;
+    width: auto;
+    max-width: none;
+    margin: 0;
 }
 
 .breadcrumbs {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    justify-content: flex-end;
     gap: 4px;
     color: #666;
     font-size: clamp(11px, 1.8vw, 13px);
-    padding-right: clamp(16px, 3vw, 24px);
+    padding: 0 clamp(16px, 3vw, 24px);
+    white-space: nowrap;
 }
 
 .breadcrumbs a {
@@ -465,20 +474,12 @@
 @media (max-width: 768px) {
     .breadcrumbs-wrapper {
         padding: 5px 0;
+        justify-content: flex-start;
     }
     
     .breadcrumbs {
-        justify-content: flex-start;
         padding: 0 clamp(12px, 3vw, 16px);
         font-size: 12px;
-        overflow-x: auto;
-        white-space: nowrap;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-    }
-    
-    .breadcrumbs::-webkit-scrollbar {
-        display: none;
     }
     
     .breadcrumbs a,
