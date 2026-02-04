@@ -141,6 +141,22 @@ body {
         gap: 32px;
     }
 }
+
+@media (max-width: 480px) {
+    .product-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .brand-name {
+        font-size: 48px !important; /* Ensure readable on small screens */
+        letter-spacing: 2px !important;
+    }
+    
+    .section-title {
+        font-size: 32px;
+    }
+}
 .product-card {
     background: #fff;
     border-radius: 24px;

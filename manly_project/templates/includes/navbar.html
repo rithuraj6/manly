@@ -826,18 +826,34 @@
 
 @media (max-width: 768px) {
     .navbar-logo svg {
-        width: 72px;
-        height: 72px;
+        width: 60px;
+        height: 60px;
     }
 
     .logo-subtitle {
-        font-size: 10px;
-        letter-spacing: 2px;
+        font-size: 9px;
+        letter-spacing: 1.5px;
     }
-}
-@media (max-width: 768px) {
+    
+    .navbar-menu {
+        padding: 10px 0;
+        background-color: #fff;
+        border-radius: 0 0 16px 16px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+
+    .nav-link {
+        font-size: 18px; /* Larger text for readability */
+        padding: 16px 24px; /* Larger clickable area */
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .nav-link:last-child {
+        border-bottom: none;
+    }
+
     .nav-icon {
-        padding: 14px;
+        padding: 12px;
         min-width: 48px;
         min-height: 48px;
     }
@@ -847,6 +863,7 @@
         height: 26px !important;
     }
 }
+
 
 /* Landscape Mobile Optimization */
 @media (max-height: 500px) and (orientation: landscape) {
