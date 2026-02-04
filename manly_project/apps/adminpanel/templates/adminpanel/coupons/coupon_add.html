@@ -432,6 +432,34 @@
 </div>
 
 <script>
+    document.addEventListener("DOMContentLoaded", function () {
+    const discountType = document.querySelector('[name="discount_type"]');
+    const discountValue = document.querySelector('[name="discount_value"]');
+    const minPurchase = document.querySelector('[name="min_purchase_amount"]');
+    const maxDiscount = document.querySelector('[name="max_discount_amount"]');
+
+    function toggleFields() {
+        if (!discountType) return;
+
+        if (discountType.value === "FLAT") {
+            // FLAT: disable discount_value
+            discountValue.value = "";
+            discountValue.disabled = true;
+
+            minPurchase.disabled = false;
+            maxDiscount.disabled = false;
+        }
+
+        if (discountType.value === "PERCENT") {
+            discountValue.disabled = false;
+            minPurchase.disabled = false;
+            maxDiscount.disabled = false;
+        }
+    }
+
+    discountType.addEventListener("change", toggleFields);
+    toggleFields(); // initial state for edit page
+});
 document.addEventListener("DOMContentLoaded", function () {
     const startInput = document.getElementById("start_date");
     const endInput = document.getElementById("end_date");
