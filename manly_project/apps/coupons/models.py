@@ -112,7 +112,7 @@ class Coupon(models.Model):
           
             
            
-            max_allowed = min(percent_discount_amount)
+            max_allowed = percent_discount_amount
 
             if max_discount > max_allowed:
                 raise ValidationError(
