@@ -422,10 +422,32 @@
 /* ==========================================
    BREADCRUMBS
    ========================================== */
+/* ==========================================
+   BREADCRUMBS
+   ========================================== */
 .breadcrumbs-wrapper {
-    background: linear-gradient(to bottom, #fafafa, #ffffff);
+    background: rgba(255, 255, 255, 0.95); /* Slight transparency for blur */
     border-bottom: 1px solid #e8e8e8;
     padding: clamp(8px, 1.5vh, 12px) 0;
+    position: sticky;
+    top: 60px; /* Approximate navbar height */
+    z-index: 900; /* Below navbar (1000) */
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: top 0.3s ease;
+}
+
+/* Adjust top based on navbar height in JS if needed, or use media queries */
+@media (max-width: 768px) {
+    .breadcrumbs-wrapper {
+        top: 60px; /* Mobile navbar height */
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+    .breadcrumbs {
+        flex-wrap: nowrap; /* Prevent wrapping on mobile */
+    }
 }
 
 .breadcrumbs {
@@ -434,7 +456,7 @@
     align-items: center;
     gap: clamp(6px, 1vw, 10px);
     color: #777;
-    font-size: clamp(11px, 1.6vw, 14px);
+    font-size: clamp(12px, 1.6vw, 14px);
 }
 
 .breadcrumbs a {
@@ -471,10 +493,14 @@
 }
 
 .breadcrumbs .current {
-    color: #ff6b6b;
-    font-weight: 500;
-    text-shadow: 0 0 8px rgba(255,107,107,0.35);
-    animation: glow 2s ease-in-out infinite;
+    color: #ff0000; /* Red highlight as requested */
+    font-weight: 600;
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.2);
+    position: relative;
+    padding: 2px 6px;
+    background: rgba(255, 0, 0, 0.05); /* Subtle background for emphasis */
+    border-radius: 4px;
+    border: 1px solid rgba(255, 0, 0, 0.1);
 }
 
 /* ==========================================
