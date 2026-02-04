@@ -22,10 +22,10 @@
         </button>
 
         <div class="navbar-menu">
-            <a href="{% url 'home' %}" class="nav-link">Home</a><br>
-            <a href="{% url 'shop' %}" class="nav-link">Shop</a><br>
-            <a href="{% url 'contact' %}" class="nav-link">Contact Us</a><br>
-            <a href="{% url 'about' %}" class="nav-link">About Us</a><br>
+            <a href="{% url 'home' %}" class="nav-link">Home</a>
+            <a href="{% url 'shop' %}" class="nav-link">Shop</a>
+            <a href="{% url 'contact' %}" class="nav-link">Contact Us</a>
+            <a href="{% url 'about' %}" class="nav-link">About Us</a>
         </div>
 
         <div class="navbar-icons">
@@ -420,250 +420,89 @@
 }
 
 /* ==========================================
-   BREADCRUMBS
+   BREADCRUMBS - COMPACT & RIGHT-ALIGNED
    ========================================== */
-/* ==========================================
-   BREADCRUMBS
-   ========================================== */
-   /* Breadcrumb Container */
-.breadcrumb-container {
-    width: 100%;
-    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-    padding: 8px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.breadcrumb {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    flex-wrap: wrap;
-    gap: 6px;
-    padding: 0 20px;
-    margin: 0;
-    list-style: none;
-    font-size: 13px;
-    min-height: 32px;
-}
-
-/* Breadcrumb Items */
-.breadcrumb-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 12px;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 6px;
-    transition: all 0.3s ease;
-    white-space: nowrap;
-    max-width: fit-content;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* Links in breadcrumbs */
-.breadcrumb-item a {
-    color: #b8b8b8;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    font-weight: 500;
-}
-
-.breadcrumb-item a:hover {
-    color: #ffffff;
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
-}
-
-/* Current/Active page (no link) */
-.breadcrumb-item.active,
-.breadcrumb-item:last-child {
-    background: transparent;
-    border: none;
-    padding: 4px 8px;
-}
-
-.breadcrumb-item.active,
-.breadcrumb-item:not(:has(a)) {
-    color: #ffffff;
-    font-weight: 600;
-    text-shadow: 0 0 12px rgba(255, 255, 255, 0.8),
-                 0 0 20px rgba(255, 255, 255, 0.4);
-    animation: glow-pulse 2s ease-in-out infinite;
-}
-
-/* Glow animation for current page */
-@keyframes glow-pulse {
-    0%, 100% {
-        text-shadow: 0 0 12px rgba(255, 255, 255, 0.8),
-                     0 0 20px rgba(255, 255, 255, 0.4);
-    }
-    50% {
-        text-shadow: 0 0 16px rgba(255, 255, 255, 1),
-                     0 0 28px rgba(255, 255, 255, 0.6),
-                     0 0 36px rgba(255, 255, 255, 0.3);
-    }
-}
-
-/* Separator */
-.breadcrumb-item + .breadcrumb-item::before {
-    content: "/";
-    color: rgba(255, 255, 255, 0.3);
-    margin-right: 6px;
-    font-weight: 300;
-}
-
-/* Hover effects for non-active items */
-.breadcrumb-item:not(.active):not(:last-child):hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.2);
-    transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .breadcrumb {
-        justify-content: flex-start;
-        padding: 0 15px;
-        font-size: 12px;
-        gap: 4px;
-    }
-    
-    .breadcrumb-item {
-        padding: 3px 10px;
-        font-size: 11px;
-    }
-    
-    .breadcrumb-item.active,
-    .breadcrumb-item:last-child {
-        padding: 3px 6px;
-    }
-    
-    /* Truncate long text on mobile */
-    .breadcrumb-item a,
-    .breadcrumb-item {
-        max-width: 150px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-}
-
-@media (max-width: 480px) {
-    .breadcrumb {
-        font-size: 11px;
-        padding: 0 10px;
-    }
-    
-    .breadcrumb-item {
-        padding: 2px 8px;
-        font-size: 10px;
-    }
-    
-    .breadcrumb-item a,
-    .breadcrumb-item {
-        max-width: 120px;
-    }
-    
-    /* Stack breadcrumbs on very small screens if needed */
-    .breadcrumb-item + .breadcrumb-item::before {
-        margin-right: 4px;
-    }
-}
-
-/* Optional: Auto-hide overflow on very small screens */
-@media (max-width: 360px) {
-    .breadcrumb {
-        overflow-x: auto;
-        flex-wrap: nowrap;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: thin;
-    }
-    
-    .breadcrumb::-webkit-scrollbar {
-        height: 3px;
-    }
-    
-    .breadcrumb::-webkit-scrollbar-thumb {
-        background: rgba(255, 255, 255, 0.3);
-        border-radius: 3px;
-    }
-}
 .breadcrumbs-wrapper {
-    background: rgba(255, 255, 255, 0.95); /* Slight transparency for blur */
-    border-bottom: 1px solid #e8e8e8;
-    padding: clamp(8px, 1.5vh, 12px) 0;
-    position: sticky;
-    top: 60px; /* Approximate navbar height */
-    z-index: 900; /* Below navbar (1000) */
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    transition: top 0.3s ease;
-}
-
-/* Adjust top based on navbar height in JS if needed, or use media queries */
-@media (max-width: 768px) {
-    .breadcrumbs-wrapper {
-        top: 60px; /* Mobile navbar height */
-        overflow-x: auto;
-        white-space: nowrap;
-        -webkit-overflow-scrolling: touch;
-    }
-    .breadcrumbs {
-        flex-wrap: nowrap; /* Prevent wrapping on mobile */
-    }
+    background: #f9f9f9;
+    border-bottom: 1px solid #e5e5e5;
+    padding: 6px 0;
 }
 
 .breadcrumbs {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
-    gap: clamp(6px, 1vw, 10px);
-    color: #777;
-    font-size: clamp(12px, 1.6vw, 14px);
+    justify-content: flex-end;
+    gap: 4px;
+    color: #666;
+    font-size: clamp(11px, 1.8vw, 13px);
+    padding-right: clamp(16px, 3vw, 24px);
 }
 
 .breadcrumbs a {
-    color: #777;
+    color: #666;
     text-decoration: none;
-    transition: all 0.3s ease;
-    position: relative;
-    padding: 2px 0;
+    transition: color 0.2s ease;
+    padding: 2px 4px;
 }
 
 .breadcrumbs a:hover {
     color: #ff6b6b;
 }
 
-.breadcrumbs a::before {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 0;
-    height: 1px;
-    background: linear-gradient(90deg, #ff6b6b, #eb1e1bff);
-    transition: width 0.3s ease;
-}
-
-.breadcrumbs a:hover::before {
-    width: 100%;
-}
-
 .breadcrumb-separator {
     color: #ccc;
     user-select: none;
-    margin: 0 clamp(2px, 0.5vw, 4px);
+    font-size: clamp(10px, 1.6vw, 12px);
 }
 
 .breadcrumbs .current {
-    color: #ff0000; /* Red highlight as requested */
+    color: #ff0000;
     font-weight: 600;
-    text-shadow: 0 0 10px rgba(255, 0, 0, 0.2);
-    position: relative;
-    padding: 2px 6px;
-    background: rgba(255, 0, 0, 0.05); /* Subtle background for emphasis */
-    border-radius: 4px;
-    border: 1px solid rgba(255, 0, 0, 0.1);
+    padding: 2px 4px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .breadcrumbs-wrapper {
+        padding: 5px 0;
+    }
+    
+    .breadcrumbs {
+        justify-content: flex-start;
+        padding: 0 clamp(12px, 3vw, 16px);
+        font-size: 12px;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+    
+    .breadcrumbs::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .breadcrumbs a,
+    .breadcrumbs .current {
+        font-size: 12px;
+        padding: 4px 6px;
+    }
+}
+
+@media (max-width: 480px) {
+    .breadcrumbs {
+        font-size: 11px;
+        gap: 3px;
+    }
+    
+    .breadcrumbs a,
+    .breadcrumbs .current {
+        font-size: 11px;
+        padding: 3px 5px;
+    }
+    
+    .breadcrumb-separator {
+        font-size: 10px;
+    }
 }
 
 /* ==========================================
@@ -689,15 +528,6 @@
     }
     100% {
         box-shadow: 0 0 0 0 rgba(235, 30, 27, 0);
-    }
-}
-
-@keyframes glow {
-    0%, 100% {
-        text-shadow: 0 0 8px rgba(255,107,107,0.35);
-    }
-    50% {
-        text-shadow: 0 0 12px rgba(255,107,107,0.6);
     }
 }
 
@@ -873,23 +703,6 @@
     .navbar-toggle:active {
         background-color: rgba(255, 107, 107, 0.1);
     }
-    
-    /* Bigger tap area for breadcrumbs */
-    .breadcrumbs a {
-        padding: 8px 4px;
-        min-height: 36px;
-        display: inline-flex;
-        align-items: center;
-    }
-    
-    .breadcrumbs a:active {
-        background-color: rgba(255, 107, 107, 0.1);
-        border-radius: 4px;
-    }
-    
-    .breadcrumbs {
-        font-size: 12px;
-    }
 }
 
 /* Mobile Phones (480px and below) */
@@ -950,23 +763,6 @@
         width: 30px;
         height: 3px;
     }
-    
-    .breadcrumbs {
-        font-size: 12px;
-        gap: 8px;
-    }
-    
-    .breadcrumb-separator {
-        margin: 0 3px;
-    }
-    
-    .breadcrumbs a,
-    .breadcrumbs .current {
-        padding: 6px 0;
-        min-height: 32px;
-        display: inline-flex;
-        align-items: center;
-    }
 }
 
 /* Very Small Phones (360px and below) */
@@ -1006,76 +802,6 @@
         padding: 14px 10px;
         min-width: 50px;
         min-height: 50px;
-    }
-    
-    .breadcrumbs {
-        font-size: 11px;
-    }
-}
-
-@media (max-width: 768px) {
-    .navbar-logo svg {
-        width: 60px;
-        height: 60px;
-    }
-
-    .logo-subtitle {
-        font-size: 9px;
-        letter-spacing: 1.5px;
-    }
-    
-    .navbar-menu {
-        padding: 10px 0;
-        background-color: #fff;
-        border-radius: 0 0 16px 16px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-    }
-
-    .nav-link {
-        font-size: 18px; /* Larger text for readability */
-        padding: 16px 24px; /* Larger clickable area */
-        border-bottom: 1px solid #f0f0f0;
-    }
-    
-    .nav-link:last-child {
-        border-bottom: none;
-    }
-
-    .nav-icon {
-        padding: 12px;
-        min-width: 48px;
-        min-height: 48px;
-    }
-
-    .nav-icon svg {
-        width: 26px !important;
-        height: 26px !important;
-    }
-}
-
-
-/* Landscape Mobile Optimization */
-@media (max-height: 500px) and (orientation: landscape) {
-    .navbar {
-        padding: 8px 0;
-    }
-    
-    .navbar-logo svg {
-        width: 50px;
-        height: 50px;
-    }
-    
-    .nav-link {
-        padding: 10px 16px;
-    }
-}
-@media (max-width: 768px) {
-    .navbar {
-        padding: 16px 0;
-    }
-
-    .navbar-inner {
-        gap: 16px;
     }
 }
 
