@@ -3,7 +3,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 import uuid
-
+from decimal import Decimal
 
 class Coupon(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
@@ -71,6 +71,26 @@ class Coupon(models.Model):
                 raise ValidationError(
                     "Valid To date cannot be in the past"
                 )
+        min_purchase = self.min_purchase_amount or Decimal("0")
+        discount_value = self.discount_value or Decimal("0")
+        max_discount = self.max_discount_amount  or Decimal("0")
+        
+        if self.discount_type =="FLAT":
+            if min_purchase <=0:
+                raise ValidationError("Minimum purchase amount is required for flat coupons")
+            
+            
+            if discount_value > min_purchase:
+                raise ValidationError("Flat discount cannot be greater than minimum purchase amount")
+            
+            
+        if self.discount_type == "PERCENT":
+            
+            if  min_purchase > 0 and max_discount > min_purchase:
+                raise ValidationError(
+                    "Max dicount amount exceed minimum purchase amount"
+                )
+
 
     def __str__(self):
         return self.code
