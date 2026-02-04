@@ -57,7 +57,6 @@
             </a>
         </div>
     </div> 
-</nav>
 
 {% if breadcrumbs %}
 <div class="breadcrumbs-wrapper">
@@ -75,6 +74,8 @@
     </div>
 </div>
 {% endif %}
+</nav>
+
 
 <style>
 /* ==========================================
@@ -420,15 +421,16 @@
 }
 
 /* ==========================================
-   BREADCRUMBS - STATIC, COMPACT, NO STRETCH
+   BREADCRUMBS - MATCHES NAVBAR BACKGROUND
    ========================================== */
 .breadcrumbs-wrapper {
-    background: linear-gradient(to right, #f5f5f5, #fafafa);
-    border-bottom: 1px solid #e0e0e0;
-    padding: 8px 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    {% comment %} border-bottom: 1px solid rgba(8, 7, 7, 0.1); {% endcomment %}
+    padding: 6px 0;
     position: static;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
+    
 
 .breadcrumbs-wrapper .container {
     display: flex;
@@ -440,24 +442,24 @@
 .breadcrumbs {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 4px;
     color: #666;
-    font-size: clamp(12px, 2vw, 14px);
-    padding: 4px 12px;
+    font-size: 11px;
+    padding: 3px 10px;
     background: #fff;
-    border-radius: 20px;
-    border: 1px solid #e5e5e5;
+    border-radius: 16px;
+    {% comment %} border: 1px solid #e5e5e5; {% endcomment %}
     white-space: nowrap;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
 .breadcrumbs a {
     color: #666;
     text-decoration: none;
     transition: all 0.2s ease;
-    padding: 3px 8px;
-    border-radius: 4px;
+    padding: 2px 6px;
+    border-radius: 3px;
     font-weight: 500;
+    font-size: 11px;
 }
 
 .breadcrumbs a:hover {
@@ -468,22 +470,23 @@
 .breadcrumb-separator {
     color: #ccc;
     user-select: none;
-    font-size: clamp(11px, 1.8vw, 13px);
+    font-size: 10px;
     font-weight: 300;
 }
 
 .breadcrumbs .current {
     color: #ff0000;
     font-weight: 700;
-    padding: 3px 8px;
+    padding: 2px 6px;
     background: rgba(255, 0, 0, 0.08);
-    border-radius: 4px;
+    border-radius: 3px;
+    font-size: 11px;
 }
 
 /* Mobile Responsive */
 @media (max-width: 768px) {
     .breadcrumbs-wrapper {
-        padding: 6px 0;
+        padding: 5px 0;
     }
     
     .breadcrumbs-wrapper .container {
@@ -492,53 +495,52 @@
     }
     
     .breadcrumbs {
-        font-size: 13px;
-        padding: 6px 14px;
-        gap: 5px;
+        font-size: 10px;
+        padding: 3px 8px;
+        gap: 3px;
     }
     
     .breadcrumbs a,
     .breadcrumbs .current {
-        font-size: 13px;
-        padding: 4px 8px;
+        font-size: 10px;
+        padding: 2px 5px;
     }
 }
 
 @media (max-width: 480px) {
     .breadcrumbs-wrapper {
-        padding: 5px 0;
+        padding: 4px 0;
     }
     
     .breadcrumbs {
-        font-size: 12px;
-        gap: 4px;
-        padding: 5px 12px;
+        font-size: 9px;
+        gap: 2px;
+        padding: 2px 7px;
     }
     
     .breadcrumbs a,
     .breadcrumbs .current {
-        font-size: 12px;
-        padding: 3px 6px;
+        font-size: 9px;
+        padding: 2px 4px;
     }
     
     .breadcrumb-separator {
-        font-size: 11px;
+        font-size: 9px;
     }
 }
 
 @media (max-width: 360px) {
     .breadcrumbs {
-        font-size: 11px;
-        padding: 4px 10px;
+        font-size: 8px;
+        padding: 2px 6px;
     }
     
     .breadcrumbs a,
     .breadcrumbs .current {
-        font-size: 11px;
-        padding: 2px 5px;
+        font-size: 8px;
+        padding: 1px 3px;
     }
 }
-
 /* ==========================================
    ANIMATIONS
    ========================================== */
