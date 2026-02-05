@@ -476,17 +476,16 @@
             <h4>Size</h4>
             {% for s in sizes %}
             <label>
-               <input type="checkbox" name="size"
-                    value="{{ s }}"
-                    {% if s in selected_sizes %}
+                <input type="checkbox"
+                    name="size"
+                    value="{{ s.size_name }}"
+                    {% if s.size_name in selected_sizes %}
                             checked
-                    {% elif s == user_size and not selected_sizes and not request.session.disable_user_size %}
+                    {% elif s.size_name == user_size and not selected_sizes and not request.session.disable_user_size %}
                             checked
                     {% endif %}
                 >
-                <span class="size-text">{{ s }}</span>
-
-
+                <span class="size-text">{{ s.size_name }}</span>
             </label>
             {% endfor %}
         </div>

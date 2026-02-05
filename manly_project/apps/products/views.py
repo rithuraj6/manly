@@ -162,7 +162,9 @@ def product_list_by_category(request, category_uuid):
     
     
 
-    selected_category_ids = request.GET.getlist("category.id")
+    selected_category_ids = [str(cid) for cid in request.GET.getlist("category")]
+
+
     selected_sizes = request.GET.getlist("size")
 
     min_price = request.GET.get("min_price", "").strip()
@@ -171,14 +173,17 @@ def product_list_by_category(request, category_uuid):
     search_query = request.GET.get("q", "").strip()
     sort = request.GET.get("sort", "").strip()
     
-    category_ids = [base_category.id]
+   
     wishlist_product_ids = set()
 
  
     
-    if selected_category_ids:
-        category_ids.extend([int(cid) for cid in selected_category_ids])
+    category_ids = {base_category.id}
 
+    if selected_category_ids:
+        category_ids.update(int(cid) for cid in selected_category_ids)
+
+   
     products = Product.objects.filter(is_active=True,category_id__in=category_ids)
 
     if search_query:
@@ -192,7 +197,13 @@ def product_list_by_category(request, category_uuid):
     
     user_size = None
     if request.user.is_authenticated and hasattr(request.user, "profile"):
-        user_size = request.user.profile.size
+        if request.user.profile.size:
+            user_size = (
+                request.user.profile.size.size_name
+                if hasattr(request.user.profile.size, "size_name")
+                else request.user.profile.size
+            )
+
     
     disable_user_size = request.session.get("disable_user_size", False)
 
@@ -213,10 +224,9 @@ def product_list_by_category(request, category_uuid):
         )
 
     if min_price:
-        products = products.filter(base_price__gte=min_price)
+        products = products.filter(base_price__gte=Decimal(min_price))
     if max_price:
-        products = products.filter(base_price__lte=max_price)
-
+        products = products.filter(base_price__lte=Decimal(max_price))
    
     if sort == "price_low":
         products = products.order_by("base_price")
@@ -310,8 +320,7 @@ def product_list_by_category(request, category_uuid):
         "category": base_category,
         "categories": Category.objects.filter(is_active=True),
         "page_obj": page_obj,
-        "sizes": SizeGuide.objects.filter(is_active=True)
-        .values_list("size_name", flat=True),
+        "sizes": SizeGuide.objects.filter(is_active=True),
         "selected_sizes": selected_sizes,
         "selected_categories": selected_category_ids or [str(base_category.id)],
         "default_size": default_size,
@@ -333,13 +342,7 @@ def product_list_by_category(request, category_uuid):
      "clear_search_url": clear_search_url,
     "clear_sort_url": clear_sort_url,
     "clear_filter_url": clear_filter_url,
-    "user_size": (
-        request.user.profile.size
-        if request.user.is_authenticated and hasattr(request.user, "profile")
-        else None
-    ),
-
-
+    "user_size": user_size,
 
 
 
