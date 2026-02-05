@@ -272,5 +272,4 @@ def admin_toggle_product(request, product_uuid):
     product.save()
 
     messages.success(request, "Product status updated")
-    return redirect("admin_product_list")
-
+    return redirect(request.META.get("HTTP_REFERER", "admin_product_list"))

@@ -129,7 +129,8 @@ def toggle_offer_status(request, offer_uuid):
         f"Offer {'activated' if offer.is_active else 'blocked'} successfully"
     )
 
-    return redirect("admin_offer_list")
+    return redirect(request.META.get("HTTP_REFERER", "admin_offer_list"))
+
 @admin_required
 def offer_edit(request, offer_uuid):
     offer = get_object_or_404(Offer, uuid=offer_uuid)

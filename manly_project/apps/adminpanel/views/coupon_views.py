@@ -37,7 +37,7 @@ def toggle_coupon_status(request,coupon_uuid):
     coupon = get_object_or_404(Coupon,uuid=coupon_uuid)
     coupon.is_active = not coupon.is_active
     coupon.save()
-    return redirect('admin_coupon_list')
+    return redirect(request.META.get("HTTP_REFERER", "admin_coupon_list"))
 
 
 

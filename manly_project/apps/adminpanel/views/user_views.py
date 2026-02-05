@@ -49,16 +49,6 @@ def admin_users(request):
 
     return render(request, "adminpanel/users/user_list.html", context)
 
-# @admin_required
-# def toggle_user_status(request, user_id):
-#     if not request.user.is_staff:
-#         return redirect('admin_login')
-
-#     user = User.objects.get(id=user_id)
-#     user.is_active = not user.is_active
-#     user.save()
-#     return redirect('admin_users')
-
 
 
 @admin_required
@@ -72,5 +62,6 @@ def toggle_user_status(request,user_uuid):
     user.is_blocked = not user.is_blocked
     user.save(update_fields=["is_blocked"])
     
-    return redirect("admin_users")
+    return redirect(request.META.get("HTTP_REFERER", "admin_user_list"))
+
 

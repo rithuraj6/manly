@@ -65,7 +65,8 @@ def approve_return(request, return_id):
     recalculate_order_status(order)
 
     messages.success(request, "Return approved and refund credited to user wallet.")
-    return redirect("admin_return_request_list")
+    return redirect(request.META.get("HTTP_REFERER", "admin_return_request_list"))
+    
 
 
 
