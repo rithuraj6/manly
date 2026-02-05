@@ -2,16 +2,11 @@ from apps.sizeguide.models import SizeGuide
 
 
 def calculate_user_size(*, chest=None, shoulder=None):
-    """
-    Returns size_name (S/M/L/XL/XXL) or empty string.
-    """
-
     if not chest:
-        return ""
+        return None
 
-    queryset = SizeGuide.objects.filter(is_active=True)
+    queryset = SizeGuide.objects.filter(is_active=True).order_by("chest_min")
 
-  
     if shoulder:
         size = queryset.filter(
             chest_min__lte=chest,
@@ -23,10 +18,9 @@ def calculate_user_size(*, chest=None, shoulder=None):
         if size:
             return size.size_name
 
-    
     size = queryset.filter(
         chest_min__lte=chest,
         chest_max__gte=chest,
     ).first()
 
-    return size.size_name if size else ""
+    return size.size_name if size else None
