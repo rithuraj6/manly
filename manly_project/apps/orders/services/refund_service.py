@@ -26,7 +26,7 @@ def process_refund(*, order_item,event,initiated_by="system"):
             refund_to_wallet(user=order.user,
                              order_item=order_item,
                              amount=amount,
-                             reson=f"Refund ({event}) for order {order.order_id}",
+                             reason=f"Refund ({event}) for order {order.order_id}",
             )
             
             return True
