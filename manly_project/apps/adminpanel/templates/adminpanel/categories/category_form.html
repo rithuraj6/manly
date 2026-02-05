@@ -50,7 +50,8 @@
             </p>
         </div>
 
-        <form method="post" class="category-form">
+        <form method="post" class="category-form" id="categoryForm">
+
             {% csrf_token %}
 
             <div class="form-group">
@@ -78,7 +79,8 @@
             
 
             <div class="form-actions">
-                <button type="submit" class="btn-submit">
+                <button type="submit" class="btn-submit" id="submitCategoryBtn">
+
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
@@ -424,10 +426,19 @@
 </style>
 
 <script>
+
+const form = document.querySelector("#categoryForm");
+const submitBtn = document.querySelector("#submitCategoryBtn");
+
+form?.addEventListener("submit", () => {
+    disableButton(submitBtn, "Adding...");
+});
+
 // Auto-focus on category name input
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('categoryName').focus();
 });
 </script>
+<script src="{% static 'js/admin/admin_users.js' %}"></script>
 
 {% endblock %}

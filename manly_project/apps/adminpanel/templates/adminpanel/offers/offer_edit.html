@@ -369,7 +369,7 @@
             <p class="info-text">Editing existing offer. Changes will be applied immediately after saving.</p>
         </div>
 
-        <form method="post" class="offer-form">
+        <form method="post" class="offer-form" id="offerForm">
             {% csrf_token %}
 
             <div class="form-group">
@@ -431,7 +431,10 @@
                 </label>
             </div>
 
-            <button type="submit" class="btn-submit">Update Offer</button>
+            <button type="submit" class="btn-submit" id="submitOfferBtn">
+                Update Offer
+            </button>
+
         </form>
     </div>
 </div>
@@ -444,18 +447,24 @@ document.addEventListener("DOMContentLoaded", function () {
         if (startDateInput.value) {
             endDateInput.min = startDateInput.value;
 
-            // auto-fix invalid end date
             if (endDateInput.value && endDateInput.value < startDateInput.value) {
                 endDateInput.value = startDateInput.value;
             }
         }
     }
 
-    // 🔥 THIS LINE WAS MISSING
+   
     syncEndDateMin();
 
     startDateInput.addEventListener("change", syncEndDateMin);
 });
+const offerForm = document.querySelector("#offerForm");
+const submitBtn = document.querySelector("#submitOfferBtn");
+
+offerForm?.addEventListener("submit", function () {
+    disableButton(submitBtn, "Saving...");
+});
+
 </script>
  
 {% endblock %}

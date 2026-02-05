@@ -326,7 +326,8 @@
             <p class="info-text">Choose either a Product or Category for this offer. The discount will be applied accordingly.</p>
         </div>
 
-        <form method="post" class="offer-form">
+        <form method="post" class="offer-form" id="offerForm">
+
             {% csrf_token %}
 
             <div class="form-group">
@@ -378,9 +379,21 @@
                 </label>
             </div>
 
-            <button type="submit" class="btn-submit">Create Offer</button>
+          <button type="submit" class="btn-submit" id="submitOfferBtn">
+                Create Offer
+         </button>
+
         </form>
     </div>
 </div>
+<script>
 
+const offerForm = document.querySelector("#offerForm");
+const submitBtn = document.querySelector("#submitOfferBtn");
+
+offerForm?.addEventListener("submit", function () {
+    disableButton(submitBtn, "Saving...");
+});
+
+</script>
 {% endblock %}

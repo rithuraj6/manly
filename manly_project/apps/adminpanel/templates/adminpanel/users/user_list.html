@@ -798,6 +798,7 @@
     }
 }
 </style>
+<script src="{% static 'js/admin/admin_users.js' %}"></script>
 
 <script>
 let confirmCallback = null;
@@ -813,6 +814,7 @@ function confirmUnblock(event, email, url) {
     showModal('unblock', email, url);
     return false;
 }
+
 
 function showModal(action, email, url) {
     const modal = document.getElementById('confirmModal');
@@ -851,6 +853,8 @@ function showModal(action, email, url) {
     
     // Store the URL for confirmation
     confirmCallback = function() {
+        const btnConfirm = document.getElementById("btnConfirm");
+        if (!disableButton(btnConfirm, "Processing...")) return;
         window.location.href = url;
     };
     
@@ -895,6 +899,22 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+        for (let cookie of cookies) {
+            cookie = cookie.trim();
+            if (cookie.startsWith(name + "=")) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
 </script>
 
 {% endblock %}

@@ -396,11 +396,11 @@
                         </a>
 
                         {% if offer.status != "expired" %}
-                        <button
-                            data-offer-toggle="{{ offer.uuid }}"
-                            class="{% if offer.is_active %}btn-block{% else %}btn-unblock{% endif %}">
+                        <a href="{% url 'admin_offer_toggle' offer.uuid %}"
+                                class="{% if offer.is_active %}btn-block{% else %}btn-unblock{% endif %}"
+                                onclick="return handleOfferToggle(event, this)">
                             {% if offer.is_active %}Block{% else %}Unblock{% endif %}
-                        </button>
+                        </a>
                         {% else %}
                         <span style="color:#f59e0b;font-weight:600;">Expired</span>
                         {% endif %}
@@ -427,47 +427,15 @@
 </div>
 
 <script>
-{% comment %} document.addEventListener("click", function (e) {
-    const btn = e.target.closest("[data-offer-toggle]");
-    if (!btn) return;
 
-    const offerId = btn.dataset.offerToggle;
+function handleOfferToggle(event, btn) {
+    event.preventDefault();
 
-    fetch(`/admin-panel/offers/${offerId}/toggle/`, {
-        method: "POST",
-        headers: {
-            "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value
-        }
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
-        }
-    });
-}); {% endcomment %}
+    if (!disableButton(btn, "Processing...")) return false;
 
-document.addEventListener("click", function (e) {
-    const btn = e.target.closest("[data-offer-toggle]");
-    if (!btn) return;
-
-    const offerUuid = btn.dataset.offerToggle;
-
-    fetch(`/admin-panel/offers/${offerUuid}/toggle/`, {
-        method: "POST",
-        headers: {
-            "X-CSRFToken": "{{ csrf_token }}"
-        }
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
-        } else {
-            alert(data.message || "Unable to update offer");
-        }
-    });
-});
+    window.location.href = btn.href;
+    return false;
+}
 </script>
 
 {% endblock %}

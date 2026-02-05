@@ -730,6 +730,7 @@
     }
 }
 </style>
+<script src="{% static 'js/admin/admin_users.js' %}"></script>
 
 <script>
 let confirmCallback = null;
@@ -739,6 +740,7 @@ function confirmToggle(event, categoryName, action, url) {
     showModal(action, categoryName, url);
     return false;
 }
+
 
 function showModal(action, categoryName, url) {
     const modal = document.getElementById('confirmModal');
@@ -796,12 +798,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     btnCancel.addEventListener('click', closeModal);
     
-    btnConfirm.addEventListener('click', function() {
-        if (confirmCallback) {
-            confirmCallback();
-        }
-        closeModal();
+    btnConfirm.addEventListener('click', function () {
+        if (!confirmCallback) return;
+
+        if (!disableButton(btnConfirm, "Processing...")) return;
+
+    confirmCallback();
     });
+
     
     modalOverlay.addEventListener('click', function(e) {
         if (e.target === modalOverlay) {

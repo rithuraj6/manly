@@ -1006,6 +1006,13 @@ function closeModal() {
     confirmCallback = null;
     currentForm = null;
 }
+const form = document.querySelector("#productForm");
+const submitBtn = document.querySelector("#submitProductBtn");
+
+form?.addEventListener("submit", function () {
+    disableButton(submitBtn, "Saving...");
+});
+
 
 document.addEventListener('DOMContentLoaded', function() {
     const btnCancel = document.getElementById('btnCancel');
@@ -1039,5 +1046,6 @@ document.addEventListener('DOMContentLoaded', function() {
     to { transform: rotate(360deg); }
 }
 </script>
+<script src="{% static 'js/admin/admin_users.js' %}"></script>
 
 {% endblock %}

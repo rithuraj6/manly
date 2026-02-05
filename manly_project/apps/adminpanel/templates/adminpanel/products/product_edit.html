@@ -43,7 +43,8 @@
         </div>
 
         <!-- PRODUCT FORM -->
-        <form method="post" class="product-form">
+        <form method="post" class="product-form" id="productForm">
+
             {% csrf_token %}
 
             <div class="form-group">
@@ -68,7 +69,7 @@
 
             
                             
-                <div1 class="form-group featured-checkbox">
+                <div class="form-group featured-checkbox">
                         <div class="checkbox-container">
                             <input 
                                 type="checkbox" 
@@ -95,7 +96,7 @@
                                 </div>
                             </label>
                         </div>
-                </div1>
+                </div>
 
 
 
@@ -172,7 +173,8 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn-submit">
+               <button type="submit" class="btn-submit" id="submitProductBtn">
+
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
@@ -1499,6 +1501,8 @@
 .toast.error {
     border-left: 4px solid #ef4444;
 }
+
+
 </style>
 
 {% if product %}
@@ -1507,6 +1511,9 @@
     id="uploadImageUrl"
     value="{% url 'admin_upload_product_image' product.uuid %}">
 {% endif %}
+
+<script src="{% static 'js/admin/admin_users.js' %}"></script>
+
 <script>
 function showToast(message, type = "error") {
     const toast = document.getElementById("toast");
@@ -1557,6 +1564,8 @@ function updateUploadAvailability() {
         uploadArea.style.pointerEvents = "auto";
     }
 }
+
+
 document.addEventListener("DOMContentLoaded", function () {
 
     let cropper = null;
@@ -1683,6 +1692,18 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 });
+
+document.querySelectorAll("form").forEach(form => {
+    form.addEventListener("submit", function (e) {
+        const btn = form.querySelector("button[type='submit']");
+        if (!btn) return;
+
+        if (!disableButton(btn, "Processing...")) {
+            e.preventDefault();
+        }
+    });
+});
+
 </script>
 
 

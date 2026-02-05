@@ -424,7 +424,8 @@
             <p class="info-text">Note: Coupon code cannot be changed after creation. You can modify all other settings.</p>
         </div>
 
-        <form method="post" class="coupon-form">
+        <form method="post" class="coupon-form" id="couponForm">
+
             {% csrf_token %}
 
             <div class="form-group">
@@ -495,9 +496,10 @@
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn-submit">
+                <button type="submit" class="btn-submit" id="submitCouponBtn">
                     Update Coupon
                 </button>
+
                 <a href="{% url 'admin_coupon_list' %}" class="btn-cancel">
                     Cancel
                 </a>
@@ -507,6 +509,13 @@
 </div>
 
 <script>
+const couponForm = document.querySelector("#couponForm");
+const submitBtn = document.querySelector("#submitCouponBtn");
+
+couponForm?.addEventListener("submit", function () {
+    disableButton(submitBtn, "Saving...");
+});
+
     document.addEventListener("DOMContentLoaded", function () {
     const discountType = document.querySelector('[name="discount_type"]');
     const discountValue = document.querySelector('[name="discount_value"]');

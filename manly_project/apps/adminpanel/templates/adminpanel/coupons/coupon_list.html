@@ -427,7 +427,9 @@
                                 Edit
                             </a>
                             <a href="{% url 'admin_coupon_toggle' coupon.uuid %}"
-                               class="btn-toggle {% if not coupon.is_active %}enable{% endif %}">
+                                class="btn-toggle {% if not coupon.is_active %}enable{% endif %}"
+                                onclick="return handleCouponToggle(event, this)">
+
                                 {% if coupon.is_active %}Disable{% else %}Enable{% endif %}
                             </a>
                         </div>
@@ -474,6 +476,15 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 });
+function handleCouponToggle(event, btn) {
+    event.preventDefault();
+
+    if (!disableButton(btn, "Processing...")) return false;
+
+    window.location.href = btn.href;
+    return false;
+}
+
 </script>
 
 {% endblock %}
