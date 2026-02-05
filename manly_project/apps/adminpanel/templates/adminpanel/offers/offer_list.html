@@ -396,11 +396,16 @@
                         </a>
 
                         {% if offer.status != "expired" %}
-                        <a href="{% url 'admin_offer_toggle' offer.uuid %}"
-                                class="{% if offer.is_active %}btn-block{% else %}btn-unblock{% endif %}"
-                                onclick="return handleOfferToggle(event, this)">
-                            {% if offer.is_active %}Block{% else %}Unblock{% endif %}
-                        </a>
+                        <form method="post"
+                            action="{% url 'admin_offer_toggle' offer.uuid %}"
+                            style="display:inline;"
+                            onsubmit="return handleOfferToggle(this)">
+                            {% csrf_token %}
+                            <button type="submit"
+                                    class="{% if offer.is_active %}btn-block{% else %}btn-unblock{% endif %}">
+                                {% if offer.is_active %}Block{% else %}Unblock{% endif %}
+                            </button>
+                        </form>
                         {% else %}
                         <span style="color:#f59e0b;font-weight:600;">Expired</span>
                         {% endif %}
@@ -428,18 +433,17 @@
 
 <script>
 
-function handleOfferToggle(event, btn) {
-    event.preventDefault();
+function handleOfferToggle(form) {
+    const btn = form.querySelector("button");
 
-    
-    btn.style.pointerEvents = "none";
+    // Disable button visually & logically
+    btn.disabled = true;
     btn.style.opacity = "0.6";
     btn.textContent = "Processing...";
 
-    window.location.href = btn.href;
-    return false;
+    // IMPORTANT: allow form submission
+    return true;
 }
-
 </script>
 
 {% endblock %}
