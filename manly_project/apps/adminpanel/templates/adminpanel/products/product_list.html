@@ -113,7 +113,7 @@
                         </div>
 
                         <!-- VARIANTS -->
-                        {% if product.variants.count %}
+                        {% if product.variants.all|length %}
                             <div class="variants-section">
                                 <div class="variants-label">
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1010,12 +1010,6 @@ function closeModal() {
     confirmCallback = null;
     currentForm = null;
 }
-const form = document.querySelector("#productForm");
-const submitBtn = document.querySelector("#submitProductBtn");
-
-form?.addEventListener("submit", function () {
-    disableButton(submitBtn, "Saving...");
-});
 
 
 document.addEventListener('DOMContentLoaded', function() {
