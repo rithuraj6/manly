@@ -118,10 +118,8 @@ def toggle_offer_status(request, offer_uuid):
     
     
     if offer.end_date and offer.end_date < now:
-        return JsonResponse({
-            "success": False,
-            "message": "Expired offers cannot be activated"
-        }, status=400)
+        messages.error(request, "Expired offers cannot be activated")
+        return redirect("admin_offer_list")
 
     offer.is_active = not offer.is_active
     offer.save(update_fields=["is_active"])
@@ -131,13 +129,11 @@ def toggle_offer_status(request, offer_uuid):
         f"Offer {'activated' if offer.is_active else 'blocked'} successfully"
     )
 
-    return JsonResponse({
-        "success": True,
-        "is_active": offer.is_active
-    })
+    return redirect("admin_offer_list")
 @admin_required
 def offer_edit(request, offer_uuid):
     offer = get_object_or_404(Offer, uuid=offer_uuid)
+    
 
     products = Product.objects.filter(is_active=True)
     categories = Category.objects.filter(is_active=True)
