@@ -854,9 +854,14 @@ function showModal(action, email, url) {
     // Store the URL for confirmation
     confirmCallback = function() {
         const btnConfirm = document.getElementById("btnConfirm");
-        if (!disableButton(btnConfirm, "Processing...")) return;
+
+        // simple manual disable (NO buttonGuard)
+        btnConfirm.disabled = true;
+        btnConfirm.textContent = "Processing...";
+
         window.location.href = url;
     };
+
     
     // Show modal
     modal.classList.add('show');
