@@ -6,7 +6,7 @@ from django.contrib import messages
 from apps.orders.services.order_state import recalculate_order_status
 from django.db import transaction
 from django.contrib.admin.views.decorators import staff_member_required
-from apps.wallet.services.wallet_services import refund_to_wallet
+
 from apps.orders.utils.stock import restore_stock
 from apps.orders.models import OrderItem, ReturnRequest
 
