@@ -6,7 +6,6 @@ from apps.orders.constants import RefundEvent
 
 
 @transaction.atomic
-
 def process_refund(*, order_item,event,initalized_by="system"):
     
     order = order_item.order

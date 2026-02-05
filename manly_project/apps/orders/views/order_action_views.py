@@ -40,7 +40,7 @@ def cancel_order_item(request, item_uuid):
     process_refund(
     order_item=order_item,
     event=RefundEvent.USER_CANCEL,
-    initiated_by="user",
+
     )
   
     recalculate_order_status(order)
