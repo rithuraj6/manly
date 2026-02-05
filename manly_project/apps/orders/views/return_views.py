@@ -73,36 +73,3 @@ def request_return(request, item_id):
 
 
 
-@transaction.atomic
-@admin_required
-def admin_approve_return(request, return_id):
-    
-    return_request = get_object_or_404(ReturnRequest, id=return_id)
-    order_item = return_request.order_item
-    order = order_item.order
-
-    if return_request.status != 'pending':
-        messages.error(request, 'Return already processed')
-        return redirect('admin_return_request_list')
-
-    
-    if order_item.status != OrderItem.STATUS_RETURNED:
-        restore_stock(order_item)
-        order_item.status = OrderItem.STATUS_RETURNED
-        order_item.save(update_fields=['status'])
-
-        
-        refund_to_wallet(
-            user=order.user,
-            amount=order_item.final_price_paid,
-            reason=f"Refund for returned item {order_item.product.name}",
-            order=order,
-        )
-
-    return_request.status = ReturnRequest.STATUS_APPROVED
-    return_request.save(update_fields=['status'])
-
-    recalculate_order_status(order)
-
-    messages.success(request, "Return approved, stock restored & wallet credited")
-    return redirect('admin_return_request_list')

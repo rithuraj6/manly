@@ -9,4 +9,18 @@ ORDER_STATUS_FLOW = {
     "delivered": [],
     "cancelled": [],
     "partially_refunded": ["shipped"],
+
 }
+
+
+
+
+class RefundEvent:
+    
+    USER_CANCEL = "user_cancel"
+    ADMIN_CANCEL = "admin_cancel"
+    RETURN_APPROVED = "return_approved"
+    
+    
+    
+    

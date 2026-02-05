@@ -6,10 +6,8 @@ from django.db import transaction
 from apps.orders.models import ReturnRequest ,OrderItem  
 from apps.orders.services.order_state import recalculate_order_status
 from apps.orders.utils.stock import restore_stock
-from decimal import Decimal
-from apps.wallet.models import Wallet,WalletTransaction
-from apps.orders.models import Payment
-from apps.wallet.services.wallet_services import refund_to_wallet
+from apps.orders.services.refund_service import process_refund
+from apps.orders.constants.refund_events import RefundEvent
 from django.core.paginator import Paginator
 from apps.orders.models import ReturnRequest
 
@@ -45,22 +43,23 @@ def approve_return(request, return_id):
 
     order_item = return_request.order_item
     order = order_item.order
-
-    return_request.status = ReturnRequest.STATUS_APPROVED
-    return_request.save(update_fields=["status"])
-
-    order_item.status = OrderItem.STATUS_RETURNED
-    order_item.save(update_fields=["status"])
-
+    
+    process_refund(order_item=order_item,
+                   event=RefundEvent.RETURN_APPROVED,
+                   initiated_by="admin",
+                   )
+    
     restore_stock(order_item)
 
+    
+  
+    order_item.status = OrderItem.STATUS_RETURNED
+    order_item.save(update_fields=["status"])
+    return_request.status = ReturnRequest.STATUS_APPROVED
+    return_request.save(update_fields=["status"])
+    
+    
 
-    refund_to_wallet(
-        user=order.user,
-        order_item=order_item,
-        amount=order_item.final_price_paid,
-        reason=f"Refund for returned item ({order.order_id})",
-    )
 
     recalculate_order_status(order)
 

@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 
 from apps.orders.models import Payment
 from apps.wallet.models import Wallet, WalletTransaction, AdminWalletTransaction
-from apps.orders.utils.refund_rules import should_refund_wallet
+
 from apps.wallet.models import AdminWallet
 from django.db.models import Sum
 
@@ -102,8 +102,6 @@ def pay_order_using_wallet(*, user, order):
 
 @transaction.atomic
 def refund_to_wallet(*, user, order_item, amount, reason):
-    order = order_item.order
-
   
 
     wallet, _ = Wallet.objects.get_or_create(user=user)
@@ -113,16 +111,12 @@ def refund_to_wallet(*, user, order_item, amount, reason):
         wallet=wallet,
         amount=Decimal(amount),
         reason=reason,
-        order=order,
+        order=order_order_item.order,
     )
-
- 
-    if admin_wallet_was_credited(order):
-        debit_admin_wallet(
-            order_item=order_item,
-            amount=Decimal(amount),
-        )
-
+    debit_admin_wallet(
+        order_item=order_item,
+        amount= Decimal(amount),
+    )
 
 
 @transaction.atomic
@@ -170,8 +164,5 @@ def debit_wallet(*, wallet: Wallet, amount: Decimal, reason: str, order=None, pa
     )
 
     return wallet.balance
-def admin_wallet_was_credited(order):
-    return AdminWalletTransaction.objects.filter(
-        order=order,
-        transaction_type="credit"
-    ).exists()
+
+

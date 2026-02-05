@@ -7,9 +7,11 @@ from django.db.models import Q
 from django.utils import timezone
 from django.contrib import messages
 from apps.orders.services.order_state import recalculate_order_status
-from apps.wallet.services.wallet_services import credit_admin_wallet,refund_to_wallet
+from apps.wallet.services.wallet_services import credit_admin_wallet
+from apps.orders.services.refund_service import process_refund
+from apps.orders.constants.refund_events import RefundEvent
 from apps.orders.models import Payment
-
+from django.db import transaction
 from django.db.models import Sum
 from decimal import Decimal
 from apps.orders.models import Order, OrderItem, OrderStatusHistory
@@ -95,7 +97,7 @@ def admin_order_edit(request, order_uuid):
         }
     )
 
-
+@transaction.atomic
 @admin_required
 def admin_order_update(request, order_uuid):
     
@@ -109,68 +111,64 @@ def admin_order_update(request, order_uuid):
 
     if new_status not in allowed_next_statuses:
         messages.error(request, "Invalid status transition.")
-        return redirect("admin_order_edit", order_id=order.order_id)
+        return redirect("admin_order_edit", order_uuid=order.uuid)
 
-    if (
-        new_status == 'cancelled' and order.payment_method != "cod"
-    ):
-        refundable_items = order.items.exclude(
-            status__in =["cancelled","returned"]
-        )
-    if new_status == "cancelled" and order.payment_method != "cod":
+  
+    if new_status == "cancelled":
         refundable_items = order.items.exclude(
             status__in=["cancelled", "returned"]
         )
 
         for item in refundable_items:
-            refund_to_wallet(
-                user=order.user,
+            process_refund(
                 order_item=item,
-                amount=item.final_price_paid,
-                reason=f"Admin cancelled order {order.order_id}",
+                event=RefundEvent.ADMIN_CANCEL,
+                initiated_by="admin",
             )
             item.status = "cancelled"
             item.save(update_fields=["status"])
 
         order.status = "cancelled"
         order.save(update_fields=["status"])
-    elif (
-        new_status == "delivered"  and order.payment_method == "cod" and not order.is_paid
-    ):
-        total_amount =(
-            order.items.aggregate(
-                total =Sum("final_price_paid")
-                
-            )["total"] or Decimal("0.00")
-        )
-        
-        
-        credit_admin_wallet(order=order,amount=total_amount)
-        
-        order.is_paid = True
-        
-        order.save(update_fields=["is_paid"])
-        
-        order.items.exclude(
-            status__in=["cancelled","returned"]
- 
-        ).update(status=new_status) 
-        
-        
-    elif new_status != "cancelled":
-        order.items.exclude(
-            status__in =["cancelled","returned"]
-        ).update(status=new_status) 
-        
-    recalculate_order_status(order)
+
     
+    elif (
+        new_status == "delivered"
+        and order.payment_method == "cod"
+        and not order.is_paid
+    ):
+        total_amount = (
+            order.items.exclude(
+                status__in=["cancelled", "returned"]
+            ).aggregate(total=Sum("final_price_paid"))["total"]
+            or Decimal("0.00")
+        )
+
+        credit_admin_wallet(order=order, amount=total_amount)
+
+        order.is_paid = True
+        order.save(update_fields=["is_paid"])
+
+        order.items.exclude(
+            status__in=["cancelled", "returned"]
+        ).update(status="delivered")
+
+
+    else:
+        order.items.exclude(
+            status__in=["cancelled", "returned"]
+        ).update(status=new_status)
+
+
+    recalculate_order_status(order)
+
     OrderStatusHistory.objects.create(
         order=order,
         status=new_status,
         changed_by="admin",
-    )         
-                    
-    messages.success(request, "Order status updated successfully")
+    )
+
+    messages.success(request, "Order status updated successfully.")
     return redirect("admin_order_edit", order_uuid=order.uuid)
 
 
@@ -182,8 +180,7 @@ def admin_order_update(request, order_uuid):
 
 
 
-
-
+@transaction.atomic
 @admin_required
 def admin_order_update_success(request):
     return render(request, "adminpanel/orders/order_update_success.html")

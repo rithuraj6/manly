@@ -8,8 +8,8 @@ from django.db import transaction
 from apps.orders.models import OrderItem
 from apps.orders.utils.stock import restore_stock
 
-
-from apps.wallet.services.wallet_services import refund_to_wallet
+from apps.orders.services.refund_service import process_refund
+from apps.orders.constants.refund_events import RefundEvent
 
 
 
@@ -38,13 +38,11 @@ def cancel_order_item(request, item_uuid):
 
     restore_stock(order_item)
 
-    refund_to_wallet(
-        user=order.user,
-        order_item=order_item,
-        amount=order_item.final_price_paid,
-        reason=f"Refund for cancelled item ({order.order_id})",
+    process_refund(
+    order_item=order_item,
+    event=RefundEvent.USER_CANCEL,
+    initiated_by="user",
     )
-
   
     recalculate_order_status(order)
 

@@ -135,7 +135,6 @@ def apply_offer(product, base_price):
         return base_price
 
     best_offer = max(offers)
-    # best_offer = product_offer if product_offer else category_offer
 
 
     discount_amount = (Decimal(best_offer) / Decimal("100")) * base_price

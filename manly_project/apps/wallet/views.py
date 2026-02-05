@@ -1,6 +1,6 @@
 import razorpay
 from decimal import Decimal
-
+from django.db import transaction
 from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
@@ -11,6 +11,10 @@ from apps.wallet.models import WalletTransaction, Wallet
 from apps.orders.models import Payment
 from apps.accounts.decorators import user_required
 from django.urls import reverse
+
+
+
+
 client = razorpay.Client(
     auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
 )
@@ -54,8 +58,6 @@ def wallet_page(request):
 @require_POST
 @user_required
 def create_wallet_topup_order(request):
-    if request.user.is_superuser  or not request.user.is_authenticated:
-        return redirect("login")
     
     amount = Decimal(request.POST.get("amount", "0"))
 
@@ -97,7 +99,13 @@ def verify_wallet_payment(request):
     razorpay_signature = request.POST.get("razorpay_signature")
     payment_id = request.POST.get("payment_id")
 
-    payment = Payment.objects.get(id=payment_id, user=request.user)
+    payment = Payment.objects.select_for_update().get(
+        id=payment_id,
+        user=request.user
+    )
+    if payment.status =="success":
+        return JsonResponse({"success":True})
+    
 
     try:
         client.utility.verify_payment_signature({
@@ -112,11 +120,15 @@ def verify_wallet_payment(request):
 
     payment.status = "success"
     payment.razorpay_payment_id = razorpay_payment_id
-    payment.save()
+    payment.save(update_fields=["status","razorpay_payment_id"])
+    
+    
+    
 
-    wallet, _ = Wallet.objects.get_or_create(user=request.user)
+
+    wallet,_ = Wallet.objects.select_for_update().get_or_create(user=request.user)
     wallet.balance += payment.amount
-    wallet.save()
+    wallet.save(update_fields=["balance"])
 
     WalletTransaction.objects.create(
         wallet=wallet,
