@@ -479,11 +479,15 @@ document.addEventListener("DOMContentLoaded", function () {
 function handleCouponToggle(event, btn) {
     event.preventDefault();
 
-    if (!disableButton(btn, "Processing...")) return false;
+    // Manual disable (no buttonGuard)
+    btn.classList.add("disabled");
+    btn.style.pointerEvents = "none";
+    btn.textContent = "Processing...";
 
     window.location.href = btn.href;
     return false;
 }
+
 
 </script>
 
