@@ -264,3 +264,28 @@ SITE_ID = 2
 LOGIN_REDIRECT_URL = "/accounts/profile/"
 LOGIN_URL = "/accounts/login/"
 LOGOUT_REDIRECT_URL = "/"
+
+
+
+
+
+
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "file": {
+            "level": "ERROR",
+            "class": "logging.FileHandler",
+            "filename": "/home/ubuntu/manly/manly_project/django_errors.log",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["file"],
+            "level": "ERROR",
+            "propagate": True,
+        },
+    },
+}
