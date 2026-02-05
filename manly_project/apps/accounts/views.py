@@ -373,6 +373,7 @@ def profile_edit(request):
             )
             profile.profile_image = upload_result["public_id"]
 
+
         chest = request.POST.get("chest")
         shoulder = request.POST.get("shoulder")
 
@@ -387,10 +388,20 @@ def profile_edit(request):
             messages.error(request, str(e))
             return redirect("account_profile_edit")
 
-        profile.size = calculate_user_size(
+       
+        calculated_size = calculate_user_size(
             chest=profile.chest,
             shoulder=profile.shoulder,
         )
+
+        if calculated_size:
+            profile.size = calculated_size
+        else:
+            messages.warning(
+                request,
+                "We couldn’t determine your size from the given measurements. "
+                "Please ensure values are in cm and within a valid range."
+            )
 
         profile.save()
         messages.success(request, "Profile updated successfully")

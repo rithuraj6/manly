@@ -174,9 +174,7 @@ def product_list_by_category(request, category_uuid):
     sort = request.GET.get("sort", "").strip()
     
    
-    wishlist_product_ids = set()
-
- 
+   
     
     category_ids = {base_category.id}
 
@@ -310,8 +308,9 @@ def product_list_by_category(request, category_uuid):
         wishlist = getattr(request.user, "wishlist", None)
         if wishlist:
             wishlist_product_ids = set(
-                wishlist.items.values_list("product_id", flat=True)
+                 wishlist.items.values_list("product__uuid", flat=True)
             )
+
 
 
 
