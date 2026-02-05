@@ -66,7 +66,7 @@ def request_return(request, item_uuid):
         item.save()
 
         messages.success(request, "Return request submitted successfully.")
-        return redirect("order_detail", order_uuid=item.order_uuid)
+        return redirect("order_detail", order_uuid=item.order.uuid)
 
     return render(request,"orders/request_return.html",{"item": item})
 
