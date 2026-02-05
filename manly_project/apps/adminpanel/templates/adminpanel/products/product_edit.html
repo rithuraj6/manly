@@ -1,7 +1,10 @@
+{% load static %}
 {% extends "adminpanel/base.html" %}
 {% block title %}{% if product %}Edit Product{% else %}Add Product{% endif %} | Admin{% endblock %}
 
 {% block content %}
+
+
 <div id="toast" class="toast">
     <span id="toastMessage"></span>
 </div>
