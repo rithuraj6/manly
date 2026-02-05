@@ -1,8 +1,8 @@
 from decimal import Decimal
 from django.db import transaction
 
-from apps.orders.constants.refund_events import RefundEvent
-from apps.wallet.services.wallet_services import refund_to_wallet
+from apps.orders.constants import RefundEvent
+
 
 
 @transaction.atomic

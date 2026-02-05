@@ -9,7 +9,8 @@ from django.contrib import messages
 from apps.orders.services.order_state import recalculate_order_status
 from apps.wallet.services.wallet_services import credit_admin_wallet
 from apps.orders.services.refund_service import process_refund
-from apps.orders.constants.refund_events import RefundEvent
+from apps.orders.constants import RefundEvent
+
 from apps.orders.models import Payment
 from django.db import transaction
 from django.db.models import Sum

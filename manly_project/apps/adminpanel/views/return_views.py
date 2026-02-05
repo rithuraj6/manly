@@ -7,7 +7,8 @@ from apps.orders.models import ReturnRequest ,OrderItem
 from apps.orders.services.order_state import recalculate_order_status
 from apps.orders.utils.stock import restore_stock
 from apps.orders.services.refund_service import process_refund
-from apps.orders.constants.refund_events import RefundEvent
+from apps.orders.constants import RefundEvent
+
 from django.core.paginator import Paginator
 from apps.orders.models import ReturnRequest
 
