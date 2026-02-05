@@ -111,7 +111,7 @@ def refund_to_wallet(*, user, order_item, amount, reason):
         wallet=wallet,
         amount=Decimal(amount),
         reason=reason,
-        order=order_order_item.order,
+        order=order_item.order,
     )
     debit_admin_wallet(
         order_item=order_item,
