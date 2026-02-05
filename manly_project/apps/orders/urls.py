@@ -44,7 +44,8 @@ urlpatterns = [
     
    
     
-    path("item/<int:item_id>/return/", request_return, name="return_order_item"),
+    path("item/<uuid:item_uuid>/return/", request_return, name="return_order_item"),
+
     path("item/<uuid:item_uuid>/return/reason/", view_return_reason, name="view_return_reason"),
 
     
