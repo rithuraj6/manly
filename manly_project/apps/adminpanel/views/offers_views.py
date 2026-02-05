@@ -108,7 +108,7 @@ def offer_add(request):
     )
             
 
-@require_POST
+
 @admin_required
 def toggle_offer_status(request, offer_uuid):
     
