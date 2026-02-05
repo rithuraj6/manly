@@ -92,8 +92,8 @@ def create_order(
 
     delivery_fee = Decimal("0.00") if adjusted_subtotal >= 3000 else Decimal("150.00")
 
-    tax = ((adjusted_subtotal + delivery_fee) * Decimal("0.18")).quantize(
-        Decimal("0.01")
+    tax = (adjusted_subtotal * Decimal("0.18")).quantize(
+    Decimal("0.01")
     )
 
     total_amount = adjusted_subtotal + delivery_fee + tax

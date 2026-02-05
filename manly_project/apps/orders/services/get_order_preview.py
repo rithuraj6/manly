@@ -51,11 +51,15 @@ def get_order_preview(request):
             request.session.pop("coupon_discount", None)
 
     delivery_fee = Decimal("0.00") if subtotal >= 3000 else Decimal("150.00")
-    tax = ((subtotal - coupon_discount + delivery_fee) * Decimal("0.18")).quantize(
+    taxable_amount = subtotal - coupon_discount
+    if taxable_amount < 0:
+        taxable_amount = Decimal("0.00")
+
+    tax = (taxable_amount * Decimal("0.18")).quantize(
         Decimal("0.01")
     )
 
-    total = subtotal - coupon_discount + delivery_fee + tax
+    total = taxable_amount + delivery_fee + tax
 
     return {
         "subtotal": subtotal,

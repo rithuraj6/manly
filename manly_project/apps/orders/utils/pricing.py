@@ -52,7 +52,8 @@ def calculate_grand_total(user):
         subtotal += discounted_price * item.quantity
 
     delivery_fee = Decimal("0.00") if subtotal >= 3000 else Decimal("150.00")
-    tax = ((subtotal + delivery_fee) * Decimal("0.18")).quantize(Decimal("0.01"))
+    tax = (subtotal * Decimal("0.18")).quantize(Decimal("0.01"))
+
 
     total_amount = subtotal + delivery_fee + tax
     return total_amount
