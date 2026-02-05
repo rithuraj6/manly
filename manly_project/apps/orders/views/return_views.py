@@ -39,12 +39,12 @@ def request_return(request, item_uuid):
 
     if item.status != "delivered":
         messages.error(request, "This item is not eligible for return.")
-        return redirect("order_detail", order_uuid=item.order.order_uuid)
+        return redirect("order_detail", order_uuid=item.order_uuid)
 
    
     if hasattr(item, "return_request"):
         messages.warning(request, "Return already requested for this item.")
-        return redirect("order_detail", order_uuid=item.order.order_uuid)
+        return redirect("order_detail", order_uuid=item.order_uuid)
 
     if request.method == "POST":
         reason = request.POST.get("reason")
@@ -66,7 +66,7 @@ def request_return(request, item_uuid):
         item.save()
 
         messages.success(request, "Return request submitted successfully.")
-        return redirect("order_detail", order_uuid=item.order.order_uuid)
+        return redirect("order_detail", order_uuid=item.order_uuid)
 
     return render(request,"orders/request_return.html",{"item": item})
 

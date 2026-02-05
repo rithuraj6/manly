@@ -37,8 +37,7 @@ urlpatterns = [
 
 
    
-  
-    path("<uuid:order_uuid>/invoice/", order_invoice, name="order_invoice"),
+
 
     
     

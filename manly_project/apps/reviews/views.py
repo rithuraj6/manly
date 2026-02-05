@@ -7,13 +7,13 @@ from apps.reviews.models import ProductReview
 
 
 @user_required
-def rate_product(request, item_id):
+def rate_product(request, item_uuid):
     if request.user.is_superuser  or not request.user.is_authenticated:
         return redirect("login")
     
     order_item = get_object_or_404(
         OrderItem,
-        id=item_id,
+        uuid=item_uuid,
         order__user=request.user,
         status="delivered"
     )
@@ -24,7 +24,7 @@ def rate_product(request, item_id):
         product=order_item.product
     ).exists():
         messages.warning(request, "You have already reviewed this product.")
-        return redirect("order_detail", order_id=order_item.order.order_id)
+        return redirect("order_detail", order_uuid=order_item.order.uuid)
 
     if request.method == "POST":
         rating = request.POST.get("rating")
@@ -47,6 +47,6 @@ def rate_product(request, item_id):
         )
 
         messages.success(request, "Thank you for your review!")
-        return redirect("order_detail", order_id=order_item.order.order_id)
+        return redirect("order_detail", order_uuid=order_item.order.uuid)
 
     return render(request,"reviews/rate_product.html",{"order_item": order_item})
