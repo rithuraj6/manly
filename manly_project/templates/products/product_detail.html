@@ -177,7 +177,7 @@
                                      {{ r.user.first_name }}
                              </strong>
                                 <span style="font-size:12px;color:#999;">
-                             {{ r.user.get_full_name|default:r.user.email }}
+                                {{ r.user.profile.full_name}}
 
 
                                 </span>
