@@ -217,9 +217,7 @@
 
 <style>
 
-
-MANLY ADMIN - PRODUCTS LIST PAGE
-
+/* MANLY ADMIN - PRODUCTS LIST PAGE */
 
 .products-page {
     padding: 0;
@@ -915,6 +913,10 @@ MANLY ADMIN - PRODUCTS LIST PAGE
         padding: 30px 20px;
     }
 }
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
 </style>
 
 <script>
@@ -1043,10 +1045,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-@keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
+
 </script>
 <script src="{% static 'js/admin/admin_users.js' %}"></script>
 
