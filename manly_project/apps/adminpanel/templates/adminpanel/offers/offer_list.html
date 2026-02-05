@@ -431,11 +431,15 @@
 function handleOfferToggle(event, btn) {
     event.preventDefault();
 
-    if (!disableButton(btn, "Processing...")) return false;
+    
+    btn.style.pointerEvents = "none";
+    btn.style.opacity = "0.6";
+    btn.textContent = "Processing...";
 
     window.location.href = btn.href;
     return false;
 }
+
 </script>
 
 {% endblock %}
