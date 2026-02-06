@@ -92,6 +92,7 @@ def create_wallet_topup_order(request):
 
 @require_POST
 @user_required
+@transaction.atomic
 def verify_wallet_payment(request):
     
     razorpay_order_id = request.POST.get("razorpay_order_id")
