@@ -20,7 +20,7 @@
             <p class="balance-label">Available Balance</p>
             <h1 class="balance-amount">₹ {{ wallet.balance }}</h1>
             
-            <button id="addMoneyBtn" class="add-money-btn">
+            <button type ="button" id="addMoneyBtn" class="add-money-btn">
                 <span class="btn-text">Add Money</span>
                 <span class="btn-icon">+</span>
             </button>
@@ -778,6 +778,11 @@ document.getElementById("walletTopupForm").addEventListener("submit", function(e
         };
 
         const rzp = new Razorpay(options);
+        rzp.on("payment.failed", function (response) {
+
+            alert("Payment failed. Amount not added to wallet.");
+        });
+
         rzp.open();
     });
 });

@@ -115,7 +115,7 @@ def verify_wallet_payment(request):
         })
     except razorpay.errors.SignatureVerificationError:
         payment.status = "failed"
-        payment.save()
+        payment.save(update_fields=["status"])
         return JsonResponse({"success": False})
 
     payment.status = "success"
@@ -127,6 +127,7 @@ def verify_wallet_payment(request):
 
 
     wallet,_ = Wallet.objects.select_for_update().get_or_create(user=request.user)
+    
     wallet.balance += payment.amount
     wallet.save(update_fields=["balance"])
 
