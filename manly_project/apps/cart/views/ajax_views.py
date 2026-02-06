@@ -14,10 +14,12 @@ from decimal import Decimal
 
 @require_POST
 @user_required
+@transaction.atomic
 def add_to_cart(request):
     product_uuid = request.POST.get("product_id")
     variant_id = request.POST.get("variant_id")
     qty = int(request.POST.get("quantity", 1))
+    is_buy_now = request.POST.get("buy_now") =="1"
 
     product = get_object_or_404(
         Product,
@@ -41,35 +43,63 @@ def add_to_cart(request):
     
     final_price = apply_offer(product, product.base_price)
 
-    cart_item, created = CartItem.objects.get_or_create(
-        cart=cart,
-        product=product,
-        variant=variant,
-        defaults={
-            "quantity": 0,
-            "price_at_add": final_price
-        }
+    cart_item = (
+        CartItem.objects
+        .select_for_update()
+        .filter(cart=cart, product=product, variant=variant)
+        .first()
     )
 
-    new_quantity = cart_item.quantity + qty
+    if is_buy_now:
+      
+        if cart_item:
+            cart_item.quantity = 1
+            cart_item.price_at_add = final_price
+            cart_item.save(update_fields=["quantity", "price_at_add"])
+        else:
+            cart_item = CartItem.objects.create(
+                cart=cart,
+                product=product,
+                variant=variant,
+                quantity=1,
+                price_at_add=final_price
+            )
 
-    if new_quantity > MAX_QTY_PER_ITEM:
-        return JsonResponse({"success": False, "message": "Max 10 units allowed"}, status=400)
+    else:
+        
+        if not cart_item:
+            cart_item = CartItem.objects.create(
+                cart=cart,
+                product=product,
+                variant=variant,
+                quantity=0,
+                price_at_add=final_price
+            )
 
-    if new_quantity > variant.stock:
-        return JsonResponse({"success": False, "message": "Stock exceeded"}, status=400)
+        new_quantity = cart_item.quantity + qty
 
-    cart_item.quantity = new_quantity
-    cart_item.save()
+        if new_quantity > MAX_QTY_PER_ITEM:
+            return JsonResponse(
+                {"success": False, "message": "Max 10 units allowed"},
+                status=400
+            )
+
+        if new_quantity > variant.stock:
+            return JsonResponse(
+                {"success": False, "message": "Stock exceeded"},
+                status=400
+            )
+
+        cart_item.quantity = new_quantity
+        cart_item.save(update_fields=["quantity"])
 
     cart_count = sum(item.quantity for item in cart.items.all())
 
     return JsonResponse({
         "success": True,
         "cart_count": cart_count,
-        "item_quantity": cart_item.quantity
+        "item_quantity": cart_item.quantity,
     })
-    
     
 MAX_QTY_PER_ITEM = 10
     

@@ -272,10 +272,10 @@ function getCookie(name) {
     return cookieValue;
 }
 
-// ✅ CHECK IF USER IS AUTHENTICATED
+
 const isAuthenticated = {{ user.is_authenticated|yesno:"true,false" }};
 
-// Variant Stock Map
+
 const variantStockMap = {
     {% for v in variants %}
         "{{ v.id }}": {{ v.stock }},
@@ -321,7 +321,7 @@ function updateStockUI() {
 
 sizeSelect?.addEventListener("change", updateStockUI);
 
-// ✅ Add to Cart - WITH AUTH CHECK
+
 cartBtn?.addEventListener("click", function () {
     const variantId = sizeSelect.value;
     if (!variantId) {
@@ -329,7 +329,6 @@ cartBtn?.addEventListener("click", function () {
         return;
     }
 
-    // ✅ REDIRECT TO LOGIN IF NOT AUTHENTICATED
     if (!isAuthenticated) {
         window.location.href = "{% url 'login' %}?next={{ request.path }}";
         return;
@@ -356,7 +355,7 @@ cartBtn?.addEventListener("click", function () {
         if (data.success) {
             cartBtn.querySelector(".btn-text").innerText = "Added ✓";
             
-            // ✅ UPDATE NAVBAR CART COUNT
+           
             if (typeof window.updateNavbarCartCount === 'function') {
                 window.updateNavbarCartCount(data.cart_count);
             }
@@ -376,19 +375,26 @@ cartBtn?.addEventListener("click", function () {
     });
 });
 
-// ✅ Buy Now - WITH AUTH CHECK
+let buyNowLocked = false;
+
 buyBtn?.addEventListener("click", function () {
+    if (buyNowLocked) return;
+    buyNowLocked = true;
+
     const variantId = sizeSelect.value;
     if (!variantId) {
         alert("Please select a size");
+        buyNowLocked = false;
         return;
     }
 
-    // ✅ REDIRECT TO LOGIN IF NOT AUTHENTICATED
     if (!isAuthenticated) {
         window.location.href = "{% url 'login' %}?next={{ request.path }}";
         return;
     }
+
+    buyBtn.disabled = true;
+    buyBtn.innerText = "Processing...";
 
     fetch("/cart/add/", {
         method: "POST",
@@ -397,26 +403,31 @@ buyBtn?.addEventListener("click", function () {
             "Content-Type": "application/x-www-form-urlencoded",
         },
         body: new URLSearchParams({
-            product_id: "{{ product.uuid}}",
+            product_id: "{{ product.uuid }}",
             variant_id: variantId,
             quantity: 1,
+            buy_now: "1"   
         }),
     })
     .then(res => res.json())
     .then(data => {
         if (data.success) {
-            // ✅ UPDATE NAVBAR CART COUNT BEFORE REDIRECT
-            if (typeof window.updateNavbarCartCount === 'function') {
+            if (typeof window.updateNavbarCartCount === "function") {
                 window.updateNavbarCartCount(data.cart_count);
             }
-            
             window.location.href = "/orders/checkout/";
         } else {
-            alert(data.message || "Unable to proceed to checkout");
+            alert(data.message || "Unable to proceed");
+            buyNowLocked = false;
+            buyBtn.disabled = false;
+            buyBtn.innerText = "Buy Now";
         }
     })
     .catch(() => {
         alert("Something went wrong");
+        buyNowLocked = false;
+        buyBtn.disabled = false;
+        buyBtn.innerText = "Buy Now";
     });
 });
 
