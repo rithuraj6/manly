@@ -302,7 +302,7 @@ def product_list_by_category(request, category_uuid):
        
         else None
     )
-    wwishlist_product_ids = set()
+    wishlist_product_ids = set()
 
     if request.user.is_authenticated:
         wishlist = getattr(request.user, "wishlist", None)
