@@ -288,5 +288,5 @@ def remove_from_cart(request, item_id):
     return JsonResponse({
         "success": True,
         "cart_count": cart_count,
-        "subtotal": subtotal,
+        "subtotal": float(subtotal),
     })

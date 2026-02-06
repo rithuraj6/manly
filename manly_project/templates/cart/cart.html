@@ -750,41 +750,7 @@ function getCSRF() {
 }
 
 
-/* ================= SUBTOTAL ================= */
-{% comment %} function recalculateSubtotal() {                   
-    let subtotal = 0;
 
-    document.querySelectorAll(".item-total .total-value").forEach(el => {
-        subtotal += parseInt(el.innerText.replace("₹", ""), 10);
-    });
-
-    let shipping = 0;
-    const shippingEl = document.querySelector(".shipping-value");
-
- {% comment %}
-       if (subtotal <=3000) {
-           shipping = 150;
-           shippingEl.innerText = "₹150";
-           shippingEl.classList.remove("shipping-free");
-       } else {
-           shippingEl.innerText = "Free";
-           shippingEl.classList.add("shipping-free");
-       }
- {% endcomment %}
-
-    {% comment %} document.querySelectorAll(".summary-row").forEach(row => {
-        const label = row.querySelector(".summary-label")?.innerText;
-        const value = row.querySelector(".summary-value");
-
-        if (label === "Subtotal") {
-            value.innerText = "₹" + subtotal;
-        }
-
-        if (label === "Total") {
-            value.innerText = "₹" + (subtotal + shipping);
-        }
-    });
-} {% endcomment %} 
 /* ================= CLICK HANDLER ================= */
 document.addEventListener("click", function (e) {
 
@@ -803,13 +769,16 @@ if (removeBtn) {
             removeBtn.closest(".cart-item").remove();
             updateNavbarCartCount(data.cart_count);
             
-            // ✅ FIX: Check if cart is empty
+            
             const remainingItems = document.querySelectorAll(".cart-item");
             if (remainingItems.length === 0) {
                 location.reload();
             } else {
-                document.querySelector("#cart-subtotal").innerText =
-                    "₹" + Number(data.subtotal).toFixed(2);
+                const subtotalEl = document.querySelector("#cart-subtotal");
+                if (subtotalEl && !isNaN(data.subtotal)){
+                    subtotalEl.innerText = "₹"  + Number(data.subtotal).toFixed(2);
+                }
+                
             }
         }
     });
@@ -872,7 +841,7 @@ if (removeBtn) {
             `[data-item-total="${itemId}"] .total-value`
         ).innerText = "₹" + data.line_total.toFixed(2);
 
-        // ✅ update subtotal from backend
+        
         const subtotalEl = document.querySelector("#cart-subtotal");
         const totalEl = document.querySelector("#cart-total");
 
