@@ -754,36 +754,51 @@ function getCSRF() {
 /* ================= CLICK HANDLER ================= */
 document.addEventListener("click", function (e) {
 
-    /* ===== REMOVE ITEM ===== */
-    const removeBtn = e.target.closest(".remove-btn");
-if (removeBtn) {
-    const itemId = removeBtn.dataset.itemId;
 
-    fetch(`/cart/remove/${itemId}/`, {
-        method: "POST",
-        headers: { "X-CSRFToken": getCSRF() }
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
+    const removeBtn = e.target.closest(".remove-btn");
+    if (removeBtn) {
+        const itemId = removeBtn.dataset.itemId;
+
+        fetch(`/cart/remove/${itemId}/`, {
+            method: "POST",
+            headers: { "X-CSRFToken": getCSRF() }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) return;
+
+            // remove item row
             removeBtn.closest(".cart-item").remove();
+
+            // navbar cart count
             updateNavbarCartCount(data.cart_count);
-            
-            
+
             const remainingItems = document.querySelectorAll(".cart-item");
+
+            // cart empty → reload
             if (remainingItems.length === 0) {
                 location.reload();
-            } else {
-                const subtotalEl = document.querySelector("#cart-subtotal");
-                if (subtotalEl && !isNaN(data.subtotal)){
-                    subtotalEl.innerText = "₹"  + Number(data.subtotal).toFixed(2);
-                }
-                
+                return;
             }
-        }
-    });
-    return;
+
+            
+            const subtotalEl = document.querySelector("#cart-subtotal");
+            const totalEl = document.querySelector("#cart-total");
+
+            if (!isNaN(data.subtotal)) {
+                if (subtotalEl) {
+                    subtotalEl.innerText = "₹" + Number(data.subtotal).toFixed(2);
+                }
+                if (totalEl) {
+                    totalEl.innerText = "₹" + Number(data.subtotal).toFixed(2);
+                }
+            }
+        });
+
+        return;
 }
+
+
     /* ===== QTY UPDATE ===== */
     const qtyBtn = e.target.closest(".qty-btn");
     if (!qtyBtn) return;
