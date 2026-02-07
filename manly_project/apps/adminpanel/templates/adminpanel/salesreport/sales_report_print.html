@@ -480,7 +480,7 @@
 
     <hr class="divider">
 
-    <!-- Transaction Details Table -->
+    {% comment %} <!-- Transaction Details Table -->
     <div class="table-section">
         <div class="section-title">Transaction Details</div>
         <table>
@@ -496,7 +496,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% comment %} {% for order in orders %}
+                {% for order in orders %}
                 <tr>
                     <td>{{ order.order__order_id }}</td>
                     <td>{{ order.order__created_at|date:"d M Y" }}</td>
@@ -506,10 +506,10 @@
                     <td>{{ order.order__shipping_charge|inr }}</td>
                     <td>{{ order.net_revenue|inr }}</td>
                 </tr>
-                {% endfor %} {% endcomment %}
+                {% endfor %}
             </tbody>
         </table>
-    </div>
+    </div> {% endcomment %}
 
     <!-- Footer Totals -->
     <div class="footer-totals">
