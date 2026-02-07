@@ -111,9 +111,9 @@ def user_signup(request):
                     raise ValidationError("Email already registered")
                 
             else:
-                user = User.objects.create_user(
-                    email=email,password=password,is_active=False
-                ) 
+                # user = User.objects.create_user(
+                #     email=email,password=password,is_active=False
+                # ) 
                 
                 send_otp(user,purpose ="signup")
                 
@@ -121,6 +121,7 @@ def user_signup(request):
                 
             request.session["otp_purpose"] ="signup"
             request.session["otp_email"]= email
+            request.session["password"]= password
             
             return redirect("verify_otp")
         
@@ -154,9 +155,9 @@ def verify_otp(request):
             })
 
         if purpose == "signup":
-            user = User.objects.get(email=email)
-            user.is_active = True
-            user.save()
+            user = User.objects.create_user(
+                    email=email,password=password,is_active=True
+                ) 
             request.session.flush()
             messages.success(request, "Account verified. Please login.")
             return redirect("login")

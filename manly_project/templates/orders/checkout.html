@@ -5,7 +5,7 @@
     <div class="checkout-container">
         <h2 class="checkout-title">Checkout</h2>
 
-        <form method="POST" action="{% url 'checkout_page' %}">
+        <form method="POST" action="{% url 'checkout_page' %}" novalidate>
             {% csrf_token %}
 
             <div class="checkout-grid">
@@ -37,7 +37,7 @@
                                     </div>
                                 </label>
                             {% empty %}
-                                {% comment %} Empty state handled by "Use a new address" option {% endcomment %}
+                                
                             {% endfor %}
 
                             <!-- Use New Address Option -->
@@ -59,6 +59,7 @@
                         </div>
 
                         <!-- Temporary Address Form -->
+                        
                         <div id="temp-address-form" class="temp-address-form"
                             {% if temp_address_form %}style="display:block"{% endif %}>
                             <div class="form-header">
