@@ -84,7 +84,7 @@ def add_coupon(request):
             return redirect("admin_coupon_list")
 
         except ValidationError as e:
-            messages.error(request, e.message)
+            messages.error(request, e.messages[0])
 
         except Exception as e:
             messages.error(request, f"Error: {e}")
