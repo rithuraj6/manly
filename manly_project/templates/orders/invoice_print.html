@@ -439,19 +439,50 @@
                 padding: 40px;
             }
         }
+
+        .company-info {
+            flex: 1;
+        }
+
+        .company-logo {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 15px;
+        }
+
+        .company-name {
+            font-size: 28px;
+            font-weight: 900;
+            color: #1a1a1a;
+            letter-spacing: 3px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .company-tagline {
+            font-size: 12px;
+            color: #666;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
     </style>
 </head>
 <body onload="window.print()">
     
-    <!-- Invoice Header -->
+  <!-- Invoice Header -->
     <div class="invoice-header">
         <div class="company-info">
-            <div class="company-name">Manly Apparel Store</div>
-            <div class="company-tagline">Premium Fashion & Lifestyle</div>
+            <!-- SVG Logo -->
+            <svg class="company-logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <rect width="200" height="200" fill="none"/>
+            </svg>
+            <div class="company-name">MANLY</div>
+            <div class="company-tagline">Apparel Store</div>
         </div>
         <div class="invoice-meta">
-            <div class="invoice-title">Invoice</div>
-            <div class="invoice-subtitle">Order Tax Invoice</div>
+            <div class="invoice-title">INVOICE</div>
+            <div class="invoice-subtitle">Tax Invoice</div>
         </div>
     </div>
 
