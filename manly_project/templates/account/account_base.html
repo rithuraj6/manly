@@ -36,7 +36,7 @@
                     <span>Personal Information</span>
                 </a>
 
-                <a href="{% url 'account_addresses'%}" class="sidebar-link {% if request.resolver_match.url_name == 'account_address' %}active{% endif %}">
+                <a href="{% url 'account_addresses'%}" class="sidebar-link {% if request.resolver_match.url_name == 'account_addresses' %}active{% endif %}">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
                         <circle cx="12" cy="10" r="3"></circle>
@@ -44,7 +44,7 @@
                     <span>Address</span>
                 </a>
 
-                <a href="{% url 'user_orders' %}" class="sidebar-link {% if request.resolver_match.url_name == 'account_orders' %}active{% endif %}">
+                <a href="{% url 'user_orders' %}" class="sidebar-link {% if request.resolver_match.url_name == 'user_orders' %}active{% endif %}">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
                         <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -53,7 +53,7 @@
                     <span>Order</span>
                 </a>
 
-                <a href="{% url  'wallet_page'%}" class="sidebar-link {% if request.resolver_match.url_name == 'account_wallet' %}active{% endif %}">
+                <a href="{% url  'wallet_page'%}" class="sidebar-link {% if request.resolver_match.url_name == 'wallet_page' %}active{% endif %}">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
                         <line x1="1" y1="10" x2="23" y2="10"></line>
@@ -61,7 +61,7 @@
                     <span>Wallet</span>
                 </a>
 
-                <a href="{% url 'user_coupons'%}" class="sidebar-link {% if request.resolver_match.url_name == 'account_coupon' %}active{% endif %}">
+                <a href="{% url 'user_coupons'%}" class="sidebar-link {% if request.resolver_match.url_name == 'user_coupons' %}active{% endif %}">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
                         <line x1="7" y1="7" x2="7.01" y2="7"></line>
@@ -69,7 +69,7 @@
                     <span>Coupon</span>
                 </a>
 
-                <a href="{% url 'change_password'%}" class="sidebar-link {% if request.resolver_match.url_name == 'account_password' %}active{% endif %}">
+                <a href="{% url 'change_password'%}" class="sidebar-link {% if request.resolver_match.url_name == 'change_password' %}active{% endif %}">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                         <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
@@ -279,7 +279,7 @@
 }
 
 .sidebar-link.active {
-    background: #f0f0f0;
+    background: #07dbebd7;
     font-weight: 600;
     padding-left: 35px;
 }
@@ -305,7 +305,7 @@
 
 /* Logout Link - Red Theme */
 .sidebar-link.logout-link {
-    color: #d32f2f;
+    color: #ff0000;
     margin-top: 10px;
 }
 
@@ -318,7 +318,7 @@
 }
 
 .sidebar-link.logout-link svg {
-    stroke: #d32f2f;
+    stroke: #c70a0a;
 }
 
 /* ==========================================
