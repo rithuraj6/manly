@@ -692,6 +692,20 @@ body {
     max-width: 320px;
     flex-shrink: 0;
 }
+.price strike {
+    color: #b60000;
+    margin-right: 6px;
+}
+.offer-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: #c62828;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
 
 </style>
 
@@ -768,11 +782,26 @@ body {
             {% for product in featured_products %}
                 <a href="{% url 'product_detail' product.uuid %}" class="product-card">
                     <div class="image-wrapper">
-                        {% if product.images.first %}
-                            <img src="{{ product.images.first.image.url }}" alt="{{ product.name }}">
-                        {% else %}
-                            <img src="{% static 'images/placeholder.jpg' %}">
-                        {% endif %}
+                         {% if product.images.first %}
+                    <img src="{{ product.images.first.image.url }}">
+                    {% if product.offer_percentage %}
+                        <div class="offer-badge">
+                            {{ product.offer_percentage }}% OFF
+                        </div>
+                    {% endif %}
+
+                {% else %}
+                    <img src="{% static 'images/placeholder.jpg' %}">
+                {% endif %}
+                <h3>{{ product.name }}</h3>
+                <p class="price">
+                    {% if product.offer_percentage %}
+                        <strike>₹{{ product.base_price }}</strike>
+                        ₹{{ product.discounted_price }}
+                    {% else %}
+                        ₹{{ product.base_price }}
+                    {% endif %}
+                </p>
                     </div>
                     <h3 class="product-name">{{ product.name }}</h3>
                     <p class="price">₹{{ product.base_price }}</p>
