@@ -1,7 +1,6 @@
 from django.core.exceptions import ValidationError
 
 from django.contrib.auth import update_session_auth_hash
-from django.contrib.auth.hashers import make_password
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout, get_user_model
@@ -101,35 +100,45 @@ def user_signup(request):
             if password != confirm:
                 raise ValidationError("Passwords does not match")
             
-            if User.objects.filter(email=email).exists():
-                raise ValidationError("Email already registered")
+            existing_user = User.objects.filter(email= email).first()
             
-            
-            request.session["otp_password_hash"]= make_password(password)
+            if existing_user:
+                if not existing_user.is_active:
+                    send_otp(existing_user,purpose="signup")
+                    request.session["otp_user"]= existing_user.id 
+                    
+                else:
+                    raise ValidationError("Email already registered")
+                
+            else:
+                user = User.objects.create_user(
+                    email=email,password=password,is_active=False
+                ) 
+                
+                send_otp(user,purpose ="signup")
+                
+                request.session["otp_user"] =user.id
+                
             request.session["otp_purpose"] ="signup"
             request.session["otp_email"]= email
-            
-            send_otp(email=email,purpose="signup")
-      
+          
             
             return redirect("verify_otp")
         
         
         except ValidationError as e:
-            error =e.messages[0]
-        except ValueError as e:
-            error =str(e)
+            error =e.message
         except Exception:
-            error="Something went wrong.Please try again!"
+            error ="Something went wrong. please try again!"
     return render(request,"pages/signup.html",{"error":error})
             
             
 def verify_otp(request):
     email = request.session.get("otp_email")
+    user_id = request.session.get("otp_user")
     purpose = request.session.get("otp_purpose")
-    password_hash = request.session.get("otp_password_hash")
 
-    if not email or  not purpose:
+    if not email or not purpose:
         return redirect("login")
 
     if request.method == "POST":
@@ -145,23 +154,21 @@ def verify_otp(request):
             return render(request, "pages/verify_otp.html", {
                 "error": "Invalid or expired OTP"
             })
-        if purpose == "signup":
-            User.objects.create(
-                email=email,
-                password=password_hash,
-                is_active=True
-            )
-            otp_obj.delete()
 
+        if purpose == "signup":
+            user = User.objects.get(id=user_id)
+            user.is_active = True
+            user.save(update_fields=["is_active"])
+
+            otp_obj.delete()
             request.session.flush()
+
             messages.success(request, "Account verified. Please login.")
             return redirect("login")
 
-        elif purpose == "reset":
-            otp_obj.delete()
+        if purpose == "reset":
             request.session["reset_verified"] = True
             return redirect("reset_password")
-
 
     return render(request, "pages/verify_otp.html")
 
@@ -171,12 +178,15 @@ def resend_otp(request):
         email = request.session.get("otp_email")
         purpose = request.session.get("otp_purpose")
 
-        if not email or not purpose:
-            return JsonResponse({"success": False})
+        try:
+            user = User.objects.get(email=email)
+            send_otp(user, purpose=purpose)
+        except ValueError as e:
+            return JsonResponse({"success": False, "error": str(e)})
 
-        send_otp(email=email, purpose=purpose)
         return JsonResponse({"success": True})
-
+    
+    
 
 User = get_user_model()
 

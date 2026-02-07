@@ -12,13 +12,8 @@ OTP_MAX_PER_WINDOW = 4
 OTP_WINDOW_MINUTES = 10
 
 
-def send_otp(user=None, purpose=None, email_override=None):
-    if email_override:
-        email = email_override
-    elif user:
-        email = user.email
-    else:
-        raise ValueError("Email or user is required")
+def send_otp(user, purpose, email_override=None):
+    email = email_override if email_override else user.email
     now = timezone.now()
 
     
@@ -61,6 +56,5 @@ def send_otp(user=None, purpose=None, email_override=None):
         subject="Your OTP Verification",
         message=f"Your OTP is {otp}. It is valid for 5 minutes.",
         from_email=settings.DEFAULT_FROM_EMAIL,
-
         recipient_list=[email],
     )
