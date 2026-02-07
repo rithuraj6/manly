@@ -117,8 +117,10 @@ def user_signup(request):
         
         except ValidationError as e:
             error =e.messages[0]
+        except ValueError as e:
+            error =str(e)
         except Exception:
-            error ="Something went wrong. please try again!"
+            error="Something went wrong.Please try again!"
     return render(request,"pages/signup.html",{"error":error})
             
             

@@ -12,8 +12,13 @@ OTP_MAX_PER_WINDOW = 4
 OTP_WINDOW_MINUTES = 10
 
 
-def send_otp(user, purpose, email_override=None):
-    email = email_override if email_override else user.email
+def send_otp(user=None, purpose=None, email_override=None):
+    if email_override:
+        email = email_override
+    elif user:
+        email = user.email
+    else:
+        raise ValueError("Email or user is required")
     now = timezone.now()
 
     
