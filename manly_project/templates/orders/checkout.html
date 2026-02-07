@@ -883,20 +883,97 @@
     }
 }
 </style>
-{% if temp_address_form %}
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    const tempRadio = document.querySelector(
-        'input[name="address_id"][value="temporary"]'
-    );
-    if (tempRadio) {
-        tempRadio.checked = true;
-        tempRadio.dispatchEvent(new Event("change"));
+document.addEventListener('DOMContentLoaded', function () {
+
+    const addressCards = document.querySelectorAll('.address-card');
+    const radios = document.querySelectorAll('input[name="address_id"]');
+    const tempForm = document.getElementById('temp-address-form');
+    if (!tempForm) return;
+
+    const tempInputs = tempForm.querySelectorAll('input');
+
+    function disableTempInputs() {
+        tempInputs.forEach(input => {
+            input.disabled = true;
+            input.required = false;
+        });
     }
+
+    function enableTempInputs() {
+        tempInputs.forEach(input => {
+            input.disabled = false;
+            if (input.name !== "land_mark") {
+                input.required = true;
+            }
+        });
+    }
+
+    // ===== Default state on page load =====
+    const checkedRadio = document.querySelector('input[name="address_id"]:checked');
+
+    if (checkedRadio && checkedRadio.value === 'temporary') {
+        tempForm.style.display = 'block';
+        enableTempInputs();
+    } else {
+        tempForm.style.display = 'none';
+        disableTempInputs();
+    }
+
+    // ===== Card selection =====
+    addressCards.forEach(card => {
+        const radio = card.querySelector('.address-radio');
+
+        card.addEventListener('click', function (e) {
+            if (e.target.tagName === "INPUT") return;
+
+            addressCards.forEach(c => c.classList.remove('selected'));
+            this.classList.add('selected');
+            radio.checked = true;
+            radio.dispatchEvent(new Event('change'));
+        });
+    });
+
+    // ===== Radio change =====
+    radios.forEach(radio => {
+        radio.addEventListener('change', () => {
+            if (radio.value === 'temporary') {
+                tempForm.style.display = 'block';
+                enableTempInputs();
+            } else {
+                tempForm.style.display = 'none';
+                disableTempInputs();
+            }
+        });
+    });
+
+    // ===== Input validation (frontend) =====
+    function allowOnlyLetters(input) {
+        input.addEventListener("input", function () {
+            this.value = this.value.replace(/[^a-zA-Z\s]/g, "");
+        });
+    }
+
+    function allowOnlyNumbers(input) {
+        input.addEventListener("input", function () {
+            this.value = this.value.replace(/[^0-9]/g, "");
+        });
+    }
+
+    ["full_name", "city", "state", "country"].forEach(name => {
+        const field = tempForm.querySelector(`input[name="${name}"]`);
+        if (field) allowOnlyLetters(field);
+    });
+
+    ["phone", "pincode"].forEach(name => {
+        const field = tempForm.querySelector(`input[name="${name}"]`);
+        if (field) allowOnlyNumbers(field);
+    });
+
 });
 </script>
-{% endif %}
-<script>
+
+{% comment %} <script>
 document.addEventListener('DOMContentLoaded', function () {
     const addressCards = document.querySelectorAll('.address-card');
     const radios = document.querySelectorAll('input[name="address_id"]');
@@ -952,6 +1029,6 @@ function copyCoupon(code) {
     input.value = code;
     input.focus();
 }
-</script>
+</script> {% endcomment %}
 
 {% endblock %}
