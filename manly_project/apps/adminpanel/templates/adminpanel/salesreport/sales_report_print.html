@@ -496,7 +496,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for order in orders %}
+                {% comment %} {% for order in orders %}
                 <tr>
                     <td>{{ order.order__order_id }}</td>
                     <td>{{ order.order__created_at|date:"d M Y" }}</td>
@@ -506,7 +506,7 @@
                     <td>{{ order.order__shipping_charge|inr }}</td>
                     <td>{{ order.net_revenue|inr }}</td>
                 </tr>
-                {% endfor %}
+                {% endfor %} {% endcomment %}
             </tbody>
         </table>
     </div>
