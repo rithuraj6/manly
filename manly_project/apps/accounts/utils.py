@@ -60,6 +60,7 @@ def send_otp(user=None, purpose=None, email_override=None):
     send_mail(
         subject="Your OTP Verification",
         message=f"Your OTP is {otp}. It is valid for 5 minutes.",
-        from_email=settings.DEFAULT_FORM_EMAIL,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+
         recipient_list=[email],
     )
