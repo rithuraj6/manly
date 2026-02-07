@@ -121,7 +121,7 @@ def user_signup(request):
                 
             request.session["otp_purpose"] ="signup"
             request.session["otp_email"]= email
-            request.session["password"]= password
+            request.session["otp_password"]= password
             
             return redirect("verify_otp")
         
@@ -136,6 +136,7 @@ def user_signup(request):
 def verify_otp(request):
     email = request.session.get("otp_email")
     purpose = request.session.get("otp_purpose")
+    password = request.session.get("otp_password")
 
     if not email or not purpose:
         return redirect("login")
