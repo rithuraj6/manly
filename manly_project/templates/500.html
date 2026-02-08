@@ -1,283 +1,294 @@
-{% extends "base.html" %}
-{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>500 - Server Error | MANLY</title>
+    <meta name="description" content="We're experiencing technical difficulties. Please try again in a moment.">
+    
+    <style>
+        /* Reset & Base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-{% block title %}500 - Server Error | MANLY{% endblock %}
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
 
-{% block content %}
-<div class="error-page">
-    <div class="error-wrapper">
-        <div class="error-box">
-            <!-- Error Code with Animation -->
-            <div class="error-number">
-                <h1>500</h1>
-            </div>
+        /* Error Page Layout */
+        .error-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            background: #FAFAFA;
+        }
 
-            <!-- Error Details -->
-            <div class="error-details">
-                <h2>Something Went Wrong</h2>
-                <p>We're experiencing technical difficulties.<br>
-                   Please try again in a moment.</p>
-            </div>
+        .error-wrapper {
+            width: 100%;
+            max-width: 600px;
+        }
 
-            <!-- Action Buttons -->
-            <div class="error-actions">
-                <a href="javascript:history.back()" class="btn btn-outline">
-                    <span>← Go Back</span>
-                </a>
-                <a href="/" class="btn btn-primary">
-                    <span>Return Home</span>
-                </a>
-            </div>
+        .error-box {
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 60px 40px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+            animation: slideUp 0.5s ease-out;
+        }
 
-            <!-- Support Link -->
-            <div class="error-footer">
-                <p>If this problem persists, <a href="/contact/">contact support</a></p>
+        /* Error Number */
+        .error-number {
+            margin-bottom: 30px;
+        }
+
+        .error-number h1 {
+            font-size: 120px;
+            font-weight: 900;
+            color: #2E3440;
+            line-height: 1;
+            letter-spacing: -4px;
+            background: linear-gradient(135deg, #2E3440 0%, #5E81AC 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        /* Error Details */
+        .error-details {
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid #E5E7EB;
+        }
+
+        .error-details h2 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .error-details p {
+            font-size: 16px;
+            color: #6B7280;
+            line-height: 1.6;
+        }
+
+        /* Action Buttons */
+        .error-actions {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 32px;
+            font-size: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            border: 2px solid transparent;
+            min-width: 160px;
+        }
+
+        .btn span {
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #2E3440;
+            color: #FFFFFF;
+            box-shadow: 0 4px 14px rgba(46, 52, 64, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: #3B4252;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(46, 52, 64, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #2E3440;
+            border-color: #D1D5DB;
+        }
+
+        .btn-outline:hover {
+            background: #F9FAFB;
+            border-color: #9CA3AF;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+        }
+
+        .btn-outline:active {
+            transform: translateY(-1px);
+        }
+
+        /* Error Footer */
+        .error-footer {
+            margin-top: 20px;
+        }
+
+        .error-footer p {
+            font-size: 14px;
+            color: #9CA3AF;
+        }
+
+        .error-footer a {
+            color: #2E3440;
+            font-weight: 600;
+            text-decoration: none;
+            border-bottom: 2px solid transparent;
+            transition: border-color 0.3s ease;
+        }
+
+        .error-footer a:hover {
+            border-bottom-color: #2E3440;
+        }
+
+        /* Animations */
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.8;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .error-page {
+                min-height: 100vh;
+                padding: 40px 15px;
+            }
+
+            .error-box {
+                padding: 40px 30px;
+                border-radius: 12px;
+            }
+
+            .error-number h1 {
+                font-size: 90px;
+                letter-spacing: -3px;
+            }
+
+            .error-details h2 {
+                font-size: 24px;
+            }
+
+            .error-details p {
+                font-size: 15px;
+            }
+
+            .error-actions {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .btn {
+                width: 100%;
+                min-width: auto;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .error-box {
+                padding: 35px 25px;
+            }
+
+            .error-number h1 {
+                font-size: 70px;
+            }
+
+            .error-details h2 {
+                font-size: 20px;
+            }
+
+            .error-details p {
+                font-size: 14px;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .error-page {
+                background: #FFFFFF;
+            }
+
+            .error-box {
+                box-shadow: none;
+            }
+
+            .error-actions {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="error-page">
+        <div class="error-wrapper">
+            <div class="error-box">
+                <!-- Error Code with Animation -->
+                <div class="error-number">
+                    <h1>500</h1>
+                </div>
+
+                <!-- Error Details -->
+                <div class="error-details">
+                    <h2>Something Went Wrong</h2>
+                    <p>We're experiencing technical difficulties.<br>
+                       Please try again in a moment.</p>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="error-actions">
+                    <a href="javascript:history.back()" class="btn btn-outline">
+                        <span>← Go Back</span>
+                    </a>
+                    <a href="/" class="btn btn-primary">
+                        <span>Return Home</span>
+                    </a>
+                </div>
+
+                <!-- Support Link -->
+                <div class="error-footer">
+                    <p>If this problem persists, <a href="/contact/">contact support</a></p>
+                </div>
             </div>
         </div>
     </div>
-</div>
-
-<style>
-/* Reset & Base */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-/* Error Page Layout */
-.error-page {
-    min-height: 85vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 60px 20px;
-    background: #FAFAFA;
-}
-
-.error-wrapper {
-    width: 100%;
-    max-width: 600px;
-}
-
-.error-box {
-    background: #FFFFFF;
-    border-radius: 16px;
-    padding: 60px 40px;
-    text-align: center;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-    animation: slideUp 0.5s ease-out;
-}
-
-/* Error Number */
-.error-number {
-    margin-bottom: 30px;
-}
-
-.error-number h1 {
-    font-size: 120px;
-    font-weight: 900;
-    color: #2E3440;
-    line-height: 1;
-    letter-spacing: -4px;
-    background: linear-gradient(135deg, #2E3440 0%, #5E81AC 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    animation: pulse 2s ease-in-out infinite;
-}
-
-/* Error Details */
-.error-details {
-    margin-bottom: 40px;
-    padding-bottom: 30px;
-    border-bottom: 1px solid #E5E7EB;
-}
-
-.error-details h2 {
-    font-size: 28px;
-    font-weight: 700;
-    color: #111827;
-    margin-bottom: 12px;
-    letter-spacing: -0.5px;
-}
-
-.error-details p {
-    font-size: 16px;
-    color: #6B7280;
-    line-height: 1.6;
-}
-
-/* Action Buttons */
-.error-actions {
-    display: flex;
-    gap: 14px;
-    justify-content: center;
-    margin-bottom: 30px;
-}
-
-.btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 14px 32px;
-    font-size: 15px;
-    font-weight: 600;
-    text-decoration: none;
-    border-radius: 10px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    cursor: pointer;
-    border: 2px solid transparent;
-    min-width: 160px;
-}
-
-.btn span {
-    display: inline-block;
-}
-
-.btn-primary {
-    background: #2E3440;
-    color: #FFFFFF;
-    box-shadow: 0 4px 14px rgba(46, 52, 64, 0.2);
-}
-
-.btn-primary:hover {
-    background: #3B4252;
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(46, 52, 64, 0.3);
-}
-
-.btn-primary:active {
-    transform: translateY(-1px);
-}
-
-.btn-outline {
-    background: transparent;
-    color: #2E3440;
-    border-color: #D1D5DB;
-}
-
-.btn-outline:hover {
-    background: #F9FAFB;
-    border-color: #9CA3AF;
-    transform: translateY(-3px);
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-}
-
-.btn-outline:active {
-    transform: translateY(-1px);
-}
-
-/* Error Footer */
-.error-footer {
-    margin-top: 20px;
-}
-
-.error-footer p {
-    font-size: 14px;
-    color: #9CA3AF;
-}
-
-.error-footer a {
-    color: #2E3440;
-    font-weight: 600;
-    text-decoration: none;
-    border-bottom: 2px solid transparent;
-    transition: border-color 0.3s ease;
-}
-
-.error-footer a:hover {
-    border-bottom-color: #2E3440;
-}
-
-/* Animations */
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(40px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes pulse {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.8;
-    }
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .error-page {
-        min-height: 75vh;
-        padding: 40px 15px;
-    }
-
-    .error-box {
-        padding: 40px 30px;
-        border-radius: 12px;
-    }
-
-    .error-number h1 {
-        font-size: 90px;
-        letter-spacing: -3px;
-    }
-
-    .error-details h2 {
-        font-size: 24px;
-    }
-
-    .error-details p {
-        font-size: 15px;
-    }
-
-    .error-actions {
-        flex-direction: column;
-        gap: 12px;
-    }
-
-    .btn {
-        width: 100%;
-        min-width: auto;
-    }
-}
-
-@media (max-width: 480px) {
-    .error-box {
-        padding: 35px 25px;
-    }
-
-    .error-number h1 {
-        font-size: 70px;
-    }
-
-    .error-details h2 {
-        font-size: 20px;
-    }
-
-    .error-details p {
-        font-size: 14px;
-    }
-}
-
-/* Print Styles */
-@media print {
-    .error-page {
-        background: #FFFFFF;
-    }
-
-    .error-box {
-        box-shadow: none;
-    }
-
-    .error-actions {
-        display: none;
-    }
-}
-</style>
-{% endblock %}
+</body>
+</html>
