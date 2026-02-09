@@ -415,7 +415,8 @@ buyBtn?.addEventListener("click", function () {
             if (typeof window.updateNavbarCartCount === "function") {
                 window.updateNavbarCartCount(data.cart_count);
             }
-            window.location.href = "/orders/checkout/";
+            window.location.href = "/cart/";
+    
         } else {
             alert(data.message || "Unable to proceed");
             buyNowLocked = false;
