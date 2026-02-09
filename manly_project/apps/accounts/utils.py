@@ -6,6 +6,22 @@ from django.contrib import messages
 from apps.accounts.models import EmailOTP
 from django.utils.crypto import get_random_string
 from apps.accounts.models import SecurityAuditLog
+from allauth.socialaccount.models import SocialAccount
+
+
+
+def can_user_change_password(user):
+    
+    if not user.is_authenticated:
+        return False
+
+
+    if SocialAccount.objects.filter(user=user, provider="google").exists() and not user.has_usable_password():
+        return False
+
+    return True
+
+
 
 OTP_COOLDOWN_SECONDS = 60
 OTP_MAX_PER_WINDOW = 4
@@ -58,3 +74,13 @@ def send_otp(user, purpose, email_override=None):
         from_email=settings.DEFAULT_FROM_EMAIL,
         recipient_list=[email],
     )
+
+
+def can_user_change_password(user):
+    
+    if not user.is_authenticated:
+        return False
+    if SocialAccount.objects.filter(user=user,provider="google").exists():
+        return False
+    
+    return True

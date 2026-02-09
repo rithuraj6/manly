@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 
 from django.contrib.auth import update_session_auth_hash
-
+from apps.accounts.utils import can_user_change_password
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from apps.accounts.decorators import user_required
@@ -746,6 +746,13 @@ def change_password(request):
     if request.user.is_superuser  or not request.user.is_authenticated:
         return redirect("login")
     
+    can_change_password = can_user_change_password(request.user)
+    
+    if request.method == "POST" and not can_change_password:
+        messages.error(request,"password change is not available for Googel-auhtenticated users!."
+                       )
+        return redirect("change_password")
+    
     
     if request.method == "POST":
         old_password = request.POST.get("old_password")
@@ -793,7 +800,7 @@ def change_password(request):
         {"label": "Change Password", "url": None},
     ]
 
-    return render(request,"account/password_change.html",{"breadcrumbs": breadcrumbs})
+    return render(request,"account/password_change.html",{"breadcrumbs": breadcrumbs,"can_change_password":can_change_password,},)
 
 @user_required
 def toggle_user_size_filter(request):
