@@ -971,64 +971,23 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 });
-</script>
 
-{% comment %} <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const addressCards = document.querySelectorAll('.address-card');
-    const radios = document.querySelectorAll('input[name="address_id"]');
-    const tempForm = document.getElementById('temp-address-form');
-    const tempInputs = tempForm.querySelectorAll('input');
-
-    function disableTempInputs() {
-        tempInputs.forEach(input => {
-            input.disabled = true;
-            input.required = false;
-        });
-    }
-
-    function enableTempInputs() {
-        tempInputs.forEach(input => {
-            input.disabled = false;
-            if (input.name !== "land_mark") {
-                input.required = true;
-            }
-        });
-    }
-
-    // Default state
-    disableTempInputs();
-
-    addressCards.forEach(card => {
-        const radio = card.querySelector('.address-radio');
-
-        card.addEventListener('click', function () {
-            addressCards.forEach(c => c.classList.remove('selected'));
-            this.classList.add('selected');
-            radio.checked = true;
-            radio.dispatchEvent(new Event('change'));
-        });
-    });
-
-    radios.forEach(radio => {
-        radio.addEventListener('change', () => {
-            if (radio.value === 'temporary') {
-                tempForm.style.display = 'block';
-                enableTempInputs();
-            } else {
-                tempForm.style.display = 'none';
-                disableTempInputs();
-            }
-        });
-    });
-});
 
 function copyCoupon(code) {
     const input = document.querySelector('.coupon-input');
-    if (!input) return;
+    if (!input) {
+        alert("Coupon input not found");
+        return;
+    }
+
     input.value = code;
     input.focus();
+
+    // Optional UX feedback
+    input.classList.add("copied");
+    setTimeout(() => input.classList.remove("copied"), 800);
 }
-</script> {% endcomment %}
+</script>
+
 
 {% endblock %}
