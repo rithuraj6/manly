@@ -28,7 +28,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
     "rithuraj.in",
@@ -265,6 +265,19 @@ SITE_ID = 2
 LOGIN_REDIRECT_URL = "/accounts/profile/"
 LOGIN_URL = "/accounts/login/"
 LOGOUT_REDIRECT_URL = "/"
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
