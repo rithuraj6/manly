@@ -60,7 +60,7 @@ def payment_page(request):
         "tax": preview["tax"],
         "total": preview["total_amount"],
         "wallet_balance": wallet_balance,
-        "cod_allowed": preview["total_amount"] <= Decimal("5000"),
+        "cod_allowed": preview["total_amount"] <= Decimal("2500"),
     }
 
     return render(request, "orders/payment.html", context)
